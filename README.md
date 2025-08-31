@@ -24,6 +24,11 @@ php artisan vendor:publish --tag="filament-employee-management-migrations"
 php artisan migrate
 ```
 
+or 
+```bash
+php artisan migrate --path=packages/filament-employee-management/database/migrations
+```
+
 You can publish the config file with:
 
 ```bash

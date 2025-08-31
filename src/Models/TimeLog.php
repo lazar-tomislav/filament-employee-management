@@ -12,7 +12,6 @@ class TimeLog extends Model
 
     protected $fillable = [
         'employee_id',
-        'project_id',
         'date',
         'hours',
         'description',
@@ -30,12 +29,4 @@ class TimeLog extends Model
         return $this->belongsTo(Employee::class);
     }
 
-    // Assuming a Project model exists in the main app
-    // If not, this can be adjusted or made polymorphic
-    public function project()
-    {
-        // This assumes a Project model exists in App\Models
-        // This might need to be configurable in the package config
-        return $this->belongsTo(\App\Models\Project::class);
-    }
 }

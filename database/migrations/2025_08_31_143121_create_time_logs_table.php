@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('time_logs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id')->constrained()->onDelete('cascade');
-            $table->unsignedBigInteger('project_id')->nullable();
+
             $table->date('date');
             $table->decimal('hours', 8, 2);
             $table->text('description')->nullable();
