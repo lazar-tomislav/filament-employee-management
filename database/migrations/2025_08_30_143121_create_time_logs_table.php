@@ -12,7 +12,6 @@ return new class extends Migration
 
         Schema::create('time_logs', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->foreignId('employee_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('project_id')->nullable();
             $table->date('date');
@@ -20,6 +19,9 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->enum('status', ['planned', 'confirmed'])->default('confirmed');
             $table->enum('log_type', ['radni_sati', 'bolovanje', 'godisnji', 'placeni_slobodan_dan']);
+
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

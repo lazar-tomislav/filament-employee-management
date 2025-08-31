@@ -4,7 +4,6 @@ namespace Amicus\FilamentEmployeeManagement;
 
 use Amicus\FilamentEmployeeManagement\Commands\FilamentEmployeeManagementCommand;
 use Amicus\FilamentEmployeeManagement\Testing\TestsFilamentEmployeeManagement;
-use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;

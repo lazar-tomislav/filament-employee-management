@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('leave_requests', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->foreignId('employee_id')->constrained()->onDelete('cascade');
             $table->enum('type', ['godisnji', 'bolovanje', 'placeni_slobodan_dan']);
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
@@ -20,6 +19,10 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->text('rejection_reason')->nullable();
             $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
+
+
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('leave_allowances', function (Blueprint $table) {
             $table->id();
-            $table->timestamps();
             $table->foreignId('employee_id')->constrained()->onDelete('cascade');
             $table->integer('year');
             $table->integer('total_days');
@@ -18,6 +17,10 @@ return new class extends Migration
             $table->string('notes')->nullable();
 
             $table->unique(['employee_id', 'year']);
+
+            $table->timestamps();
+            $table->softDeletes();
+
         });
     }
 
