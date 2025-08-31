@@ -100,8 +100,8 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
     {
         return [
             // AlpineComponent::make('filament-employee-management', __DIR__ . '/../resources/dist/components/filament-employee-management.js'),
-            Css::make('filament-employee-management-styles', __DIR__ . '/../resources/dist/filament-employee-management.css'),
-            Js::make('filament-employee-management-scripts', __DIR__ . '/../resources/dist/filament-employee-management.js'),
+            #Css::make('filament-employee-management-styles', __DIR__ . '/../resources/dist/filament-employee-management.css'),
+            #Js::make('filament-employee-management-scripts', __DIR__ . '/../resources/dist/filament-employee-management.js'),
         ];
     }
 
