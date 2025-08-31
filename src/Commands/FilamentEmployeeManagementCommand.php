@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace Amicus\FilamentEmployeeManagement\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class FilamentEmployeeManagementCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'filament-employee-management';
 
     public $description = 'My command';
 
