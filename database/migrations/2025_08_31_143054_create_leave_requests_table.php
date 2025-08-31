@@ -20,7 +20,6 @@ return new class extends Migration
             $table->text('rejection_reason')->nullable();
             $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
 
-
             $table->timestamps();
             $table->softDeletes();
         });
