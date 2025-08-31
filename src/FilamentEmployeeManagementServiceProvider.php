@@ -2,6 +2,8 @@
 
 namespace Amicus\FilamentEmployeeManagement;
 
+use Amicus\FilamentEmployeeManagement\Commands\FilamentEmployeeManagementCommand;
+use Amicus\FilamentEmployeeManagement\Testing\TestsFilamentEmployeeManagement;
 use Filament\Support\Assets\AlpineComponent;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
@@ -13,8 +15,6 @@ use Livewire\Features\SupportTesting\Testable;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Amicus\FilamentEmployeeManagement\Commands\FilamentEmployeeManagementCommand;
-use Amicus\FilamentEmployeeManagement\Testing\TestsFilamentEmployeeManagement;
 
 class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
 {
