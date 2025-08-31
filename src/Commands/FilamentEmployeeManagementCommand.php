@@ -8,7 +8,7 @@ class FilamentEmployeeManagementCommand extends Command
 {
     public $signature = 'filament-employee-management';
 
-    public $description = 'My command';
+    public $description = 'Filament Employee Management Command';
 
     public function handle(): int
     {
