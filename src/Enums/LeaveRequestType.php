@@ -1,6 +1,6 @@
 <?php
 
-namespace Packages\FilamentEmployeeManagement\Enums;
+namespace Amicus\FilamentEmployeeManagement\Enums;
 
 use Filament\Support\Contracts\HasLabel;
 

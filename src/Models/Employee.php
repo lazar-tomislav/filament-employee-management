@@ -23,8 +23,22 @@ class Employee extends Model
         'is_active' => 'boolean',
     ];
 
+    public function leaveAllowances()
+    {
+        return $this->hasMany(LeaveAllowance::class);
+    }
+
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class);
+    }
+
+    public static function options()
+    {
+        // pluck all to array (first_name, last name (email) as value) and id as key
+        return self::all()->pluck(function ($employee) {
+            return "{$employee->first_name} {$employee->last_name} ({$employee->email})";
+        }, 'id');
+
     }
 }
