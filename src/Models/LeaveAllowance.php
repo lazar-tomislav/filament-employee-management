@@ -2,10 +2,13 @@
 
 namespace Amicus\FilamentEmployeeManagement\Models;
 
+use Amicus\FilamentEmployeeManagement\Observers\LeaveAllowanceObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+#[ObservedBy([\Amicus\FilamentEmployeeManagement\Observers\LeaveAllowanceObserver::class])]
 class LeaveAllowance extends Model
 {
     use HasFactory;
