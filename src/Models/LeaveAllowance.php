@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LeaveAllowance extends Model
 {
-    use HasFactory, SoftDeletes ;
+    use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'employee_id',
