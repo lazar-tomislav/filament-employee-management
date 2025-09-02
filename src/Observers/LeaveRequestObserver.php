@@ -29,7 +29,7 @@ class LeaveRequestObserver
         if ($leaveRequest->isDirty('status')) {
             $employeeEmail = $leaveRequest->employee->email;
 
-            if (!$employeeEmail) {
+            if (! $employeeEmail) {
                 return;
             }
 

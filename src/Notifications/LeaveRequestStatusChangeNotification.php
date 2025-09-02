@@ -14,8 +14,7 @@ class LeaveRequestStatusChangeNotification extends Notification implements Shoul
 
     public function __construct(
         public LeaveRequest $leaveRequest
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {

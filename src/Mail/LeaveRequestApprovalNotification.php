@@ -11,15 +11,15 @@ use Illuminate\Queue\SerializesModels;
 
 class LeaveRequestApprovalNotification extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new message instance.
      */
     public function __construct(
         public LeaveRequest $leaveRequest
-    ) {
-    }
+    ) {}
 
     /**
      * Get the message envelope.
