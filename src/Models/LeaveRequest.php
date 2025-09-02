@@ -49,7 +49,7 @@ class LeaveRequest extends Model
         return $this->belongsTo(LeaveAllowance::class);
     }
 
-    protected function absence():Attribute
+    protected function absence(): Attribute
     {
         return Attribute::make(
             get: fn () => $this->start_date->format('d.m.Y') . ' - ' . $this->end_date->format('d.m.Y'),

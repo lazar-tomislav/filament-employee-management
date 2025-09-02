@@ -13,8 +13,7 @@ class UserCredentialNotification extends Notification implements ShouldQueue
 
     public function __construct(
         public string $password
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {
