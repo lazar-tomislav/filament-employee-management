@@ -27,7 +27,7 @@ class LeaveRequestApprovalNotification extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Novi zahtjev za godišnjim odmorom',
+            subject: 'Novi zahtjev za dopust',
         );
     }
 

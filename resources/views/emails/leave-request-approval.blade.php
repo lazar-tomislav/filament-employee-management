@@ -1,7 +1,7 @@
 @component('mail::message')
-# Novi zahtjev za godišnjim odmorom
+# Novi zahtjev za dopustom
 
-Podnesen je novi zahtjev za godišnjim odmorom koji čeka vaše odobrenje.
+Podnesen je novi zahtjev za dopust koji čeka vaše odobrenje.
 
 @component('mail::button', ['url' => \App\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource::getUrl('edit', ['record' => $leaveRequest->id])])
 Pregledaj zahtjev
