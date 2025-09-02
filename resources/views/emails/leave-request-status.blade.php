@@ -11,6 +11,8 @@
 @elseif($leaveRequest->status === 'rejected')
 ## Vaš zahtjev za godišnji odmor je odbijen.
 
+**Period:** {{ $leaveRequest->start_date->format('d.m.Y') }} - {{ $leaveRequest->end_date->format('d.m.Y') }}
+
 **Razlog odbijanja:**
 {{ $leaveRequest->rejection_reason ?? 'Nije naveden razlog.' }}
 @endif
