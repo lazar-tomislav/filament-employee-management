@@ -3,6 +3,10 @@
 namespace Amicus\FilamentEmployeeManagement;
 
 use Amicus\FilamentEmployeeManagement\Commands\FilamentEmployeeManagementCommand;
+use Amicus\FilamentEmployeeManagement\Models\LeaveAllowance;
+use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Amicus\FilamentEmployeeManagement\Observers\LeaveAllowanceObserver;
+use Amicus\FilamentEmployeeManagement\Observers\LeaveRequestObserver;
 use Amicus\FilamentEmployeeManagement\Testing\TestsFilamentEmployeeManagement;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
