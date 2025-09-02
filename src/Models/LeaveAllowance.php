@@ -2,7 +2,6 @@
 
 namespace Amicus\FilamentEmployeeManagement\Models;
 
-use Amicus\FilamentEmployeeManagement\Observers\LeaveAllowanceObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -44,7 +43,7 @@ class LeaveAllowance extends Model
     {
         // calculate in leave_requests where status is approved
         return Attribute::make(
-            get: fn() => $this->leaveRequests()
+            get: fn () => $this->leaveRequests()
                 ->where('status', 'approved')
                 ->whereYear('start_date', $this->year)
                 ->sum('days_count'),
@@ -52,10 +51,10 @@ class LeaveAllowance extends Model
 
     }
 
-    protected function availableDays():Attribute
+    protected function availableDays(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->total_days - $this->used_days,
+            get: fn () => $this->total_days - $this->used_days,
         );
 
     }
