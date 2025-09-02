@@ -28,8 +28,6 @@ class LeaveAllowanceObserver
     /**
      * Check for duplicate LeaveAllowance for the same employee and year.
      *
-     * @param LeaveAllowance $leaveAllowance
-     * @return void
      * @throws ValidationException
      */
     protected function checkForDuplicate(LeaveAllowance $leaveAllowance): void
