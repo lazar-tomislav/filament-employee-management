@@ -15,7 +15,7 @@
 {{ $leaveRequest->rejection_reason ?? 'Nije naveden razlog.' }}
 @endif
 
-@component('mail::button', ['url' => \Amicus\FilamentEmployeeManagement\Filament\Resources\LeaveRequestResource::getUrl('view', ['record' => $leaveRequest->id])])
+@component('mail::button', ['url' => \App\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource::getUrl('view', ['record' => $leaveRequest->id])])
 Pogledaj zahtjev
 @endcomponent
 
