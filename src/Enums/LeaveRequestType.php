@@ -6,7 +6,7 @@ use Filament\Support\Contracts\HasLabel;
 
 enum LeaveRequestType: string implements HasLabel
 {
-    case ANNUAL_LEAVE = 'godisnji';
+    case ANNUAL_LEAVE = 'Godisnji';
     case SICK_LEAVE = 'bolovanje';
     case PAID_LEAVE = 'placeni_slobodan_dan';
 

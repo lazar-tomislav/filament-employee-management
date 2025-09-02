@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Models;
 
 use Amicus\FilamentEmployeeManagement\Observers\LeaveRequestObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -46,5 +47,12 @@ class LeaveRequest extends Model
     public function leaveAllowance()
     {
         return $this->belongsTo(LeaveAllowance::class);
+    }
+
+    protected function absence():Attribute
+    {
+        return Attribute::make(
+            get: fn () => $this->start_date->format('d.m.Y') . ' - ' . $this->end_date->format('d.m.Y'),
+        );
     }
 }
