@@ -19,6 +19,12 @@ class Employee extends Model
         'first_name',
         'last_name',
         'email',
+        'phone_number',
+        'address',
+        'city',
+        'oib',
+        'mobile_tariff',
+        'note',
         'is_active',
     ];
 
