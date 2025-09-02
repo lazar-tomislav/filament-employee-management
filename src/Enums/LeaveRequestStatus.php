@@ -10,6 +10,7 @@ enum LeaveRequestStatus: string implements HasColor, HasLabel
     case PENDING = 'pending';
     case APPROVED = 'approved';
     case REJECTED = 'rejected';
+    case CANCELED = 'canceled';
 
     public function getLabel(): ?string
     {
@@ -17,6 +18,7 @@ enum LeaveRequestStatus: string implements HasColor, HasLabel
             self::PENDING => 'Na čekanju',
             self::APPROVED => 'Odobreno',
             self::REJECTED => 'Odbijeno',
+            self::CANCELED => 'Otkazano',
         };
     }
 
@@ -26,6 +28,7 @@ enum LeaveRequestStatus: string implements HasColor, HasLabel
             self::PENDING => 'warning',
             self::APPROVED => 'success',
             self::REJECTED => 'danger',
+            self::CANCELED => 'secondary',
         };
     }
 }

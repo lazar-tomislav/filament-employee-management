@@ -5,6 +5,7 @@ namespace Amicus\FilamentEmployeeManagement\Mail;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -33,6 +34,9 @@ class LeaveRequestStatusNotification extends Mailable
         };
 
         return new Envelope(
+            to: [
+                new Address($this->leaveRequest->employee->email, $this->leaveRequest->employee->first_name.' '.$this->leaveRequest->employee->last_name),
+            ],
             subject: $subject,
         );
     }

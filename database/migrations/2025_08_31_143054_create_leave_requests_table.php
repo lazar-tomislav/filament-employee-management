@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('leave_allowance_id')->nullable()->constrained()->on('leave_allowances')->onDelete('cascade');
 
             $table->enum('type', ['godisnji', 'bolovanje', 'placeni_slobodan_dan']);
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'rejected','canceled'])->default('pending');
             $table->date('start_date');
             $table->date('end_date');
             $table->integer('days_count');
