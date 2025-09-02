@@ -13,6 +13,7 @@ class LeaveRequest extends Model
 
     protected $fillable = [
         'employee_id',
+        'leave_allowance_id',
         'type',
         'status',
         'start_date',
@@ -37,5 +38,10 @@ class LeaveRequest extends Model
     public function approver()
     {
         return $this->belongsTo(\App\Models\User::class, 'approved_by');
+    }
+
+    public function leaveAllowance()
+    {
+        return $this->belongsTo(LeaveAllowance::class);
     }
 }

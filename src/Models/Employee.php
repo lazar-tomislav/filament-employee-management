@@ -2,6 +2,8 @@
 
 namespace Amicus\FilamentEmployeeManagement\Models;
 
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -24,13 +26,16 @@ class Employee extends Model
         'is_active' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::addGlobalScope('active', function (Builder $builder) {
+            $builder->where('is_active', true);
+        });
+    }
+
     public function leaveAllowances()
     {
         return $this->hasMany(LeaveAllowance::class);
-    }
-    public function leaveAllowancesForCurrentYear():?LeaveAllowance
-    {
-        return $this->leaveAllowances()->where('year', now()->year)->first();
     }
 
     public function user()

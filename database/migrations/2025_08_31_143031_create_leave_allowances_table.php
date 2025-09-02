@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('employee_id')->constrained()->onDelete('cascade');
             $table->integer('year');
             $table->integer('total_days');
-            $table->integer('carried_over_days')->default(0);
+            $table->date("valid_until_date")->index(); // most often 31.06 of the next year
             $table->string('notes')->nullable();
 
             $table->unique(['employee_id', 'year']);

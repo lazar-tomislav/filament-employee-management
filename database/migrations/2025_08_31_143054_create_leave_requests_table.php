@@ -11,6 +11,8 @@ return new class extends Migration
         Schema::create('leave_requests', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id')->constrained()->onDelete('cascade');
+            $table->foreignId('leave_allowance_id')->nullable()->constrained()->on("leave_allowances")->onDelete('cascade');
+
             $table->enum('type', ['godisnji', 'bolovanje', 'placeni_slobodan_dan']);
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->date('start_date');
