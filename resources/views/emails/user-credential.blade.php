@@ -1,8 +1,11 @@
 <x-mail::message>
 # Dobrodošli
 
-Kreiran vam je korisnički račun na {{ config('app.name') }}. Molimo vas da se prijavite koristeći sljedeće podatke:
-
+Kreiran vam je korisnički račun na {{ config('app.name') }}.
+<br>
+<br>
+Molimo vas da se prijavite koristeći sljedeće podatke:
+<br>
 **Email:** {{ $email }}
 **Lozinka:** {{ $password }}
 
