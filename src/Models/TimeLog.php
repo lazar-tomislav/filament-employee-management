@@ -121,4 +121,12 @@ class TimeLog extends Model
             ->orderBy('created_at', 'desc')
             ->get();
     }
+
+    public static function getOvertimeHoursForDate($employeeId, $date): string
+    {
+        // Placeholder za prekovremene sate - za sada vraća '0'
+        // TODO: Implementirati logiku za računanje prekovremenih sati
+        // Možda provjeriti ako je ukupno sati > 8 sati dnevno ili > 40 sati tjedno
+        return '0';
+    }
 }
