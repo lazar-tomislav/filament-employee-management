@@ -138,7 +138,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
 
     public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet): array
     {
-        return [
+        $styles = [
             // center header row and first column
             1 => [
                 'font' => ['bold' => true],
@@ -180,6 +180,25 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
                 'font' => ['bold' => true],
             ],
         ];
+
+        $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
+
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = Carbon::create($this->year, $this->month, $day);
+            if ($date->isWeekend()) {
+                $rowNumber = $day + 1;
+                $styles[$rowNumber] = [
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => [
+                            'argb' => 'FFD3D3D3',
+                        ],
+                    ],
+                ];
+            }
+        }
+
+        return $styles;
     }
 
     private function getDailyWorkHours(Carbon $date): float
