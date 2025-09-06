@@ -176,7 +176,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            'A32:A40' => [
+            'A32:A48' => [
                 'font' => ['bold' => true],
             ],
         ];
@@ -192,6 +192,12 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
                         'startColor' => [
                             'argb' => 'FFD3D3D3',
+                        ],
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '06A04F'],
                         ],
                     ],
                 ];
