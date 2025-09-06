@@ -29,7 +29,7 @@ class MonthlyWorkReportResponseNotification extends Notification implements Shou
 
         $message = TelegramMessage::create()
             //TODO replace for general notification channel
-            ->to(config('employee-management.telegram-bot-api.general_notification'))
+            ->to(config('employee-management.telegram-bot-api.admin_notification_channel'))
             ->content("Izvještaj o radnim satima za zaposlenika {$employee->full_name} za mjesec {$month} je odbijen.\n\n" .
                 "Razlog: {$this->monthlyWorkReport->deny_reason}");
 
