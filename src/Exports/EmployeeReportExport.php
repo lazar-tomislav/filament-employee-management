@@ -11,8 +11,13 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\WithCustomStartCell;
+use Maatwebsite\Excel\Concerns\WithDrawings;
+use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, ShouldAutoSize
+class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, ShouldAutoSize, WithCustomStartCell, WithEvents, WithDrawings
 {
     protected int $employeeId;
     protected int $month;
@@ -33,6 +38,20 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
         $this->employee = Employee::find($employeeId);
     }
 
+    public function drawings()
+    {
+        $drawing = new Drawing();
+        $drawing->setName('Logo');
+        $drawing->setDescription('This is my logo');
+        $drawing->setPath(public_path('images/logo.png'));
+        $drawing->setHeight(120);
+        $drawing->setCoordinates('A2');
+        $drawing->setOffsetX(100);
+        $drawing->setOffsetY(5);
+
+        return $drawing;
+    }
+
     public function array(): array
     {
         $data = [];
@@ -41,20 +60,26 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = Carbon::create($this->year, $this->month, $day);
 
-            $this->totalWorkHours = $this->getDailyWorkHours($date);
-            $this->totalVacationHours = $this->getLeaveHours($date, LeaveRequestType::ANNUAL_LEAVE);
-            $this->totalSickLeaveHours = $this->getLeaveHours($date, LeaveRequestType::ANNUAL_LEAVE);
-            $this->totalOvertimeHours = TimeLog::getOvertimeHoursForDate($this->employeeId, $date->format('Y-m-d'));
-            $this->totalOtherHours = $this->getLeaveHours($date, LeaveRequestType::PAID_LEAVE);
+            $dailyWorkHours = $this->getDailyWorkHours($date);
+            $dailyVacationHours = $this->getLeaveHours($date, LeaveRequestType::ANNUAL_LEAVE);
+            $dailySickLeaveHours = $this->getLeaveHours($date, LeaveRequestType::SICK_LEAVE);
+            $dailyOvertimeHours = TimeLog::getOvertimeHoursForDate($this->employeeId, $date->format('Y-m-d'));
+            $dailyOtherHours = $this->getLeaveHours($date, LeaveRequestType::PAID_LEAVE);
+
+            $this->totalWorkHours += $dailyWorkHours;
+            $this->totalVacationHours += $dailyVacationHours;
+            $this->totalSickLeaveHours += $dailySickLeaveHours;
+            $this->totalOvertimeHours += $dailyOvertimeHours;
+            $this->totalOtherHours += $dailyOtherHours;
 
             $data[] = [
                 $day,
                 strtoupper($this->getDayNameInCroatian($date->dayOfWeek)),
-                $this->totalWorkHours ?: '',
-                $this->totalVacationHours ?: '',
-                $this->totalSickLeaveHours ?: '',
-                $this->totalOvertimeHours ?: '',
-                $this->totalOtherHours ?: '',
+                $dailyWorkHours ?: '',
+                $dailyVacationHours ?: '',
+                $dailySickLeaveHours ?: '',
+                $dailyOvertimeHours ?: '',
+                $dailyOtherHours ?: '',
             ];
         }
 
@@ -76,7 +101,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
         ];
         $data[] = [
             'RADNI SATI',
-            $this->totalWorkHours,
+            $this->totalWorkHours ?: 0,
             '',
             '',
             '',
@@ -85,7 +110,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
         ];
         $data[] = [
             'GODIŠNJI ODMOR',
-            $this->totalVacationHours,
+            $this->totalVacationHours ?: 0,
             '',
             '',
             '',
@@ -94,7 +119,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
         ];
         $data[] = [
             'BOLOVANJE',
-            $this->totalSickLeaveHours,
+            $this->totalSickLeaveHours ?: 0,
             '',
             '',
             '',
@@ -103,7 +128,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
         ];
         $data[] = [
             'PREKOVREMENI SATI',
-            $this->totalOvertimeHours,
+            $this->totalOvertimeHours ?: 0,
             '',
             '',
             '',
@@ -112,7 +137,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
         ];
         $data[] = [
             'OSTALO',
-            $this->totalOtherHours,
+            $this->totalOtherHours ?: 0,
             '',
             '',
             '',
@@ -138,10 +163,17 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
 
     public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet): array
     {
+        $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
+
         $styles = [
-            // center header row and first column
-            1 => [
+            6 => [
                 'font' => ['bold' => true],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => [
+                        'argb' => 'FFD3D3D3',
+                    ],
+                ],
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
@@ -171,22 +203,20 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            'A2:A32' => [
+            'A2:A' . ($daysInMonth + 6) => [
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            'A32:A48' => [
+            'A' . ($daysInMonth + 7) . ':A' . ($daysInMonth + 15) => [
                 'font' => ['bold' => true],
             ],
         ];
 
-        $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
-
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = Carbon::create($this->year, $this->month, $day);
             if ($date->isWeekend()) {
-                $rowNumber = $day + 1;
+                $rowNumber = $day + 6;
                 $styles[$rowNumber] = [
                     'fill' => [
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
@@ -204,7 +234,56 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             }
         }
 
+        $totalRow = 6 + $daysInMonth + 3 + 1;
+        $styles[$totalRow] = [
+            'font' => ['bold' => true],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => [
+                    'argb' => 'FFD3D3D3',
+                ],
+            ],
+        ];
+
         return $styles;
+    }
+
+    public function startCell(): string
+    {
+        return 'A6';
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function(AfterSheet $event) {
+                $event->sheet->getDelegate()->mergeCells('A2:B2');
+                $event->sheet->getDelegate()->mergeCells('A3:B3');
+                $event->sheet->getDelegate()->mergeCells('C2:D2');
+                $event->sheet->getDelegate()->mergeCells('C3:D3');
+                $event->sheet->getDelegate()->mergeCells('E2:G2');
+                $event->sheet->getDelegate()->mergeCells('E3:G3');
+
+                $event->sheet->getDelegate()->setCellValue('C2',"RADNI SATI");
+
+                $monthName = $this->getMonthNameInCroatian($this->month);
+                $event->sheet->getDelegate()->setCellValue('C3', "{$monthName} {$this->year}.");
+
+                $event->sheet->getDelegate()->setCellValue('E2', $this->employee->full_name);
+
+                $styleArray = [
+                    'font' => ['bold' => true],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
+                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    ],
+                ];
+
+                $event->sheet->getDelegate()->getStyle('A2:G3')->applyFromArray($styleArray);
+                $event->sheet->getDelegate()->getRowDimension(2)->setRowHeight(50);
+                $event->sheet->getDelegate()->getRowDimension(3)->setRowHeight(50);
+            },
+        ];
     }
 
     private function getDailyWorkHours(Carbon $date): float
