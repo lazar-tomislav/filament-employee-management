@@ -69,7 +69,6 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
                 $daily['other_hours'] ?: '',
             ];
         }
-        dd($report);
 
         $this->totalWorkHours = $report['totals']['work_hours'];
         $this->totalVacationHours = $report['totals']['vacation_hours'];
@@ -130,7 +129,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             ''
         ];
         $data[] = [
-            'OSTALO',
+            'OSTALO (plaćeno odsustvo)',
             $this->totalOtherHours ?: 0,
             '',
             '',
@@ -151,7 +150,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             'GODIŠNJI ODMOR',
             'BOLOVANJE',
             'PREKOVREMENI SATI',
-            'OSTALO'
+            'OSTALO (plaćeno odsustvo)'
         ];
     }
 
