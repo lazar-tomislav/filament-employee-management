@@ -60,10 +60,17 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = Carbon::create($this->year, $this->month, $day);
 
-            $dailyWorkHours = $this->getDailyWorkHours($date);
+            $totalDailyWorkHours = $this->getDailyWorkHours($date);
+            $dailyWorkHours = $totalDailyWorkHours;
+            $dailyOvertimeHours = 0;
+
+            if ($totalDailyWorkHours > 8) {
+                $dailyWorkHours = 8;
+                $dailyOvertimeHours = $totalDailyWorkHours - 8;
+            }
+
             $dailyVacationHours = $this->getLeaveHours($date, LeaveRequestType::ANNUAL_LEAVE);
             $dailySickLeaveHours = $this->getLeaveHours($date, LeaveRequestType::SICK_LEAVE);
-            $dailyOvertimeHours = TimeLog::getOvertimeHoursForDate($this->employeeId, $date->format('Y-m-d'));
             $dailyOtherHours = $this->getLeaveHours($date, LeaveRequestType::PAID_LEAVE);
 
             $this->totalWorkHours += $dailyWorkHours;
