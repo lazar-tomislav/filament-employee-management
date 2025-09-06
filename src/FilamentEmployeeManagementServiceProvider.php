@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement;
 
 use Amicus\FilamentEmployeeManagement\Commands\FilamentEmployeeManagementCommand;
+use Amicus\FilamentEmployeeManagement\Commands\TestTelegramNotificationCommand;
 use Amicus\FilamentEmployeeManagement\Testing\TestsFilamentEmployeeManagement;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
@@ -11,6 +12,7 @@ use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Filesystem\Filesystem;
 use Livewire\Features\SupportTesting\Testable;
+use NotificationChannels\Telegram\TelegramServiceProvider;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
@@ -112,6 +114,7 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
     {
         return [
             FilamentEmployeeManagementCommand::class,
+            TestTelegramNotificationCommand::class,
         ];
     }
 
@@ -150,6 +153,7 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             'create_leave_requests_table',
             'create_time_logs_table',
             'create_holidays_table',
+            'add_telegram_chat_id_to_employees_table',
         ];
     }
 }

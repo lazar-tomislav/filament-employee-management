@@ -36,6 +36,7 @@ class Employee extends Model
         'last_name',
         'email',
         'phone_number',
+        'telegram_chat_id',
         'address',
         'city',
         'oib',
@@ -63,6 +64,11 @@ class Employee extends Model
     public function user()
     {
         return $this->belongsTo(\App\Models\User::class);
+    }
+
+    public function routeNotificationForTelegram()
+    {
+        return config('services.telegram-bot-api.general_notification');
     }
 
     protected function fullName():Attribute
