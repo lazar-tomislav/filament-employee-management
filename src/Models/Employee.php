@@ -4,8 +4,6 @@ namespace Amicus\FilamentEmployeeManagement\Models;
 
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestType;
-use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
-use Amicus\FilamentEmployeeManagement\Models\TimeLog;
 use Amicus\FilamentEmployeeManagement\Observers\EmployeeObserver;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -100,12 +98,7 @@ class Employee extends Model
             return $leaveHours;
         }
 
-        $leaveRequest = LeaveRequest::query()
-            ->where('employee_id', $this->id)
-            ->where('status', LeaveRequestStatus::APPROVED)
-            ->whereDate('start_date', '<=', $date->format('Y-m-d'))
-            ->whereDate('end_date', '>=', $date->format('Y-m-d'))
-            ->first();
+        $leaveRequest = LeaveRequest::getLeaveRequestsForDate($this->id, $date)->first();
 
         if ($leaveRequest) {
             if ($leaveRequest->type === LeaveRequestType::ANNUAL_LEAVE) {

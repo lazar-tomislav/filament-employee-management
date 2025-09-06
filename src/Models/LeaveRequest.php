@@ -59,4 +59,14 @@ class LeaveRequest extends Model
             get: fn () => $this->start_date->format('d.m.Y') . ' - ' . $this->end_date->format('d.m.Y'),
         );
     }
+
+    public static function getLeaveRequestsForDate(int $employeeId, string $date)
+    {
+        return self::query()
+            ->where('employee_id', $employeeId)
+            ->where('status', LeaveRequestStatus::APPROVED)
+            ->whereDate('start_date', '<=', $date)
+            ->whereDate('end_date', '>=', $date)
+            ->get();
+    }
 }

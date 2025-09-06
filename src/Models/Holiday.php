@@ -58,4 +58,22 @@ class Holiday extends Model
 
         return array_unique($holidays);
     }
+
+    public static function getHolidaysForDate(Carbon $date): \Illuminate\Support\Collection
+    {
+        $dateString = $date->format('Y-m-d');
+
+        // Non-recurring holidays
+        $nonRecurring = self::where('is_recurring', false)
+            ->whereDate('date', $dateString)
+            ->get();
+
+        // Recurring holidays
+        $recurring = self::where('is_recurring', true)
+            ->whereMonth('date', $date->month)
+            ->whereDay('date', $date->day)
+            ->get();
+
+        return $nonRecurring->merge($recurring);
+    }
 }
