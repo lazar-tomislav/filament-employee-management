@@ -17,13 +17,8 @@ class MonthlyWorkReportObserver
             if (!empty($monthlyWorkReport->deny_reason)) {
                 // The recipient is hardcoded in the notification itself.
                 // We just need a notifiable to send the notification.
-                $notifiable = new class {
-                    use \Illuminate\Notifications\Notifiable;
-                    public function routeNotificationForTelegram() {
-                        return config('employee-management.telegram-bot-api.hr_notification');
-                    }
-                };
-                Notification::send($notifiable, new MonthlyWorkReportResponseNotification($monthlyWorkReport));
+                $notifiable = $monthlyWorkReport->employee;
+                $notifiable->notify(new MonthlyWorkReportResponseNotification($monthlyWorkReport));
             }
         }
     }

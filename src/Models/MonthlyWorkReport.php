@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 #[ObservedBy([MonthlyWorkReportObserver::class])]
 class MonthlyWorkReport extends Model
@@ -43,5 +44,34 @@ class MonthlyWorkReport extends Model
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public static function updateReportStatus(Employee $employee, Carbon $forMonth, array $totals, bool $isApproved, ?string $denyReason = null): void
+    {
+        $report = self::firstOrNew([
+            'employee_id' => $employee->id,
+            'for_month' => $forMonth->startOfMonth()->toDateString(),
+        ]);
+
+        if (!$report->exists) {
+            $report->total_available_hours = $totals['available_hours'];
+            $report->work_hours = $totals['work_hours'];
+            $report->overtime_hours = $totals['overtime_hours'];
+            $report->vacation_hours = $totals['vacation_hours'];
+            $report->sick_leave_hours = $totals['sick_leave_hours'];
+            $report->other_hours = $totals['other_hours'];
+        }
+
+        if ($isApproved) {
+            $report->approved_at = now();
+            $report->denied_at = null;
+            $report->deny_reason = null;
+        } else {
+            $report->approved_at = null;
+            $report->denied_at = now();
+            $report->deny_reason = $denyReason;
+        }
+
+        $report->save();
     }
 }
