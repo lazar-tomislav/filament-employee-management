@@ -84,6 +84,11 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
                     $file->getRealPath() => base_path("stubs/filament-employee-management/{$file->getFilename()}"),
                 ], 'filament-employee-management-stubs');
             }
+
+            // Publish config
+            $this->publishes([
+                __DIR__ . '/../config/employee-management.php' => config_path('employee-management.php'),
+            ], 'employee-management-config');
         }
 
         // Testing

@@ -68,7 +68,7 @@ class Employee extends Model
 
     public function routeNotificationForTelegram()
     {
-        return config('services.telegram-bot-api.general_notification');
+        return config('employee-management.telegram-bot-api.general_notification');
     }
 
     protected function fullName():Attribute

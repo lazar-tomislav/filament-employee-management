@@ -39,7 +39,7 @@ class NewLeaveRequestNotification extends Notification implements ShouldQueue
             'tab' => 'absence',
         ]);
         $message = TelegramMessage::create()
-            ->to(config('services.telegram-bot-api.general_notification'))
+            ->to(config('employee-management.telegram-bot-api.general_notification'))
             ->content("📋 Novi zahtjev za godišnji odmor\n\n" .
                 "Zaposlenik: {$this->leaveRequest->employee->full_name}\n" .
                 "Period: {$this->leaveRequest->start_date->format('d.m.Y')} - {$this->leaveRequest->end_date->format('d.m.Y')}\n")
