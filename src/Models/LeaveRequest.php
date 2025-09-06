@@ -2,6 +2,8 @@
 
 namespace Amicus\FilamentEmployeeManagement\Models;
 
+use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
+use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestType;
 use Amicus\FilamentEmployeeManagement\Observers\LeaveRequestObserver;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -32,6 +34,8 @@ class LeaveRequest extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'days_count' => 'integer',
+        'type' => LeaveRequestType::class,
+        'status' => LeaveRequestStatus::class,
     ];
 
     public function employee()

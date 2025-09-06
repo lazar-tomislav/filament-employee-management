@@ -54,41 +54,28 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
 
     public function array(): array
     {
+        $month = Carbon::create($this->year, $this->month);
+        $report = $this->employee->getMonthlyWorkReport($month);
+
         $data = [];
-        $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
-
-        for ($day = 1; $day <= $daysInMonth; $day++) {
-            $date = Carbon::create($this->year, $this->month, $day);
-
-            $totalDailyWorkHours = $this->getDailyWorkHours($date);
-            $dailyWorkHours = $totalDailyWorkHours;
-            $dailyOvertimeHours = 0;
-
-            if ($totalDailyWorkHours > 8) {
-                $dailyWorkHours = 8;
-                $dailyOvertimeHours = $totalDailyWorkHours - 8;
-            }
-
-            $dailyVacationHours = $this->getLeaveHours($date, LeaveRequestType::ANNUAL_LEAVE);
-            $dailySickLeaveHours = $this->getLeaveHours($date, LeaveRequestType::SICK_LEAVE);
-            $dailyOtherHours = $this->getLeaveHours($date, LeaveRequestType::PAID_LEAVE);
-
-            $this->totalWorkHours += $dailyWorkHours;
-            $this->totalVacationHours += $dailyVacationHours;
-            $this->totalSickLeaveHours += $dailySickLeaveHours;
-            $this->totalOvertimeHours += $dailyOvertimeHours;
-            $this->totalOtherHours += $dailyOtherHours;
-
+        foreach ($report['daily_data'] as $daily) {
             $data[] = [
-                $day,
-                strtoupper($this->getDayNameInCroatian($date->dayOfWeek)),
-                $dailyWorkHours ?: '',
-                $dailyVacationHours ?: '',
-                $dailySickLeaveHours ?: '',
-                $dailyOvertimeHours ?: '',
-                $dailyOtherHours ?: '',
+                $daily['date']->day,
+                strtoupper($this->getDayNameInCroatian($daily['date']->dayOfWeek)),
+                $daily['work_hours'] ?: '',
+                $daily['vacation_hours'] ?: '',
+                $daily['sick_leave_hours'] ?: '',
+                $daily['overtime_hours'] ?: '',
+                $daily['other_hours'] ?: '',
             ];
         }
+        dd($report);
+
+        $this->totalWorkHours = $report['totals']['work_hours'];
+        $this->totalVacationHours = $report['totals']['vacation_hours'];
+        $this->totalSickLeaveHours = $report['totals']['sick_leave_hours'];
+        $this->totalOvertimeHours = $report['totals']['overtime_hours'];
+        $this->totalOtherHours = $report['totals']['other_hours'];
 
         // Add empty rows
         $data[] = ['', '', '', '', '', '', ''];
@@ -291,31 +278,6 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
                 $event->sheet->getDelegate()->getRowDimension(3)->setRowHeight(50);
             },
         ];
-    }
-
-    private function getDailyWorkHours(Carbon $date): float
-    {
-        $timeLogs = TimeLog::where('employee_id', $this->employeeId)
-            ->whereDate('date', $date->format('Y-m-d'))
-            ->get();
-        $totalMinutes = 0;
-        foreach ($timeLogs as $timeLog) {
-            $totalMinutes += (float)$timeLog->hours;
-        }
-
-        return $totalMinutes;
-    }
-
-    private function getLeaveHours(Carbon $date, LeaveRequestType $type): ?int
-    {
-        $leaveRequest = LeaveRequest::where('employee_id', $this->employeeId)
-            ->where('type', $type->value)
-            ->where('status', 'approved')
-            ->whereDate('start_date', '<=', $date->format('Y-m-d'))
-            ->whereDate('end_date', '>=', $date->format('Y-m-d'))
-            ->first();
-
-        return $leaveRequest ? 8 : null;
     }
 
     private function getDayNameInCroatian(int $dayOfWeek): string

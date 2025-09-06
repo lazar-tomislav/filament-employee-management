@@ -2,7 +2,10 @@
 
 namespace Amicus\FilamentEmployeeManagement\Models;
 
+use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestType;
+use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Amicus\FilamentEmployeeManagement\Models\TimeLog;
 use Amicus\FilamentEmployeeManagement\Observers\EmployeeObserver;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
@@ -69,59 +72,94 @@ class Employee extends Model
         }, 'id');
     }
 
-    public function getWorkhoursForMonth(Carbon $month): array
+    private function getDailyWorkHours(Carbon $date): float
     {
-        $startDate = $month->copy()->startOfMonth();
-        $endDate = $month->copy()->endOfMonth();
-        $daysInMonth = $startDate->daysInMonth;
-
-        // Get all holidays for the month
-        $holidays = Holiday::getHolidaysForMonth($month);
-
-        // Calculate available work hours
-        $availableHours = 0;
-        for ($day = 1; $day <= $daysInMonth; $day++) {
-            $currentDate = $startDate->copy()->addDays($day - 1);
-            if ($currentDate->isWeekday() && !in_array($currentDate->format('Y-m-d'), $holidays)) {
-                $availableHours += 8;
-            }
-        }
-
-        // Calculate worked hours from TimeLog
-        $workedHours = TimeLog::where('employee_id', $this->id)
-            ->whereBetween('date', [$startDate, $endDate])
+        return (float) TimeLog::where('employee_id', $this->id)
+            ->whereDate('date', $date->format('Y-m-d'))
             ->sum('hours');
+    }
 
-        // Calculate vacation and sick leave hours
-        $vacationHours = 0;
-        $sickLeaveHours = 0;
+    private function getDailyLeaveHours(Carbon $date): array
+    {
+        $leaveHours = [
+            'vacation_hours' => 0,
+            'sick_leave_hours' => 0,
+            'other_hours' => 0,
+        ];
 
-        $leaveRequests = LeaveRequest::where('employee_id', $this->id)
-            ->where('status', 'approved')
-            ->where('start_date', '<=', $endDate)
-            ->where('end_date', '>=', $startDate)
-            ->get();
+        if ($date->isWeekend()) {
+            return $leaveHours;
+        }
 
-        foreach ($leaveRequests as $leaveRequest) {
-            $leaveStartDate = Carbon::parse($leaveRequest->start_date);
-            $leaveEndDate = Carbon::parse($leaveRequest->end_date);
+        $leaveRequest = LeaveRequest::query()
+            ->where('employee_id', $this->id)
+            ->where('status', LeaveRequestStatus::APPROVED)
+            ->whereDate('start_date', '<=', $date->format('Y-m-d'))
+            ->whereDate('end_date', '>=', $date->format('Y-m-d'))
+            ->first();
 
-            for ($date = $leaveStartDate->copy(); $date->lte($leaveEndDate); $date->addDay()) {
-                if ($date->between($startDate, $endDate) && $date->isWeekday() && !in_array($date->format('Y-m-d'), $holidays)) {
-                    if (in_array($leaveRequest->type, [LeaveRequestType::ANNUAL_LEAVE->value, LeaveRequestType::PAID_LEAVE->value])) {
-                        $vacationHours += 8;
-                    } elseif ($leaveRequest->type === LeaveRequestType::SICK_LEAVE->value) {
-                        $sickLeaveHours += 8;
-                    }
-                }
+        if ($leaveRequest) {
+            if ($leaveRequest->type === LeaveRequestType::ANNUAL_LEAVE) {
+                $leaveHours['vacation_hours'] = 8;
+            } elseif ($leaveRequest->type === LeaveRequestType::SICK_LEAVE) {
+                $leaveHours['sick_leave_hours'] = 8;
+            } elseif ($leaveRequest->type === LeaveRequestType::PAID_LEAVE) {
+                $leaveHours['other_hours'] = 8;
+            }else{
+                report(new \Exception("Unknown leave request type: {$leaveRequest->type}"));
             }
         }
 
-        return [
-            'worked_hours' => (float) $workedHours,
-            'available_hours' => $availableHours,
-            'vacation_hours' => $vacationHours,
-            'sick_leave_hours' => $sickLeaveHours,
+        return $leaveHours;
+    }
+
+    public function getMonthlyWorkReport(Carbon $month): array
+    {
+        $report = [
+            'daily_data' => [],
+            'totals' => [
+                'work_hours' => 0.0,
+                'overtime_hours' => 0.0,
+                'vacation_hours' => 0.0,
+                'sick_leave_hours' => 0.0,
+                'other_hours' => 0.0,
+            ],
         ];
+
+        $daysInMonth = $month->daysInMonth;
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = $month->copy()->setDay($day);
+
+            $totalDailyWorkHours = $this->getDailyWorkHours($date);
+            $dailyWorkHours = $totalDailyWorkHours;
+            $dailyOvertimeHours = 0.0;
+
+            if ($totalDailyWorkHours > 8) {
+                $dailyWorkHours = 8.0;
+                $dailyOvertimeHours = $totalDailyWorkHours - 8.0;
+            }
+
+            $leaveHours = $this->getDailyLeaveHours($date);
+            $dailyVacationHours = $leaveHours['vacation_hours'];
+            $dailySickLeaveHours = $leaveHours['sick_leave_hours'];
+            $dailyOtherHours = $leaveHours['other_hours'];
+
+            $report['daily_data'][] = [
+                'date' => $date,
+                'work_hours' => $dailyWorkHours,
+                'overtime_hours' => $dailyOvertimeHours,
+                'vacation_hours' => $dailyVacationHours,
+                'sick_leave_hours' => $dailySickLeaveHours,
+                'other_hours' => $dailyOtherHours,
+            ];
+
+            $report['totals']['work_hours'] += $dailyWorkHours;
+            $report['totals']['overtime_hours'] += $dailyOvertimeHours;
+            $report['totals']['vacation_hours'] += $dailyVacationHours;
+            $report['totals']['sick_leave_hours'] += $dailySickLeaveHours;
+            $report['totals']['other_hours'] += $dailyOtherHours;
+        }
+
+        return $report;
     }
 }

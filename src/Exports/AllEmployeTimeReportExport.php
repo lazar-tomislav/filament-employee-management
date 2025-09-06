@@ -46,12 +46,14 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
         $month = Carbon::create($this->year, $this->month);
 
         foreach ($employees as $employee) {
-            $workHoursData = $employee->getWorkhoursForMonth($month);
+            $report = $employee->getMonthlyWorkReport($month);
+            $totals = $report['totals'];
+
             $data[] = [
                 $employee->full_name,
-                $workHoursData['worked_hours'],
-                $workHoursData['vacation_hours'],
-                $workHoursData['sick_leave_hours'],
+                $totals['work_hours'] + $totals['overtime_hours'],
+                $totals['vacation_hours'] + $totals['other_hours'], // vacation_hours is annual leave, other_hours is paid leave
+                $totals['sick_leave_hours'],
             ];
         }
 
