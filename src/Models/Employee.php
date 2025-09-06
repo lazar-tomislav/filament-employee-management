@@ -146,23 +146,31 @@ class Employee extends Model
             $dailyWorkHours = 0.0;
             $dailyOvertimeHours = 0.0;
 
-            $isWorkDay = in_array($date->dayOfWeek, self::WORK_DAYS) && !in_array($date->format('Y-m-d'), $holidays);
+            $leaveHours = $this->getDailyLeaveHours($date);
+            $dailyVacationHours = $leaveHours['vacation_hours'];
+            $dailySickLeaveHours = $leaveHours['sick_leave_hours'];
+            $dailyOtherHours = $leaveHours['other_hours'];
 
-            if ($isWorkDay) {
+            $isWorkDayOfWeek = in_array($date->dayOfWeek, self::WORK_DAYS);
+            $isPublicHoliday = in_array($date->format('Y-m-d'), $holidays);
+            $isOnLeave = $dailyVacationHours > 0 || $dailySickLeaveHours > 0 || $dailyOtherHours > 0;
+
+            $isStandardWorkDay = $isWorkDayOfWeek && !$isPublicHoliday && !$isOnLeave;
+
+            // Available hours are calculated based on potential work days (ignoring personal leave)
+            if ($isWorkDayOfWeek && !$isPublicHoliday) {
                 $report['totals']['available_hours'] += self::HOURS_PER_WORK_DAY;
+            }
+
+            if ($isStandardWorkDay) {
                 $dailyWorkHours = $totalDailyWorkHours;
                 if ($totalDailyWorkHours > self::HOURS_PER_WORK_DAY) {
                     $dailyWorkHours = self::HOURS_PER_WORK_DAY;
                     $dailyOvertimeHours = $totalDailyWorkHours - self::HOURS_PER_WORK_DAY;
                 }
-            } else { // It's a weekend or holiday
+            } else { // It's a weekend, a holiday, or a personal leave day
                 $dailyOvertimeHours = $totalDailyWorkHours;
             }
-
-            $leaveHours = $this->getDailyLeaveHours($date);
-            $dailyVacationHours = $leaveHours['vacation_hours'];
-            $dailySickLeaveHours = $leaveHours['sick_leave_hours'];
-            $dailyOtherHours = $leaveHours['other_hours'];
 
             $report['daily_data'][] = [
                 'date' => $date,
