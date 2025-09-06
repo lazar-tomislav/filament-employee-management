@@ -36,7 +36,6 @@ class Employee extends Model
         'last_name',
         'email',
         'phone_number',
-        'telegram_chat_id',
         'address',
         'city',
         'oib',
@@ -54,6 +53,13 @@ class Employee extends Model
         static::addGlobalScope('active', function (Builder $builder) {
             $builder->where('is_active', true);
         });
+    }
+
+    protected function telegramChatId():Attribute
+    {
+        return Attribute::make(
+            get: fn () => config('employee-management.telegram-bot-api.general_notification'),
+        );
     }
 
     public function leaveAllowances()

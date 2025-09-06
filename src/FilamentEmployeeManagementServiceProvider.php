@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement;
 
 use Amicus\FilamentEmployeeManagement\Commands\FilamentEmployeeManagementCommand;
+use Amicus\FilamentEmployeeManagement\Commands\TestMonthlyReportNotificationCommand;
 use Amicus\FilamentEmployeeManagement\Commands\TestTelegramNotificationCommand;
 use Amicus\FilamentEmployeeManagement\Testing\TestsFilamentEmployeeManagement;
 use Filament\Support\Assets\Asset;
@@ -10,6 +11,8 @@ use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
 use Filament\Support\Facades\FilamentAsset;
 use Filament\Support\Facades\FilamentIcon;
+use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
 use Livewire\Features\SupportTesting\Testable;
 use NotificationChannels\Telegram\TelegramServiceProvider;
@@ -93,6 +96,23 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
 
         // Testing
         Testable::mixin(new TestsFilamentEmployeeManagement);
+
+
+        $this->app->booted(function (Application $app) {
+            $schedule = $app->make(Schedule::class);
+            $schedule->job(new \Amicus\FilamentEmployeeManagement\Jobs\SendMonthlyHoursReportNotification)
+                ->dailyAt('17:00')
+                ->when(function () {
+                    $today = now();
+                    if (!$today->isWorkday()) {
+                        return false;
+                    }
+                    // Check if the next workday is in the next month.
+                    $nextWorkday = $today->copy()->addWorkday();
+                    return $today->month !== $nextWorkday->month;
+                });
+        });
+
     }
 
     protected function getAssetPackageName(): ?string
@@ -120,6 +140,7 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
         return [
             FilamentEmployeeManagementCommand::class,
             TestTelegramNotificationCommand::class,
+            TestMonthlyReportNotificationCommand::class,
         ];
     }
 
@@ -158,7 +179,6 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             'create_leave_requests_table',
             'create_time_logs_table',
             'create_holidays_table',
-            'add_telegram_chat_id_to_employees_table',
         ];
     }
 }
