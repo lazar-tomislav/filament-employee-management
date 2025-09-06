@@ -23,6 +23,15 @@ class Employee extends Model
     use Notifiable;
     use SoftDeletes;
 
+    const HOURS_PER_WORK_DAY = 8;
+    const WORK_DAYS = [
+        Carbon::MONDAY,
+        Carbon::TUESDAY,
+        Carbon::WEDNESDAY,
+        Carbon::THURSDAY,
+        Carbon::FRIDAY,
+    ];
+
     protected $fillable = [
         'user_id',
         'first_name',
@@ -87,7 +96,7 @@ class Employee extends Model
             'other_hours' => 0,
         ];
 
-        if ($date->isWeekend()) {
+        if (!in_array($date->dayOfWeek, self::WORK_DAYS)) {
             return $leaveHours;
         }
 
@@ -100,11 +109,11 @@ class Employee extends Model
 
         if ($leaveRequest) {
             if ($leaveRequest->type === LeaveRequestType::ANNUAL_LEAVE) {
-                $leaveHours['vacation_hours'] = 8;
+                $leaveHours['vacation_hours'] = self::HOURS_PER_WORK_DAY;
             } elseif ($leaveRequest->type === LeaveRequestType::SICK_LEAVE) {
-                $leaveHours['sick_leave_hours'] = 8;
+                $leaveHours['sick_leave_hours'] = self::HOURS_PER_WORK_DAY;
             } elseif ($leaveRequest->type === LeaveRequestType::PAID_LEAVE) {
-                $leaveHours['other_hours'] = 8;
+                $leaveHours['other_hours'] = self::HOURS_PER_WORK_DAY;
             }else{
                 report(new \Exception("Unknown leave request type: {$leaveRequest->type}"));
             }
@@ -123,20 +132,31 @@ class Employee extends Model
                 'vacation_hours' => 0.0,
                 'sick_leave_hours' => 0.0,
                 'other_hours' => 0.0,
+                'available_hours' => 0.0,
             ],
         ];
 
         $daysInMonth = $month->daysInMonth;
+        $holidays = Holiday::getHolidaysForMonth($month);
+
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = $month->copy()->setDay($day);
 
             $totalDailyWorkHours = $this->getDailyWorkHours($date);
-            $dailyWorkHours = $totalDailyWorkHours;
+            $dailyWorkHours = 0.0;
             $dailyOvertimeHours = 0.0;
 
-            if ($totalDailyWorkHours > 8) {
-                $dailyWorkHours = 8.0;
-                $dailyOvertimeHours = $totalDailyWorkHours - 8.0;
+            $isWorkDay = in_array($date->dayOfWeek, self::WORK_DAYS) && !in_array($date->format('Y-m-d'), $holidays);
+
+            if ($isWorkDay) {
+                $report['totals']['available_hours'] += self::HOURS_PER_WORK_DAY;
+                $dailyWorkHours = $totalDailyWorkHours;
+                if ($totalDailyWorkHours > self::HOURS_PER_WORK_DAY) {
+                    $dailyWorkHours = self::HOURS_PER_WORK_DAY;
+                    $dailyOvertimeHours = $totalDailyWorkHours - self::HOURS_PER_WORK_DAY;
+                }
+            } else { // It's a weekend or holiday
+                $dailyOvertimeHours = $totalDailyWorkHours;
             }
 
             $leaveHours = $this->getDailyLeaveHours($date);
