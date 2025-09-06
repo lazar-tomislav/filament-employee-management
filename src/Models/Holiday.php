@@ -28,14 +28,34 @@ class Holiday extends Model
         $startDate = $month->copy()->startOfMonth();
         $endDate = $month->copy()->endOfMonth();
 
-        return self::where(function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('date', [$startDate, $endDate])
-                ->orWhere(function ($query) use ($startDate) {
-                    $query->where('is_recurring', true)
-                        ->whereMonth('date', $startDate->month);
-                });
-        })->pluck('date')->map(function ($date) use ($startDate) {
-            return Carbon::parse($date)->setYear($startDate->year)->format('Y-m-d');
-        })->toArray();
+        return self::getHolidayDatesInRange($startDate, $endDate);
+    }
+
+    public static function getHolidayDatesInRange(Carbon $startDate, Carbon $endDate): array
+    {
+        $holidays = [];
+
+        // Get non-recurring holidays
+        $nonRecurring = self::where('is_recurring', false)
+            ->whereBetween('date', [$startDate, $endDate])
+            ->pluck('date');
+
+        foreach ($nonRecurring as $date) {
+            $holidays[] = $date->format('Y-m-d');
+        }
+
+        // Get recurring holidays
+        $recurring = self::where('is_recurring', true)->get();
+
+        for ($year = $startDate->year; $year <= $endDate->year; $year++) {
+            foreach ($recurring as $holiday) {
+                $holidayDate = Carbon::parse($holiday->date)->setYear($year);
+                if ($holidayDate->between($startDate, $endDate)) {
+                    $holidays[] = $holidayDate->format('Y-m-d');
+                }
+            }
+        }
+
+        return array_unique($holidays);
     }
 }
