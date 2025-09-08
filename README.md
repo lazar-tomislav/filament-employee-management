@@ -12,3 +12,9 @@ composer require laravel-notification-channels/telegram
     'token' => env('TELEGRAM_BOT_TOKEN', 'YOUR BOT TOKEN HERE')
 ],
 ```
+
+## Theme
+### 1. Add to theme.css
+
+@source '../../../../packages/filament-employee-management/resources/views/filament/**/*';
+@source '../../../../packages/filament-employee-management/resources/css/index.css';

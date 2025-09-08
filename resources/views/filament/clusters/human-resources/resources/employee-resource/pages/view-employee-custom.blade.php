@@ -85,6 +85,7 @@
             </nav>
         </header>
 
+
         {{-- Tab Content --}}
         <div class="mt-6">
             <div x-show="activeTab === 'info'" x-cloak>
