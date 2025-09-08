@@ -4,7 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resou
 
 use Amicus\FilamentEmployeeManagement\Enums\LogType;
 use Amicus\FilamentEmployeeManagement\Enums\TimeLogStatus;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Pages\ViewEmployeeCustom;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Pages\ViewEmployee;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Filament\Forms;
 use Filament\Schemas\Schema;
@@ -30,7 +30,7 @@ class TimeLogForm
                     ->options(Employee::options())
                     ->searchable()
                     ->required()
-                    ->visible(fn() => !request()->routeIs(ViewEmployeeCustom::getRouteName()))
+                    ->visible(fn() => !request()->routeIs(ViewEmployee::getRouteName()))
                     ->helperText('Odaberite zaposlenika za kojeg unosite sate'),
 
                 Forms\Components\DatePicker::make('date')
@@ -38,7 +38,7 @@ class TimeLogForm
                     ->displayFormat('d.m.Y')
                     ->required()
                     ->default(now())
-                    ->visible(fn() => !request()->routeIs(ViewEmployeeCustom::getRouteName()))
+                    ->visible(fn() => !request()->routeIs(ViewEmployee::getRouteName()))
                     ->native()
                     ->helperText('Datum za koji se unose radni sati'),
 
@@ -48,14 +48,14 @@ class TimeLogForm
                     ->label('Tip unosa')
                     ->options(LogType::class)
                     ->default(LogType::RADNI_SATI)
-                    ->visible(fn() => !request()->routeIs(ViewEmployeeCustom::getRouteName()))
+                    ->visible(fn() => !request()->routeIs(ViewEmployee::getRouteName()))
                     ->required()
                     ->helperText('Odaberite tip unosa sati'),
 
                 Forms\Components\Select::make('status')
                     ->label('Status')
                     ->options(TimeLogStatus::class)
-                    ->visible(fn() => !request()->routeIs(ViewEmployeeCustom::getRouteName()))
+                    ->visible(fn() => !request()->routeIs(ViewEmployee::getRouteName()))
                     ->default(TimeLogStatus::default())
                     ->required()
                     ->helperText('Planirano - za unaprijed unesene sate, Potvrđeno - za finalne sate'),

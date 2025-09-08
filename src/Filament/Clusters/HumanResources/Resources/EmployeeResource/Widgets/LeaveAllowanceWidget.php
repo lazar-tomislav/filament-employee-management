@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Widgets;
 
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Actions\EmployeeAction;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Actions\LeaveRequestAction;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveAllowanceResource\Tables\LeaveAllowanceTable;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
@@ -44,7 +45,7 @@ class LeaveAllowanceWidget extends TableWidget
             ->query($this->getTableQuery())
             ->paginated($this->isTablePaginationEnabled())
             ->headerActions([
-               LeaveRequestAction::createLeaveRequest($this->record),
+               EmployeeAction::requestLeave($this->record),
             ]);
     }
 }

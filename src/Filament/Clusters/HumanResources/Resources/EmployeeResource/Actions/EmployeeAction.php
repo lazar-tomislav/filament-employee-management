@@ -60,8 +60,7 @@ class EmployeeAction
             ->label('Zatraži godišnji odmor')
             ->icon(Heroicon::OutlinedCalendarDays)
             ->color('')
-            ->url(fn() => EmployeeResource::getUrl('view', ['record' => $record, 'tab' => 'absence']))
-            ->openUrlInNewTab();
+            ->url(fn() => EmployeeResource::getUrl('view', ['record' => $record, 'tab' => 'absence']));
 
     }
 

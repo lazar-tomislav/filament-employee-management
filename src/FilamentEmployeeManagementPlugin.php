@@ -2,7 +2,6 @@
 
 namespace Amicus\FilamentEmployeeManagement;
 
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Pages\RequestLeavePage;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Contracts\Plugin;
@@ -32,16 +31,7 @@ class FilamentEmployeeManagementPlugin implements Plugin
                     ->visible(fn() => auth()->user()->isEmployee() && auth()->user()->employee->id)
                     ->sort(2)
                     ->url(fn() => EmployeeResource::getUrl('view', ['record' => auth()->user()->employee->id]))
-//                    ->isActiveWhen(fn() => request()->routeIs(EmployeeResource::getRouteBaseName()))
                     ->icon(Heroicon::OutlinedUserCircle),
-
-                NavigationItem::make("leave_requests")
-                    ->label("Zatraži odsustvo")
-                    ->visible(fn() => auth()->user()->isEmployee() && auth()->user()->employee->id)
-                    ->sort(3)
-                    ->url(fn() => RequestLeavePage::getUrl())
-//                    ->isActiveWhen(fn() => request()->routeIs(RequestLeavePage::getRouteName()))
-                    ->icon(Heroicon::OutlinedCalendarDays),
             ])
         ;
     }

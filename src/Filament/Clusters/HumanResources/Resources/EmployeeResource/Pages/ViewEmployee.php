@@ -12,7 +12,7 @@ use Filament\Schemas\Schema;
 use Illuminate\Contracts\Support\Htmlable;
 use Livewire\Attributes\Url;
 
-class ViewEmployeeCustom extends Page implements HasSchemas
+class ViewEmployee extends Page implements HasSchemas
 {
     use InteractsWithRecord;
     use InteractsWithSchemas;
