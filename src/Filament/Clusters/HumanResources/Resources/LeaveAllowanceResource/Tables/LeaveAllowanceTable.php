@@ -30,7 +30,7 @@ class LeaveAllowanceTable
                     ->label('Iskorišteno dana')
                     ->numeric()
                     ->sortable(),
-                2
+
                 Tables\Columns\TextColumn::make('remaining_days')
                     ->state(fn($record) => $record->total_days - $record->used_days)
                     ->label('Preostalo dana')

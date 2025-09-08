@@ -25,7 +25,8 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
 {
     use InteractsWithForms, InteractsWithActions;
 
-    protected string $view = 'filament.clusters.human-resources.widgets.insert-time-log-widget';
+    protected string $view = 'filament-employee-management::filament.clusters.human-resources.widgets.insert-time-log-widget';
+
 
     protected int|string|array $columnSpan = 'full';
 

@@ -22,7 +22,7 @@ class ViewEmployeeCustom extends Page implements HasSchemas
 
     protected static string $resource = EmployeeResource::class;
 
-    protected string $view = 'filament.clusters.human-resources.resources.employee-resource.pages.view-employee-custom';
+    protected string $view = 'filament-employee-management::filament.clusters.human-resources.resources.employee-resource.pages.view-employee-custom';
 
     public function getHeading(): string|Htmlable
     {

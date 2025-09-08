@@ -23,7 +23,7 @@ class MonthlySummaryWidget extends Widget implements HasSchemas, HasActions
     use InteractsWithSchemas;
     use InteractsWithActions;
 
-    protected string $view = 'filament.clusters.human-resources.widgets.monthly-summary-widget';
+    protected string $view = 'filament-employee-management::filament.clusters.human-resources.widgets.monthly-summary-widget';
 
     protected int|string|array $columnSpan = 1;
 

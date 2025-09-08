@@ -19,7 +19,7 @@ class RequestLeaveWidget extends Widget implements HasForms
 {
     use InteractsWithForms;
 
-    protected string $view = 'filament.clusters.human-resources.widgets.request-leave-widget';
+    protected string $view = 'filament-employee-management::filament.clusters.human-resources.widgets.request-leave-widget';
 
     protected int|string|array $columnSpan = 'full';
 

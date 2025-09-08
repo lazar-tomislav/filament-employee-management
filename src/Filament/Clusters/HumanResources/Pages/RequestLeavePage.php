@@ -15,9 +15,10 @@ class RequestLeavePage extends Page
 
     protected static ?string $cluster = HumanResources::class;
 
-    protected static string | BackedEnum | null $navigationIcon=Heroicon::OutlinedCalendarDays;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
     protected static ?string $title = 'Zatraži odsustvo';
+
     public static function getNavigationLabel(): string
     {
         return "Zatraži odsustvo";
@@ -27,7 +28,7 @@ class RequestLeavePage extends Page
 
     public function getView(): string
     {
-        return 'filament.clusters.human-resources.pages.request-leave-page';
+        return 'filament-employee-management::filament.clusters.human-resources.pages.request-leave-page';
     }
 
     public function mount(): void
