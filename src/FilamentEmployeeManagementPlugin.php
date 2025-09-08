@@ -2,13 +2,14 @@
 
 namespace Amicus\FilamentEmployeeManagement;
 
-use App\Filament\Clusters\HumanResources\Resources\EmployeeResource;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Actions\EmployeeAction;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\HolidayResource;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveAllowanceResource;
+use Amicus\FilamentEmployeeManagement\Policies\HolidayPolicy;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Contracts\Plugin;
-use Filament\Navigation\NavigationGroup;
-use Filament\Navigation\NavigationItem;
 use Filament\Panel;
-use Filament\Support\Icons\Heroicon;
 
 class FilamentEmployeeManagementPlugin implements Plugin
 {
@@ -23,8 +24,10 @@ class FilamentEmployeeManagementPlugin implements Plugin
             ->plugins([
                 FilamentShieldPlugin::make(),
             ])
-            ->resources([
-            ]);
+            ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Pages')
+            ->discoverWidgets(in: __DIR__ . '/Filament/Widgets', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Widgets')
+            ->discoverResources(in: __DIR__ . '/Filament/Resources', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Resources')
+            ->discoverClusters(in: __DIR__ . '/Filament/Clusters', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Clusters');
     }
 
     public function boot(Panel $panel): void

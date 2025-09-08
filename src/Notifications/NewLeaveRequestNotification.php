@@ -2,9 +2,9 @@
 
 namespace Amicus\FilamentEmployeeManagement\Notifications;
 
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource;
 use Amicus\FilamentEmployeeManagement\Mail\LeaveRequestApprovalNotification;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
-use App\Filament\Clusters\HumanResources\Resources\EmployeeResource;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
