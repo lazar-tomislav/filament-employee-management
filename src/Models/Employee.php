@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Models;
 
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestType;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveAllowanceResource\Tables\LeaveAllowanceTable;
 use Amicus\FilamentEmployeeManagement\Observers\EmployeeObserver;
 use Amicus\FilamentEmployeeManagement\Traits\HasEmployeeRole;
 use Carbon\Carbon;

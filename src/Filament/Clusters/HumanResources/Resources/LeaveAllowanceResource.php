@@ -43,8 +43,6 @@ class LeaveAllowanceResource extends Resource
     {
         return [
             'index' => HumanResources\Resources\LeaveAllowanceResource\Pages\ListLeaveAllowances::route('/'),
-            'create' => HumanResources\Resources\LeaveAllowanceResource\Pages\CreateLeaveAllowance::route('/create'),
-            'edit' => HumanResources\Resources\LeaveAllowanceResource\Pages\EditLeaveAllowance::route('/{record}/edit'),
         ];
     }
 

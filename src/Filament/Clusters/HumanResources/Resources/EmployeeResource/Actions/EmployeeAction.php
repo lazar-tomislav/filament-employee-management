@@ -21,6 +21,7 @@ class EmployeeAction
         return Action::make('export')
             ->label('Izvještaj radnih sati svih zaposlenika')
             ->icon(Heroicon::OutlinedDocumentArrowDown)
+            ->visible(fn() => auth()->user()->isUredAdministrativnoOsoblje())
             ->color("")
             ->schema([
                 Select::make('month')
@@ -52,26 +53,26 @@ class EmployeeAction
             });
     }
 
-    public static function requestLeave(Employee $record):Action
+    public static function requestLeave(Employee $record): Action
     {
         // simple button with link to "https://ink.test/admin/human-resources/employees/1?tab=absence"
         return Action::make('requestLeave')
             ->label('Zatraži godišnji odmor')
             ->icon(Heroicon::OutlinedCalendarDays)
             ->color('')
-            ->url(fn()  => EmployeeResource::getUrl('view', ['record' => $record, 'tab' => 'absence']))
+            ->url(fn() => EmployeeResource::getUrl('view', ['record' => $record, 'tab' => 'absence']))
             ->openUrlInNewTab();
 
     }
 
-    public static function downloadMonthlyTimeReportAction(Employee $record):Action
+    public static function downloadMonthlyTimeReportAction(Employee $record): Action
     {
         return Action::make('downloadMonthlyTimeReport')
             ->label('Mjesečni izvještaj radnih sati')
             ->icon(Heroicon::OutlinedDocumentArrowDown)
             ->color('')
-            ->schema(fn($schema)=>EmployeeForm::monthlyTimeReport($schema))
-            ->action(function (array $data) use($record){
+            ->schema(fn($schema) => EmployeeForm::monthlyTimeReport($schema))
+            ->action(function (array $data) use ($record) {
                 $export = new EmployeeReportExport(
                     $record->id,
                     $data['month'],

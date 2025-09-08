@@ -19,18 +19,22 @@ trait HasEmployeeRole
         return $this->hasRole(self::ROLE_EMPLOYEE);
     }
 
-    public function isAdmin(): bool
+    public function isAdmin(bool $strict = false): bool
     {
+        if($strict){
+            return $this->hasRole(self::ROLE_UPRAVA_ADMIN);
+        }
         return $this->hasRole(self::ROLE_UPRAVA_ADMIN) || $this->hasRole(self::ROLE_SUPER_ADMIN);
     }
 
     public function isSuperAdmin(): bool
     {
-        return $this->hasRole(self::ROLE_SUPER_ADMIN);
+        return $this->hasRole(self::ROLE_SUPER_ADMIN) || $this->hasRole(self::ROLE_UPRAVA_ADMIN);
     }
 
     public function isUredAdministrativnoOsoblje(): bool
     {
-        return $this->hasRole(self::ROLE_URED_ADMINISTRATIVNO_OSOBLJE);
+        // administrativno + roles above it can see
+        return $this->hasRole(self::ROLE_URED_ADMINISTRATIVNO_OSOBLJE) || $this->isSuperAdmin() || $this->isAdmin();
     }
 }

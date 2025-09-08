@@ -14,20 +14,29 @@ class LeaveAllowanceTable
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('employee.first_name')
+                    ->formatStateUsing(fn($record) => $record->employee->full_name . " (" . $record->employee->email . ")")
                     ->sortable(),
                 Tables\Columns\TextColumn::make('year')
+                    ->label("Godina")
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('total_days')
+                    ->label('Ukupno dana G.O')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('used_days')
+                    ->state(fn($record) => $record->used_days)
+                    ->label('Iskorišteno dana')
+                    ->numeric()
+                    ->sortable(),
+                2
+                Tables\Columns\TextColumn::make('remaining_days')
+                    ->state(fn($record) => $record->total_days - $record->used_days)
+                    ->label('Preostalo dana')
+                    ->numeric()
+                    ->color(fn($state) => $state <= 5 ? 'danger' : 'success')
+                    ->sortable(),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -66,9 +75,9 @@ class LeaveAllowanceTable
 
                 TextColumn::make('remaining_days')
                     ->label('Preostalo dana')
-                    ->state(fn ($record) => $record->total_days - $record->used_days)
+                    ->state(fn($record) => $record->total_days - $record->used_days)
                     ->numeric()
-                    ->color(fn ($state) => $state <= 5 ? 'warning' : 'primary'),
+                    ->color(fn($state) => $state <= 5 ? 'warning' : 'primary'),
 
                 TextColumn::make('valid_until_date')
                     ->label('Iskoristivo do')

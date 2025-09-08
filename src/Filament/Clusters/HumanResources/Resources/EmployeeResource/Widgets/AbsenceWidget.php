@@ -84,14 +84,13 @@ class AbsenceWidget extends TableWidget
                         };
                     }),
             ])
-            //TODO: Add make this only visible for HR
             ->recordActions(
                 ActionGroup::make([
-                    //TODO only admin can approve or reject leave requests
                     \Filament\Actions\Action::make('approve')
                         ->icon(Heroicon::OutlinedCheck)
                         ->label('Odobri zahtjev')
                         ->color('success')
+                        ->visible(auth()->user()->isUredAdministrativnoOsoblje())
                         ->requiresConfirmation()
                         ->action(function (LeaveRequest $record) {
                             $record->update([
@@ -104,10 +103,10 @@ class AbsenceWidget extends TableWidget
                                 ->success()
                                 ->send();
                         }),
-                    //TODO only admin can approve or reject leave requests
                     \Filament\Actions\Action::make('reject')
                         ->label('Odbij zahtjev')
                         ->icon(Heroicon::OutlinedXCircle)
+                        ->visible(auth()->user()->isUredAdministrativnoOsoblje())
                         ->color('danger')
                         ->schema([
                             Textarea::make('rejection_reason')
@@ -128,11 +127,11 @@ class AbsenceWidget extends TableWidget
                                 ->send();
                         }),
 
-                    // TODO: Only employee can cancel their own leave request
                     \Filament\Actions\Action::make('cancel_request')
                         ->label('Otkaži zahtjev')
                         ->icon(Heroicon::OutlinedXMark)
                         ->color('danger')
+                        ->visible(fn(LeaveRequest $record): bool => auth()->user()->isEmployee() && auth()->user()->employee->id == $record->employee->id)
                         ->requiresConfirmation()
                         ->action(function (LeaveRequest $record) {
                             $record->update([
@@ -143,7 +142,7 @@ class AbsenceWidget extends TableWidget
                                 ->warning()
                                 ->send();
                         }),
-                ])->visible(fn(LeaveRequest $record): bool => $record->status === LeaveRequestStatus::PENDING->value)
+                ])
             );
     }
 }

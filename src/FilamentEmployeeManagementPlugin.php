@@ -2,14 +2,13 @@
 
 namespace Amicus\FilamentEmployeeManagement;
 
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Pages\RequestLeavePage;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Actions\EmployeeAction;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\HolidayResource;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveAllowanceResource;
-use Amicus\FilamentEmployeeManagement\Policies\HolidayPolicy;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Contracts\Plugin;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
+use Filament\Support\Icons\Heroicon;
 
 class FilamentEmployeeManagementPlugin implements Plugin
 {
@@ -27,7 +26,24 @@ class FilamentEmployeeManagementPlugin implements Plugin
             ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Pages')
             ->discoverWidgets(in: __DIR__ . '/Filament/Widgets', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Widgets')
             ->discoverResources(in: __DIR__ . '/Filament/Resources', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Resources')
-            ->discoverClusters(in: __DIR__ . '/Filament/Clusters', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Clusters');
+            ->discoverClusters(in: __DIR__ . '/Filament/Clusters', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Clusters')
+            ->navigationItems([
+                NavigationItem::make("Profi")
+                    ->visible(fn() => auth()->user()->isEmployee() && auth()->user()->employee->id)
+                    ->sort(2)
+                    ->url(fn() => EmployeeResource::getUrl('view', ['record' => auth()->user()->employee->id]))
+                    ->isActiveWhen(fn() => request()->routeIs(EmployeeResource::getRouteBaseName()))
+                    ->icon(Heroicon::OutlinedUserCircle),
+
+                NavigationItem::make("leave_requests")
+                    ->label("Zatraži odsustvo")
+                    ->visible(fn() => auth()->user()->isEmployee() && auth()->user()->employee->id)
+                    ->sort(3)
+                    ->url(fn() => RequestLeavePage::getUrl())
+                    ->isActiveWhen(fn() => request()->routeIs(RequestLeavePage::getRouteName()))
+                    ->icon(Heroicon::OutlinedCalendarDays),
+            ])
+        ;
     }
 
     public function boot(Panel $panel): void
