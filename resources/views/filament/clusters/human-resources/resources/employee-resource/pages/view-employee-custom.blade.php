@@ -81,14 +81,6 @@
                             class="py-4 px-1 border-b-2 text-sm font-medium">
                         Mjesečni izvještaj
                     </button>
-                    <button @click.prevent="activeTab = 'leave_allowances'"
-                            :class="{
-                                'border-primary-500 text-primary-600 dark:text-primary-400': activeTab === 'leave_allowances',
-                                'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:border-gray-600': activeTab !== 'leave_allowances'
-                            }"
-                            class="py-4 px-1 border-b-2 text-sm font-medium">
-                        Dani godišnjeg odmora
-                    </button>
                 </div>
             </nav>
         </header>
@@ -131,11 +123,6 @@
             <div x-show="activeTab === 'monthly_report'" x-cloak>
                 @livewire(\Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Widgets\MonthlySummaryWidget::class, ["record" => $record])
             </div>
-
-            <div x-show="activeTab === 'leave_allowances'" x-cloak>
-                @livewire(\Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Widgets\MonthlySummaryWidget::class, ["record" => $record])
-            </div>
-
         </div>
     </div>
 </x-filament-panels::page>

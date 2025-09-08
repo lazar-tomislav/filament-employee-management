@@ -26,18 +26,17 @@ class RequestLeavePage extends Page
 
     protected ?Employee $record = null;
 
-    public function getView(): string
-    {
-        return 'filament-employee-management::filament.clusters.human-resources.pages.request-leave-page';
-    }
+    protected string $view = 'filament-employee-management::filament.clusters.human-resources.pages.request-leave-page';
 
     public function mount(): void
     {
-        // TODO: if the auth user is employee, check if the record is set in url
-        $recordUrl = (int)request()->input('record');
-        if($recordUrl){
+        if(auth()->user()->isEmployee()){
+            $this->record = auth()->user()->employee;
+        }elseif($recordUrl = (int)request()->input('record')){
             $this->record = Employee::find($recordUrl);
+        }else{
+            // if the user is not employee, we can set the record to null or handle it accordingly
+            $this->record = null;
         }
     }
-
 }

@@ -35,24 +35,22 @@ class TimeLogTable
 
                 Tables\Columns\TextColumn::make('log_type')
                     ->label('Tip')
-                    ->formatStateUsing(fn (string $state): string => LogType::from($state)->getLabel())
+                    ->formatStateUsing(fn (LogType $state): string => $state->getLabel())
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'radni_sati' => 'success',
-                        'bolovanje' => 'warning',
-                        'godisnji' => 'info',
-                        'placeni_slobodan_dan' => 'gray',
-                        default => 'gray',
+                    ->color(fn (LogType $state): string => match ($state) {
+                        LogType::RADNI_SATI => 'success',
+                        LogType::BOLOVANJE => 'warning',
+                        LogType::GODISNJI => 'info',
+                        LogType::PLACENI_SLOBODAN_DAN => 'gray',
                     }),
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
-                    ->formatStateUsing(fn (string $state): string => TimeLogStatus::from($state)->getLabel())
+                    ->formatStateUsing(fn (TimeLogStatus $state): string => $state->getLabel())
                     ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'confirmed' => 'success',
-                        'planned' => 'warning',
-                        default => 'gray',
+                    ->color(fn (TimeLogStatus $state): string => match ($state) {
+                        TimeLogStatus::CONFIRMED => 'success',
+                        TimeLogStatus::PLANNED => 'warning',
                     }),
 
                 Tables\Columns\TextColumn::make('description')

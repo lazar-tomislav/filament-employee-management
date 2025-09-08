@@ -13,6 +13,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EmployeeResource extends Resource
@@ -35,7 +36,13 @@ class EmployeeResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return EmployeeTable::configure($table);
+        return EmployeeTable::configure($table)
+            ->modifyQueryUsing(function (Builder $query) {
+                // if user is employee, show only their own record
+                if (auth()->user()->isEmployee()) {
+                    $query->where('id', auth()->user()->employee->id);
+                }
+            });
     }
 
     public static function getBreadcrumb(): string

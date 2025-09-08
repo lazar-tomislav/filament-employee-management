@@ -14,23 +14,30 @@ class EmployeeTable
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('user.name')
+                    ->label('Korisničko ime')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('first_name')
+                    ->label('Ime')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('last_name')
+                    ->label('Prezime')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->label('E-mail adresa')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone_number')
                     ->label('Broj telefona')
                     ->searchable(),
                 Tables\Columns\IconColumn::make('is_active')
+                    ->label('Aktivan')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Datum stvaranja')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Datum ažuriranja')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),

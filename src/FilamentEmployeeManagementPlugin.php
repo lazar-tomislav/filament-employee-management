@@ -32,7 +32,7 @@ class FilamentEmployeeManagementPlugin implements Plugin
                     ->visible(fn() => auth()->user()->isEmployee() && auth()->user()->employee->id)
                     ->sort(2)
                     ->url(fn() => EmployeeResource::getUrl('view', ['record' => auth()->user()->employee->id]))
-                    ->isActiveWhen(fn() => request()->routeIs(EmployeeResource::getRouteBaseName()))
+//                    ->isActiveWhen(fn() => request()->routeIs(EmployeeResource::getRouteBaseName()))
                     ->icon(Heroicon::OutlinedUserCircle),
 
                 NavigationItem::make("leave_requests")
@@ -40,7 +40,7 @@ class FilamentEmployeeManagementPlugin implements Plugin
                     ->visible(fn() => auth()->user()->isEmployee() && auth()->user()->employee->id)
                     ->sort(3)
                     ->url(fn() => RequestLeavePage::getUrl())
-                    ->isActiveWhen(fn() => request()->routeIs(RequestLeavePage::getRouteName()))
+//                    ->isActiveWhen(fn() => request()->routeIs(RequestLeavePage::getRouteName()))
                     ->icon(Heroicon::OutlinedCalendarDays),
             ])
         ;

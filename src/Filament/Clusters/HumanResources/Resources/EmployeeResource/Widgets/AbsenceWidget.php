@@ -131,7 +131,11 @@ class AbsenceWidget extends TableWidget
                         ->label('Otkaži zahtjev')
                         ->icon(Heroicon::OutlinedXMark)
                         ->color('danger')
-                        ->visible(fn(LeaveRequest $record): bool => auth()->user()->isEmployee() && auth()->user()->employee->id == $record->employee->id)
+                        ->visible(function(LeaveRequest $record):bool {
+                            $isEmployee = auth()->user()->isEmployee() && auth()->user()->employee->id == $record->employee->id;
+                            $isAlreadyCancelled = $record->status === LeaveRequestStatus::CANCELED;
+                            return $isEmployee && !$isAlreadyCancelled;
+                        })
                         ->requiresConfirmation()
                         ->action(function (LeaveRequest $record) {
                             $record->update([
