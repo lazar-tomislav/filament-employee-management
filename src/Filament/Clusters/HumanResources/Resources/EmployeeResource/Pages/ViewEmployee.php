@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Schemas\EmployeeInfolist;
+use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Concerns\InteractsWithSchemas;

@@ -47,7 +47,7 @@ class EmployeeTable
             ])
             ->recordActions([
                 Actions\ViewAction::make(),
-                Actions\EditAction::make(),
+                Actions\EditAction::make()->slideOver(),
             ])
             ->headerActions([
                 EmployeeAction::allEmployeTimeReportExport(),

@@ -29,7 +29,7 @@ class HolidayTable
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
-                Actions\EditAction::make(),
+                Actions\EditAction::make()->slideOver(),
                 Actions\DeleteAction::make(),
             ])
             ->toolbarActions([
