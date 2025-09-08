@@ -22,6 +22,13 @@ return new class extends Migration
             ]
         );
         \Spatie\Permission\Models\Role::query()->updateOrCreate(
+            ['name' => 'Super Admin'],
+            [
+                'guard_name' => 'web',
+                'description' => 'Apsolutni pristup svemu, ima samo programer.',
+            ]
+        );
+        \Spatie\Permission\Models\Role::query()->updateOrCreate(
             ['name' => 'Ured (Administrativno osoblje)'],
             [
                 'guard_name' => 'web',
