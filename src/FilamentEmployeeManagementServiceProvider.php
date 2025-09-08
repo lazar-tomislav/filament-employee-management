@@ -5,7 +5,20 @@ namespace Amicus\FilamentEmployeeManagement;
 use Amicus\FilamentEmployeeManagement\Commands\FilamentEmployeeManagementCommand;
 use Amicus\FilamentEmployeeManagement\Commands\TestMonthlyReportNotificationCommand;
 use Amicus\FilamentEmployeeManagement\Commands\TestTelegramNotificationCommand;
+use Amicus\FilamentEmployeeManagement\Models\Employee;
+use Amicus\FilamentEmployeeManagement\Models\Holiday;
+use Amicus\FilamentEmployeeManagement\Models\LeaveAllowance;
+use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Amicus\FilamentEmployeeManagement\Models\TimeLog;
+use Amicus\FilamentEmployeeManagement\Policies\EmployeePolicy;
+use Amicus\FilamentEmployeeManagement\Policies\HolidayPolicy;
+use Amicus\FilamentEmployeeManagement\Policies\LeaveAllowancePolicy;
+use Amicus\FilamentEmployeeManagement\Policies\LeaveRequestPolicy;
+use Amicus\FilamentEmployeeManagement\Policies\RolePolicy;
+use Amicus\FilamentEmployeeManagement\Policies\TimeLogPolicy;
 use Amicus\FilamentEmployeeManagement\Testing\TestsFilamentEmployeeManagement;
+use BezhanSalleh\FilamentShield\Resources\Roles\RoleResource;
+use Filament\Contracts\Plugin;
 use Filament\Support\Assets\Asset;
 use Filament\Support\Assets\Css;
 use Filament\Support\Assets\Js;
@@ -14,6 +27,7 @@ use Filament\Support\Facades\FilamentIcon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Features\SupportTesting\Testable;
 use NotificationChannels\Telegram\TelegramServiceProvider;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
@@ -79,6 +93,13 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
 
         // Icon Registration
         FilamentIcon::register($this->getIcons());
+
+        Gate::policy(Employee::class, EmployeePolicy::class);
+        Gate::policy(Holiday::class, HolidayPolicy::class);
+        Gate::policy(LeaveAllowance::class, LeaveAllowancePolicy::class);
+        Gate::policy(LeaveRequestPolicy::class, LeaveRequest::class);
+        Gate::policy(TimeLog::class, TimeLogPolicy::class);
+
 
         // Handle Stubs
         if (app()->runningInConsole()) {
@@ -179,6 +200,7 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             'create_leave_requests_table',
             'create_time_logs_table',
             'create_holidays_table',
+            'create_permission_tables',
         ];
     }
 }

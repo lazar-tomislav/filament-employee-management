@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 #[ObservedBy([EmployeeObserver::class])]
 class Employee extends Model
@@ -20,6 +21,8 @@ class Employee extends Model
     use HasFactory;
     use Notifiable;
     use SoftDeletes;
+    use HasRoles;
+
 
     const HOURS_PER_WORK_DAY = 8;
     const WORK_DAYS = [

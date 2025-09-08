@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement;
 
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Contracts\Plugin;
 use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
@@ -15,13 +16,13 @@ class FilamentEmployeeManagementPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-//        // navigation group
-//        $panel->navigationGroups([
-//                NavigationGroup::make()
-//                    ->label('Shop')
-//                    ->icon('heroicon-o-shopping-cart'),
-//            ]);
-
+        $panel
+            ->plugins([
+                FilamentShieldPlugin::make(),
+            ])
+            ->resources([
+//                EmployeeResource::class,
+            ]);
     }
 
     public function boot(Panel $panel): void
