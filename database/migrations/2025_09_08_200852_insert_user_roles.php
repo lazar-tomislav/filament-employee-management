@@ -15,28 +15,28 @@ return new class extends Migration
         // Ured
         // Montaža
         \Spatie\Permission\Models\Role::query()->updateOrCreate(
-            ['name' => 'Uprava (Admin)'],
+            ['name' => 'uprava_admin'],
             [
                 'guard_name' => 'web',
                 'description' => 'Najviši nivo pristupa, obično rezerviran za direktora i upravitelja tvrtke.',
             ]
         );
         \Spatie\Permission\Models\Role::query()->updateOrCreate(
-            ['name' => 'Super Admin'],
+            ['name' => 'super_admin'],
             [
                 'guard_name' => 'web',
                 'description' => 'Apsolutni pristup svemu, ima samo programer.',
             ]
         );
         \Spatie\Permission\Models\Role::query()->updateOrCreate(
-            ['name' => 'Ured (Administrativno osoblje)'],
+            ['name' => 'ured_administrativno_osoblje'],
             [
                 'guard_name' => 'web',
                 'description' => 'Najčešće uključuje administrativno osoblje koje upravlja svakodnevnim poslovanjem, ali nema pristupa krucijalnim informacijama.',
             ]
         );
         \Spatie\Permission\Models\Role::query()->updateOrCreate(
-            ['name' => 'Montaža'],
+            ['name' => 'zaposlenik_employee'],
             [
                 'guard_name' => 'web',
                 'description' => 'Najniži nivo pristupa, obično rezerviran za radnike koji trebaju minimalan pristup sustavu.',

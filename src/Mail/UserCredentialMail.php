@@ -29,6 +29,7 @@ class UserCredentialMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+            to: $this->email,
             subject: 'Vaši korisnički podaci',
         );
     }

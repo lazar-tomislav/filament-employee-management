@@ -2,10 +2,13 @@
 
 namespace Amicus\FilamentEmployeeManagement;
 
+use App\Filament\Clusters\HumanResources\Resources\EmployeeResource;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Contracts\Plugin;
 use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
+use Filament\Support\Icons\Heroicon;
 
 class FilamentEmployeeManagementPlugin implements Plugin
 {
@@ -21,7 +24,6 @@ class FilamentEmployeeManagementPlugin implements Plugin
                 FilamentShieldPlugin::make(),
             ])
             ->resources([
-//                EmployeeResource::class,
             ]);
     }
 

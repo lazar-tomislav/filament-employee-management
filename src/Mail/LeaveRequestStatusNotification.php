@@ -34,9 +34,7 @@ class LeaveRequestStatusNotification extends Mailable
         };
 
         return new Envelope(
-            to: [
-                new Address($this->leaveRequest->employee->email, $this->leaveRequest->employee->first_name.' '.$this->leaveRequest->employee->last_name),
-            ],
+            to: $this->leaveRequest->employee->email,
             subject: $subject,
         );
     }

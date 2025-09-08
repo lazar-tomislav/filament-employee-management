@@ -115,10 +115,6 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             ], 'employee-management-config');
         }
 
-        // Testing
-        Testable::mixin(new TestsFilamentEmployeeManagement);
-
-
         $this->app->booted(function (Application $app) {
             $schedule = $app->make(Schedule::class);
             $schedule->job(new \Amicus\FilamentEmployeeManagement\Jobs\SendMonthlyHoursReportNotification)

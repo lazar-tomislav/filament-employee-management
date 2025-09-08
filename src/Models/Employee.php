@@ -2,9 +2,9 @@
 
 namespace Amicus\FilamentEmployeeManagement\Models;
 
-use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestType;
 use Amicus\FilamentEmployeeManagement\Observers\EmployeeObserver;
+use Amicus\FilamentEmployeeManagement\Traits\HasEmployeeRole;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,6 +22,7 @@ class Employee extends Model
     use Notifiable;
     use SoftDeletes;
     use HasRoles;
+    use HasEmployeeRole;
 
 
     const HOURS_PER_WORK_DAY = 8;
