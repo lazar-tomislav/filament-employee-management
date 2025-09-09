@@ -6,6 +6,7 @@ use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Filament\Forms;
 use Filament\Forms\Components\Repeater;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Operation;
 use Illuminate\Validation\Rules\Unique;
 
 class LeaveAllowanceForm
@@ -22,6 +23,7 @@ class LeaveAllowanceForm
                     })
                     ->columnSpanFull()
                     ->searchable()
+                    ->visibleOn(Operation::Create)
                     ->preload()
                     ->required()
                     ->default($employee?->id)
@@ -47,10 +49,12 @@ class LeaveAllowanceForm
                     ->label('U koju godinu pripada broj dana godišnjeg odmora?')
                     ->numeric()
                     ->unique(
-                        'leave_allowances',
-                        'year',
+                        table: 'leave_allowances',
+                        column: 'year',
                         ignoreRecord: true,
-                        modifyRuleUsing: fn (Unique $rule) => $employee ? $rule->where('employee_id', $employee->id) : $rule
+                        modifyRuleUsing: function (Unique $rule, callable $get) {
+                            return $rule->where('employee_id', $get('employee_id'));
+                        }
                     )
                     ->helperText('Za koju godinu se unosi broj dana godišnjeg odmora. Ako je zaposlenik zaposlen u tijeku godine, unesite godinu u kojoj je zaposlen.')
                     ->required()

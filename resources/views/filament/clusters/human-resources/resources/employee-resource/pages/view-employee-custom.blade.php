@@ -35,9 +35,7 @@
                         </p>
                     </div>
                 </div>
-
             </div>
-
 
             {{-- Navigation Tabs --}}
             <nav class="mt-6 -mb-6 -mx-6 border-t border-gray-200 dark:border-gray-700">

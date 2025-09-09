@@ -2,8 +2,10 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveAllowanceResource\Tables;
 
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveAllowanceResource\Schemas\LeaveAllowanceForm;
 use Amicus\FilamentEmployeeManagement\Models\LeaveAllowance;
 use Filament\Actions;
+use Filament\Actions\EditAction;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -13,7 +15,7 @@ class LeaveAllowanceTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultGroup( Tables\Grouping\Group::make("year")->label("Godina"))
+            ->defaultGroup(Tables\Grouping\Group::make("year")->label("Godina"))
             ->columns([
                 Tables\Columns\TextColumn::make('employee.first_name')
                     ->formatStateUsing(fn($record) => $record->employee->full_name . " (" . $record->employee->email . ")"),
@@ -50,7 +52,7 @@ class LeaveAllowanceTable
             ->recordActions([
                 Actions\ViewAction::make()
                     ->modalHeading("Pregled godišnjeg odmora")
-                ->slideOver(),
+                    ->slideOver(),
                 Actions\EditAction::make()->slideOver()->modalHeading("Uredi godišnji odmor"),
             ])
             ->toolbarActions([
@@ -91,6 +93,10 @@ class LeaveAllowanceTable
                     ->label('Iskoristivo do')
                     ->date('d.m.Y')
                     ->sortable(),
+            ])->recordActions([
+                EditAction::make()
+                    ->slideOver()
+                    ->schema(fn($schema) => LeaveAllowanceForm::configure($schema)),
             ]);
     }
 }
