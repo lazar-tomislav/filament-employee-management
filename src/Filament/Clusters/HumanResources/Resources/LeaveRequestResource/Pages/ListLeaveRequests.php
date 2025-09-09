@@ -19,19 +19,24 @@ class ListLeaveRequests extends ListRecords
     {
         return [
             'all' => Tab::make('Svi zahtjevi')
-                ->badge(LeaveRequest::query()->count()),
+                ->badge(LeaveRequest::query()->count())
+                ->badgeColor('gray'),
             'pending' => Tab::make(LeaveRequestStatus::PENDING->getLabel())
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', LeaveRequestStatus::PENDING))
-                ->badge(LeaveRequest::query()->where('status', LeaveRequestStatus::PENDING)->count()),
+                ->badge(LeaveRequest::query()->where('status', LeaveRequestStatus::PENDING)->count())
+                ->badgeColor(LeaveRequestStatus::PENDING->getColor()),
             'approved' => Tab::make(LeaveRequestStatus::APPROVED->getLabel())
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', LeaveRequestStatus::APPROVED))
-                ->badge(LeaveRequest::query()->where('status', LeaveRequestStatus::APPROVED)->count()),
+                ->badge(LeaveRequest::query()->where('status', LeaveRequestStatus::APPROVED)->count())
+                ->badgeColor(LeaveRequestStatus::APPROVED->getColor()),
             'rejected' => Tab::make(LeaveRequestStatus::REJECTED->getLabel())
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', LeaveRequestStatus::REJECTED))
-                ->badge(LeaveRequest::query()->where('status', LeaveRequestStatus::REJECTED)->count()),
+                ->badge(LeaveRequest::query()->where('status', LeaveRequestStatus::REJECTED)->count())
+                ->badgeColor(LeaveRequestStatus::REJECTED->getColor()),
             'canceled' => Tab::make(LeaveRequestStatus::CANCELED->getLabel())
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', LeaveRequestStatus::CANCELED))
-                ->badge(LeaveRequest::query()->where('status', LeaveRequestStatus::CANCELED)->count()),
+                ->badge(LeaveRequest::query()->where('status', LeaveRequestStatus::CANCELED)->count())
+                ->badgeColor(LeaveRequestStatus::CANCELED->getColor()),
         ];
     }
 
