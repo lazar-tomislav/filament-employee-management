@@ -28,7 +28,7 @@ class LeaveRequestResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPaperAirplane;
 
-    protected static ?int $navigationSort=25;
+    protected static ?int $navigationSort = 25;
     protected static ?string $cluster = HumanResources::class;
 
     public static function form(Schema $schema): Schema

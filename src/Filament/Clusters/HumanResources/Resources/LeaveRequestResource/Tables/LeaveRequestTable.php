@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Actions\LeaveRequestActions;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Schemas\LeaveRequestInfolist;
+use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Filament\Actions;
 use Filament\Actions\ActionGroup;
 use Filament\Tables;
@@ -14,6 +15,7 @@ class LeaveRequestTable
     public static function configure(Table $table): Table
     {
         return $table
+            
             ->columns([
                 Tables\Columns\TextColumn::make('employee.full_name_email')
                     ->label('Zatražio')
