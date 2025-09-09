@@ -10,6 +10,7 @@ class ListLeaveAllowances extends ListRecords
 {
     protected static string $resource = LeaveAllowanceResource::class;
 
+    protected static ?string $title="Godišnji odmori zaposlenika";
     protected function getHeaderActions(): array
     {
         return [

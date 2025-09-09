@@ -48,8 +48,10 @@ class LeaveAllowanceTable
             ])
             ->searchable()
             ->recordActions([
-                Actions\ViewAction::make(),
-                Actions\EditAction::make(),
+                Actions\ViewAction::make()
+                    ->modalHeading("Pregled godišnjeg odmora")
+                ->slideOver(),
+                Actions\EditAction::make()->slideOver()->modalHeading("Uredi godišnji odmor"),
             ])
             ->toolbarActions([
                 Actions\BulkActionGroup::make([
