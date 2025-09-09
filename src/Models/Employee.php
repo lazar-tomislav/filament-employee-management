@@ -57,7 +57,7 @@ class Employee extends Model
     protected static function booted(): void
     {
         static::addGlobalScope('active', function (Builder $builder) {
-            $builder->where('is_active', true);
+//            $builder->where('is_active', true);
         });
     }
 
@@ -85,14 +85,19 @@ class Employee extends Model
 
     protected function fullName():Attribute
     {
+        if($this->is_active){
+            return Attribute::make(
+                get: fn () => "{$this->first_name} {$this->last_name}",
+            );
+        }
         return Attribute::make(
-            get: fn () => "{$this->first_name} {$this->last_name}",
+            get: fn () => "{$this->first_name} {$this->last_name} (NEAKTIVAN)",
         );
     }
     protected function fullNameEmail():Attribute
     {
         return Attribute::make(
-            get: fn () => "{$this->first_name} {$this->last_name} ({$this->email})",
+            get: fn () => "{$this->full_name} ({$this->email})",
         );
     }
     public static function options()
