@@ -34,6 +34,7 @@ class EmployeeForm
                             })
                             ->searchable()
                             ->live()
+                            ->visibleOn(Operation::Create)
                             ->afterStateUpdated(function (Set $set, ?string $state) {
                                 if($state === null){
                                     return;
@@ -67,9 +68,8 @@ class EmployeeForm
                             ->placeholder('ivan.horvat@primjer.com')
                             ->email()
                             ->required()
-                            ->unique('users')
                             ->maxLength(255)
-                            ->unique(ignoreRecord: true),
+                            ->unique('employees', 'email', ignoreRecord: true),
 
                         Forms\Components\TextInput::make('phone_number')
                             ->label('Broj telefona')

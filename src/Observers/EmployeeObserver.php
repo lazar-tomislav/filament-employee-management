@@ -39,6 +39,11 @@ class EmployeeObserver
     /**
      * Handle the Employee "updated" event.
      */
+    public function updating(Employee $employee): void
+    {
+        unset($employee->password);
+    }
+
     public function updated(Employee $employee): void
     {
         // If a password is provided, update the user's password.
@@ -64,6 +69,17 @@ class EmployeeObserver
             $user->notify(new UserCredentialNotification($employee->password));
             $user->assignRole(Employee::ROLE_EMPLOYEE);
         }
+        unset($employee->password);
+
+        // if is_active is set to false, delete the user
+        if ($employee->isDirty('is_active') && !$employee->is_active && $employee->user) {
+            $employee->user->delete();
+        }
+        // if is_active is set to true, restore the user
+        if ($employee->isDirty('is_active') && $employee->is_active && $employee->user()->withTrashed()) {
+            $employee->user()->withTrashed()->restore();
+        }
+
     }
 
     /**
@@ -71,6 +87,10 @@ class EmployeeObserver
      */
     public function deleted(Employee $employee): void
     {
+        // on delete, delete the user as well
+        if ($employee->user) {
+            $employee->user->delete();
+        }
     }
 
     /**
@@ -78,7 +98,12 @@ class EmployeeObserver
      */
     public function restored(Employee $employee): void
     {
-        //
+        // If the employee is restored, we might want to restore the user as well.
+        // However, this depends on your application's logic. If you want to restore the user,
+        // you can do so here. Otherwise, you can leave it empty.
+        if ($employee->user()->withTrashed()) {
+            $employee->user()->withTrashed()->restore();
+        }
     }
 
     /**

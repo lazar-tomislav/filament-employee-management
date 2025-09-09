@@ -12,6 +12,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Google\Service\Books\Notification;
 use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeAction
@@ -59,9 +60,27 @@ class EmployeeAction
         return  Action::make("edit")
             ->label("Uredi podatke zaposlenika")
             ->slideOver()
+            ->color("")
             ->modalHeading('Uredi zaposlenika')
             ->icon(Heroicon::OutlinedPencil)
-            ->schema(fn(Schema $schema) => EmployeeResource\Schemas\EmployeeForm::configure($schema)->record($record));
+            ->fillForm($record->toArray())
+            ->schema(fn(Schema $schema) => EmployeeResource\Schemas\EmployeeForm::configure($schema)->record($record))
+            ->action(function (array $data) use ($record) {
+                try{
+                    $record->update($data);
+                    \Filament\Notifications\Notification::make()
+                        ->body('Podaci zaposlenika su uspješno ažurirani.')
+                        ->success()
+                        ->send();
+                }catch(\Exception $e){
+                    report($e);
+                    \Filament\Notifications\Notification::make()
+                        ->title('Greška prilikom ažuriranja zaposlenika')
+                        ->body($e->getMessage())
+                        ->danger()
+                        ->send();
+                }
+            });
     }
 
     public static function requestLeave(Employee $record): Action
