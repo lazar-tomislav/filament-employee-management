@@ -1,6 +1,6 @@
 <?php
 
-namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Schemas;
+namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\TimeLogResource\Schemas;
 
 use Filament\Infolists;
 use Filament\Schemas\Schema;

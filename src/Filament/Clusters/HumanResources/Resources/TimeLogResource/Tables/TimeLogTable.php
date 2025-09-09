@@ -1,11 +1,11 @@
 <?php
 
-namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Tables;
+namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\TimeLogResource\Tables;
 
 use Amicus\FilamentEmployeeManagement\Enums\LogType;
 use Amicus\FilamentEmployeeManagement\Enums\TimeLogStatus;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Schemas\TimeLogForm;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Schemas\TimeLogInfolist;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\TimeLogResource\Schemas\TimeLogForm;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\TimeLogResource\Schemas\TimeLogInfolist;
 use Filament\Actions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables;

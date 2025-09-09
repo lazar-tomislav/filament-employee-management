@@ -10,5 +10,8 @@ use Filament\Support\Icons\Heroicon;
 class HumanResources extends Cluster
 {
     use HasPageShield;
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedSquares2x2;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserCircle;
+
+    protected static ?string $navigationLabel = "Ljudski resursi";
 }

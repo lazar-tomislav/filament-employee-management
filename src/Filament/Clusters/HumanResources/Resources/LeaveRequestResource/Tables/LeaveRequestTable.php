@@ -1,10 +1,9 @@
 <?php
 
-namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Tables;
+namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Tables;
 
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Actions\LeaveRequestActions;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Schemas\LeaveRequestForm;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Schemas\LeaveRequestInfolist;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Actions\LeaveRequestActions;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Schemas\LeaveRequestInfolist;
 use Filament\Actions;
 use Filament\Actions\ActionGroup;
 use Filament\Tables;
@@ -49,6 +48,7 @@ class LeaveRequestTable
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
+
                 ActionGroup::make([
                     Actions\ViewAction::make()
                         ->schema(fn($schema) => LeaveRequestInfolist::configure($schema))

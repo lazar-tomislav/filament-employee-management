@@ -1,11 +1,12 @@
 <?php
 
-namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources;
+namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources;
 
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\TimeLogResource\Schemas\TimeLogForm;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\TimeLogResource\Schemas\TimeLogInfolist;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\TimeLogResource\Tables\TimeLogTable;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Schemas\TimeLogForm;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Schemas\TimeLogInfolist;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Tables\TimeLogTable;
 use Amicus\FilamentEmployeeManagement\Models\TimeLog;
 use App\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Pages;
 use BackedEnum;
@@ -20,10 +21,13 @@ class TimeLogResource extends Resource
 {
     protected static ?string $model = TimeLog::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
 
-    protected static ?string $cluster = TimeTracking::class;
+    protected static ?string $cluster = HumanResources::class;
 
+    protected static ?string $navigationLabel="Unosi vremena";
+
+    protected static ?int $navigationSort=20;
     public static function form(Schema $schema): Schema
     {
         return TimeLogForm::configure($schema);
@@ -49,7 +53,7 @@ class TimeLogResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Pages\ListTimeLogs::route('/'),
+            'index' => TimeLogResource\Pages\ListTimeLogs::route('/'),
         ];
     }
 

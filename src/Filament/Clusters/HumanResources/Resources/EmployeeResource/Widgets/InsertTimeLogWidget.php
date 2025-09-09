@@ -4,7 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 
 use Amicus\FilamentEmployeeManagement\Enums\LogType;
 use Amicus\FilamentEmployeeManagement\Enums\TimeLogStatus;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Schemas\TimeLogForm;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\TimeLogResource\Schemas\TimeLogForm;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\Holiday;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;

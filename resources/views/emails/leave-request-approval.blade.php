@@ -3,7 +3,7 @@
 
     Podnesen je novi zahtjev za dopust koji čeka vaše odobrenje.
 
-    @component('mail::button', ['url' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource::getUrl()])
+    @component('mail::button', ['url' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource::getUrl()])
         Pregledaj sve zahtjeve
     @endcomponent
 

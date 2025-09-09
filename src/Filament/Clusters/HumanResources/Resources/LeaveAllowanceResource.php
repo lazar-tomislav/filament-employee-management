@@ -18,8 +18,10 @@ class LeaveAllowanceResource extends Resource
 {
     protected static ?string $model = LeaveAllowance::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
+    protected static ?string $navigationLabel = "G.O zaposlenika";
+    protected static ?int $navigationSort=50;
     protected static ?string $cluster = HumanResources::class;
 
     public static function form(Schema $schema): Schema

@@ -14,17 +14,8 @@ class EmployeeTable
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Korisničko ime')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('first_name')
-                    ->label('Ime')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('last_name')
-                    ->label('Prezime')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->label('E-mail adresa')
+                Tables\Columns\TextColumn::make('full_name_email')
+                    ->label("Zaposlenik")
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone_number')
                     ->label('Broj telefona')

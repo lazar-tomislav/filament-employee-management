@@ -18,6 +18,7 @@ class RequestLeavePage extends Page
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
     protected static ?string $title = 'Zatraži odsustvo';
+    protected static ?int $navigationSort = 60;
 
     public static function getNavigationLabel(): string
     {

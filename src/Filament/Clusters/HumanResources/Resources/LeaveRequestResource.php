@@ -1,10 +1,11 @@
 <?php
 
-namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources;
+namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources;
 
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Schemas\LeaveRequestInfolist;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Tables\LeaveRequestTable;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Schemas\LeaveRequestInfolist;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Tables\LeaveRequestTable;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use App\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Pages;
 use BackedEnum;
@@ -19,15 +20,16 @@ class LeaveRequestResource extends Resource
 {
     protected static ?string $model = LeaveRequest::class;
 
-    protected static ?string $navigationLabel = 'Zahtjevi';
+    protected static ?string $navigationLabel = 'Zahtjevi za odsustvo';
 
     protected static ?string $modelLabel = 'Zahtjev';
 
     protected static ?string $pluralModelLabel = 'Zahtjevi';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPaperAirplane;
 
-    protected static ?string $cluster = TimeTracking::class;
+    protected static ?int $navigationSort=25;
+    protected static ?string $cluster = HumanResources::class;
 
     public static function form(Schema $schema): Schema
     {
@@ -54,8 +56,8 @@ class LeaveRequestResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Pages\ListLeaveRequests::route('/'),
-            'create' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Pages\CreateLeaveRequest::route('/create'),
+            'index' => LeaveRequestResource\Pages\ListLeaveRequests::route('/'),
+            'create' => LeaveRequestResource\Pages\CreateLeaveRequest::route('/create'),
         ];
     }
 

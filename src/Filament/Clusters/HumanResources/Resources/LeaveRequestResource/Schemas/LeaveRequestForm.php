@@ -1,6 +1,6 @@
 <?php
 
-namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Schemas;
+namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Schemas;
 
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestType;
 use Amicus\FilamentEmployeeManagement\Models\Employee;

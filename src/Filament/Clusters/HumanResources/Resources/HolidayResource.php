@@ -30,6 +30,8 @@ class HolidayResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
+    protected static ?int $navigationSort=30;
+
     public static function form(Schema $schema): Schema
     {
         return HolidayForm::configure($schema);
