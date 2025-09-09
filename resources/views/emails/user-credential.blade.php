@@ -7,6 +7,7 @@ Kreiran vam je korisnički račun na {{ config('app.name') }}.
 Molimo vas da se prijavite koristeći sljedeće podatke:
 <br>
 **Email:** {{ $email }}
+<br>
 **Lozinka:** {{ $password }}
 
 Preporučujemo da promijenite lozinku nakon prve prijave u postavkama vašeg računa.

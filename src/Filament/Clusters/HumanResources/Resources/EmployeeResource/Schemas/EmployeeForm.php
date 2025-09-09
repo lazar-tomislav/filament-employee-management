@@ -2,9 +2,10 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Schemas;
 
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Set;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -21,21 +22,26 @@ class EmployeeForm
                     ->columnSpan(2)
                     ->schema([
                         Forms\Components\Select::make('user_id')
-                            ->relationship('user', 'name')
+                            ->label("Postojeći korisnik")
+                            ->options(function(){
+                                // all users which do not have an employee record
+                                return User::query()
+                                    ->whereDoesntHave('employee')
+                                    ->orderBy('name')
+                                    ->pluck('name', 'id');
+                            })
                             ->searchable()
                             ->live()
-//                            ->afterStateUpdated(function (Set $set, ?string $state) {
-//                                if($state === null){
-//                                    return;
-//                                }
-//                                $user = User::find($state);
-//                                if($user){
-//                                    $nameParts = explode(' ', $user->name, 2);
-//                                    $set('first_name', $nameParts[0]);
-//                                    $set('last_name', $nameParts[1] ?? '');
-//                                    $set('email', $user->email);
-//                                }
-//                            })
+                            ->afterStateUpdated(function (Set $set, ?string $state) {
+                                if($state === null){
+                                    return;
+                                }
+                                $user = User::find($state);
+                                if($user){
+                                    $set('first_name', $user->name);
+                                    $set('email', $user->email);
+                                }
+                            })
                             ->columnSpan(1)
                             ->helperText('Kad već imamo korisnika u sustavu, možemo ga povezati s zaposlenikom, na odabir će se automatski predispuniti dostupni podaci.')
                             ->preload(),
@@ -48,37 +54,34 @@ class EmployeeForm
                         Forms\Components\TextInput::make('first_name')
                             ->placeholder('Ivan')
                             ->required()
-                            ->disabled(fn(callable $get) => filled($get('user_id')))
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('last_name')
                             ->placeholder('Horvat')
                             ->required()
-                            ->disabled(fn(callable $get) => filled($get('user_id')))
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('email')
                             ->placeholder('ivan.horvat@primjer.com')
                             ->email()
                             ->required()
-                            ->disabled(fn(callable $get) => filled($get('user_id')))
+                            ->unique('users')
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
-
-                        Forms\Components\TextInput::make('password')
-                            ->label('Lozinka')
-                            ->password()
-                            ->placeholder('*********')
-                            ->dehydrated(fn($state) => filled($state))
-                            ->required(fn(string $context): bool => $context === 'create')
-                            ->helperText('Ako nije odabran korisnik na početku obrasca, lozinka za prijavu je obavezna. Lozinka mora sadržavati najmanje 8 znakova.')
-                            ->disabled(fn(callable $get) => filled($get('user_id'))),
 
                         Forms\Components\TextInput::make('phone_number')
                             ->label('Broj telefona')
                             ->required()
                             ->placeholder('+385 91 123 4567')
                             ->maxLength(255),
+
+                        Forms\Components\TextInput::make('password')
+                            ->label('Lozinka')
+                            ->password()
+                            ->placeholder('*********')
+                            ->columnSpanFull()
+                            ->required(fn(string $context): bool => $context === 'create')
+                            ->helperText('Ako nije odabran korisnik na početku obrasca, lozinka za prijavu je obavezna. Lozinka mora sadržavati najmanje 8 znakova.'),
 
                         Forms\Components\TextInput::make('oib')
                             ->label('OIB')

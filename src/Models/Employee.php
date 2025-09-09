@@ -41,6 +41,7 @@ class Employee extends Model
         'last_name',
         'email',
         'phone_number',
+        'password',
         'address',
         'city',
         'oib',
