@@ -95,6 +95,7 @@ class LeaveAllowanceTable
                     ->sortable(),
             ])->recordActions([
                 EditAction::make()
+                    ->visible(fn() => auth()->user()->isUredAdministrativnoOsoblje())
                     ->slideOver()
                     ->schema(fn($schema) => LeaveAllowanceForm::configure($schema)),
             ]);
