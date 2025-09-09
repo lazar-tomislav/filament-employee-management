@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement\Models;
 
+use Amicus\FilamentEmployeeManagement\Enums\LogType;
 use Amicus\FilamentEmployeeManagement\Enums\TimeLogStatus;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -26,6 +27,7 @@ class TimeLog extends Model
         'date' => 'date',
         'hours' => 'decimal:2',
         'status' => TimeLogStatus::class,
+        'log_type' => LogType::class,
     ];
 
     public function employee()

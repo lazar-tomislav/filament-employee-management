@@ -38,6 +38,7 @@ class LeaveRequest extends Model
         'status' => LeaveRequestStatus::class,
     ];
 
+
     public function employee()
     {
         return $this->belongsTo(Employee::class);

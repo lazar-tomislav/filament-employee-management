@@ -5,6 +5,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Actions\EmployeeAction;
 use Filament\Actions;
 use Filament\Tables;
+use Filament\Tables\Actions\HeaderActionsPosition;
 use Filament\Tables\Table;
 
 class EmployeeTable
@@ -52,6 +53,7 @@ class EmployeeTable
             ->headerActions([
                 EmployeeAction::allEmployeTimeReportExport(),
             ])
+            ->headerActionsPosition(HeaderActionsPosition::Bottom)
             ->toolbarActions([
                 Actions\BulkActionGroup::make([
                     Actions\DeleteBulkAction::make(),

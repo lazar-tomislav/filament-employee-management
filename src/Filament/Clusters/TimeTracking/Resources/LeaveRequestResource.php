@@ -19,6 +19,12 @@ class LeaveRequestResource extends Resource
 {
     protected static ?string $model = LeaveRequest::class;
 
+    protected static ?string $navigationLabel = 'Zahtjevi';
+
+    protected static ?string $modelLabel = 'Zahtjev';
+
+    protected static ?string $pluralModelLabel = 'Zahtjevi';
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
     protected static ?string $cluster = TimeTracking::class;

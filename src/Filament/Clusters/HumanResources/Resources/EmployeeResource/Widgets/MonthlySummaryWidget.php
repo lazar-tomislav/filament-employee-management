@@ -103,7 +103,7 @@ class MonthlySummaryWidget extends Widget implements HasSchemas, HasActions
             ->components([
                 KeyValueEntry::make('work_hours_details')
                     ->hiddenLabel()
-                    ->keyLabel("--- Sažetak za {$selectedMonth->translatedFormat('F Y')} ---")
+                    ->keyLabel("Sažetak za {$selectedMonth->translatedFormat('F Y')}")
                     ->valueLabel('Broj sati')
                     ->belowContent([
                         Action::make('Odbij')

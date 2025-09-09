@@ -10,6 +10,7 @@ class HolidayForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
                     Forms\Components\TextInput::make('name')
                         ->label('Naziv')
@@ -21,7 +22,6 @@ class HolidayForm
                     Forms\Components\Toggle::make('is_recurring')
                         ->label('Ponavljajući praznik')
                         ->required()
-                        ->columnSpan(2)
                         ->helperText('Označavanjem ove opcije, praznik će se automatski ponavljati svake godine na odabrani datum.'),
             ]);
     }

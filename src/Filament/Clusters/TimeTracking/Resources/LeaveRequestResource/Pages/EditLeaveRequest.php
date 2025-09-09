@@ -13,10 +13,19 @@ class EditLeaveRequest extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\ViewAction::make(),
-            Actions\DeleteAction::make(),
-            Actions\ForceDeleteAction::make(),
-            Actions\RestoreAction::make(),
+            Actions\ViewAction::make()
+                ->label('Pregled'),
+            Actions\DeleteAction::make()
+                ->label('Obriši'),
+            Actions\ForceDeleteAction::make()
+                ->label('Trajno obriši'),
+            Actions\RestoreAction::make()
+                ->label('Vrati'),
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return 'Uredi zahtjev';
     }
 }

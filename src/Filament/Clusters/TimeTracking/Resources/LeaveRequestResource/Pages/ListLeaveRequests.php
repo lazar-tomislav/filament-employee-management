@@ -13,7 +13,11 @@ class ListLeaveRequests extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return 'Pregled zahtjeva';
     }
 }

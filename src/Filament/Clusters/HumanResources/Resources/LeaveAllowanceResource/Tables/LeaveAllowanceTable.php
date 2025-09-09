@@ -41,6 +41,7 @@ class LeaveAllowanceTable
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
             ])
+            ->searchable()
             ->recordActions([
                 Actions\ViewAction::make(),
                 Actions\EditAction::make(),

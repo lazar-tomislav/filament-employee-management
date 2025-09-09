@@ -10,25 +10,13 @@ class LeaveRequestInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(2)
             ->components([
-                Infolists\Components\TextEntry::make('employee_id')
-                    ->numeric(),
-                Infolists\Components\TextEntry::make('type'),
-                Infolists\Components\TextEntry::make('status'),
-                Infolists\Components\TextEntry::make('start_date')
-                    ->date(),
-                Infolists\Components\TextEntry::make('end_date')
-                    ->date(),
-                Infolists\Components\TextEntry::make('days_count')
-                    ->numeric(),
-                Infolists\Components\TextEntry::make('approved_by')
-                    ->numeric(),
-                Infolists\Components\TextEntry::make('created_at')
-                    ->dateTime(),
-                Infolists\Components\TextEntry::make('updated_at')
-                    ->dateTime(),
-                Infolists\Components\TextEntry::make('deleted_at')
-                    ->dateTime(),
+                Infolists\Components\KeyValueEntry::make('leave_request_details')
+                    ->hiddenLabel()
+                    ->keyLabel('Naziv')
+                    ->valueLabel('Vrijednost'),
+
             ]);
     }
 }

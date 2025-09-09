@@ -88,6 +88,12 @@ class Employee extends Model
             get: fn () => "{$this->first_name} {$this->last_name}",
         );
     }
+    protected function fullNameEmail():Attribute
+    {
+        return Attribute::make(
+            get: fn () => "{$this->first_name} {$this->last_name} ({$this->email})",
+        );
+    }
     public static function options()
     {
         // pluck all to array (first_name, last name (email) as value) and id as key
