@@ -2,7 +2,9 @@
 
 namespace Amicus\FilamentEmployeeManagement\Enums;
 
-enum LogType: string
+use Filament\Support\Contracts\HasLabel;
+
+enum LogType: string implements HasLabel
 {
     case RADNI_SATI = 'radni_sati';
     case BOLOVANJE = 'bolovanje';

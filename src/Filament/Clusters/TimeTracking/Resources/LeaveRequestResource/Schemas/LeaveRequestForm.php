@@ -13,14 +13,14 @@ use Filament\Schemas\Schema;
 
 class LeaveRequestForm
 {
-    public static function configure(Schema $schema, ?Employee $record = null, \Closure $afterStateUpdated): Schema
+    public static function configure(Schema $schema, ?Employee $record = null, ?\Closure $afterStateUpdated = null): Schema
     {
         return $schema
             ->components([
                 Select::make('employee_id')
                     ->label('Zaposlenik')
                     ->options(Employee::options())
-                    ->hidden(fn () => $record !== null)
+                    ->hidden(fn() => $record !== null)
                     ->preload()
                     ->searchable()
                     ->required()
@@ -38,7 +38,7 @@ class LeaveRequestForm
                             ->afterStateUpdated($afterStateUpdated)
                             ->displayFormat('d.m.Y')
                             ->format('Y-m-d')
-                            ->maxDate(fn ($get) => $get('end_date')),
+                            ->maxDate(fn($get) => $get('end_date')),
 
                         DatePicker::make('end_date')
                             ->label('Datum do')
@@ -49,7 +49,7 @@ class LeaveRequestForm
                             ->default(now()->addDay())
                             ->live()
                             ->format('Y-m-d')
-                            ->minDate(fn ($get) => $get('start_date')),
+                            ->minDate(fn($get) => $get('start_date')),
                     ]),
 
                 Select::make('leave_type_option')
@@ -57,12 +57,12 @@ class LeaveRequestForm
                     ->options(function (Get $get) use ($record): array {
                         $employee = $record ?? Employee::find($get('employee_id'));
                         $options = [];
-                        if ($employee) {
+                        if($employee){
                             $allowances = $employee->leaveAllowances()
                                 ->whereIn('year', [now()->year, now()->subYear()])
                                 ->orderBy('year', 'desc')
                                 ->get();
-                            foreach ($allowances as $allowance) {
+                            foreach($allowances as $allowance){
                                 $options['allowance_' . $allowance->id] = "Godišnji odmor - {$allowance->year}";
                             }
                         }

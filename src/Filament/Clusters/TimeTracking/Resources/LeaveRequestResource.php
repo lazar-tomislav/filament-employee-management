@@ -56,8 +56,6 @@ class LeaveRequestResource extends Resource
         return [
             'index' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Pages\ListLeaveRequests::route('/'),
             'create' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Pages\CreateLeaveRequest::route('/create'),
-            'view' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Pages\ViewLeaveRequest::route('/{record}'),
-            'edit' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Pages\EditLeaveRequest::route('/{record}/edit'),
         ];
     }
 

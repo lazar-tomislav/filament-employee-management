@@ -58,7 +58,7 @@ class TimeLogForm
                     ->visible(fn() => !request()->routeIs(ViewEmployee::getRouteName()))
                     ->default(TimeLogStatus::default())
                     ->required()
-                    ->helperText('Planirano - za unaprijed unesene sate, Potvrđeno - za finalne sate'),
+                    ->helperText('Planirano - za unaprijed unesene sate, Potvrđeno - za već odrađene sate'),
 
                 self::getNoteComponent()
             ]);

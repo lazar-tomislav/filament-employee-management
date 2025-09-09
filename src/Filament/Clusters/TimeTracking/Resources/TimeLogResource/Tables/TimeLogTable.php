@@ -4,6 +4,8 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resou
 
 use Amicus\FilamentEmployeeManagement\Enums\LogType;
 use Amicus\FilamentEmployeeManagement\Enums\TimeLogStatus;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Schemas\TimeLogForm;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Schemas\TimeLogInfolist;
 use Filament\Actions;
 use Filament\Forms\Components\DatePicker;
 use Filament\Tables;
@@ -17,27 +19,27 @@ class TimeLogTable
             ->columns([
                 Tables\Columns\TextColumn::make('employee.first_name')
                     ->label('Zaposlenik')
-                    ->formatStateUsing(fn ($record): string => "{$record->employee->first_name} {$record->employee->last_name}")
+                    ->formatStateUsing(fn($record): string => $record->employee->full_name_email)
                     ->searchable(['first_name', 'last_name'])
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('date')
-                    ->label('Datum')
+                    ->label('Unos za dan')
                     ->date('d.m.Y')
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('hours')
-                    ->label('Sati')
+                    ->label('Broj sati')
                     ->numeric(decimalPlaces: 2)
                     ->suffix(' h')
                     ->alignEnd()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('log_type')
-                    ->label('Tip')
-                    ->formatStateUsing(fn (?LogType $state): string => $state?->getLabel() ?? '-')
+                    ->label('Tip unosa')
+                    ->formatStateUsing(fn(?LogType $state): string => $state?->getLabel() ?? '-')
                     ->badge()
-                    ->color(fn (?LogType $state): string => match ($state) {
+                    ->color(fn(?LogType $state): string => match ($state) {
                         LogType::RADNI_SATI => 'success',
                         LogType::BOLOVANJE => 'warning',
                         LogType::GODISNJI => 'info',
@@ -47,9 +49,9 @@ class TimeLogTable
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
-                    ->formatStateUsing(fn (?TimeLogStatus $state): string => $state?->getLabel() ?? '-')
+                    ->formatStateUsing(fn(?TimeLogStatus $state): string => $state?->getLabel() ?? '-')
                     ->badge()
-                    ->color(fn (?TimeLogStatus $state): string => match ($state) {
+                    ->color(fn(?TimeLogStatus $state): string => match ($state) {
                         TimeLogStatus::CONFIRMED => 'success',
                         TimeLogStatus::PLANNED => 'warning',
                         null => 'gray',
@@ -58,7 +60,7 @@ class TimeLogTable
                 Tables\Columns\TextColumn::make('description')
                     ->label('Opis')
                     ->limit(50)
-                    ->tooltip(fn (?string $state): ?string => $state)
+                    ->tooltip(fn(?string $state): ?string => $state)
                     ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('created_at')
@@ -84,7 +86,7 @@ class TimeLogTable
                 Tables\Filters\SelectFilter::make('employee_id')
                     ->label('Zaposlenik')
                     ->relationship('employee', 'first_name')
-                    ->getOptionLabelFromRecordUsing(fn ($record): string => "{$record->first_name} {$record->last_name}")
+                    ->getOptionLabelFromRecordUsing(fn($record): string => $record->full_name_email)
                     ->searchable()
                     ->preload(),
 
@@ -106,19 +108,28 @@ class TimeLogTable
                     ])
                     ->query(function ($query, array $data) {
                         return $query
-                            ->when($data['from'], fn ($q) => $q->whereDate('date', '>=', $data['from']))
-                            ->when($data['until'], fn ($q) => $q->whereDate('date', '<=', $data['until']));
+                            ->when($data['from'], fn($q) => $q->whereDate('date', '>=', $data['from']))
+                            ->when($data['until'], fn($q) => $q->whereDate('date', '<=', $data['until']));
                     }),
 
                 Tables\Filters\TrashedFilter::make()
                     ->label('Obrisani zapisi'),
             ])
             ->recordActions([
+
                 Actions\ViewAction::make()
+                    ->schema(fn($schema)=>TimeLogInfolist::configure($schema))
+                    ->slideOver()
+                    ->modalHeading("Pregled unosa")
                     ->label('Prikaži'),
+
                 Actions\EditAction::make()
+                    ->schema(fn($schema)=>TimeLogForm::configure($schema))
+                    ->slideOver()
                     ->label('Uredi'),
+
                 Actions\DeleteAction::make()
+                    ->requiresConfirmation()
                     ->label('Obriši'),
             ])
             ->toolbarActions([

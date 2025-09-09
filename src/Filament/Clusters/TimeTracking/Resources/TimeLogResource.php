@@ -50,9 +50,6 @@ class TimeLogResource extends Resource
     {
         return [
             'index' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Pages\ListTimeLogs::route('/'),
-            'create' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Pages\CreateTimeLog::route('/create'),
-            'view' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Pages\ViewTimeLog::route('/{record}'),
-            'edit' => \Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\TimeLogResource\Pages\EditTimeLog::route('/{record}/edit'),
         ];
     }
 

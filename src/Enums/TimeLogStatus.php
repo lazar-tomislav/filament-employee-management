@@ -2,7 +2,9 @@
 
 namespace Amicus\FilamentEmployeeManagement\Enums;
 
-enum TimeLogStatus: string
+use Filament\Support\Contracts\HasLabel;
+
+enum TimeLogStatus: string implements HasLabel
 {
     case PLANNED = 'planned';
     case CONFIRMED = 'confirmed';

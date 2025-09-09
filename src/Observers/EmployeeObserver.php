@@ -33,7 +33,6 @@ class EmployeeObserver
      */
     public function deleted(Employee $employee): void
     {
-        //
     }
 
     /**
