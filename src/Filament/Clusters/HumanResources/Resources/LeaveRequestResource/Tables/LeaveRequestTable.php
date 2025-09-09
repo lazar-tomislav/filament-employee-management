@@ -15,7 +15,6 @@ class LeaveRequestTable
     public static function configure(Table $table): Table
     {
         return $table
-            
             ->columns([
                 Tables\Columns\TextColumn::make('employee.full_name_email')
                     ->label('Zatražio')
@@ -40,7 +39,6 @@ class LeaveRequestTable
                     ->badge()
                     ->label('Status'),
 
-
                 Tables\Columns\TextColumn::make('approver.full_name')
                     ->label('Odobrio')
                     ->numeric()
@@ -50,7 +48,6 @@ class LeaveRequestTable
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
-
                 ActionGroup::make([
                     Actions\ViewAction::make()
                         ->schema(fn($schema) => LeaveRequestInfolist::configure($schema))
@@ -58,13 +55,6 @@ class LeaveRequestTable
                     LeaveRequestActions::approveAction(),
                     LeaveRequestActions::rejectAction(),
                 ])
-            ])
-            ->toolbarActions([
-                Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make(),
-                    Actions\ForceDeleteBulkAction::make(),
-                    Actions\RestoreBulkAction::make(),
-                ]),
             ]);
     }
 }
