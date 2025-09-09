@@ -36,13 +36,6 @@
                     </div>
                 </div>
 
-                <div class="flex items-center space-x-2">
-{{--                    <a href="{{\Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource::getUrl('edit',['record'=>$record->id])}}"--}}
-{{--                       class="p-2 rounded-full hover:text-gray-500 hover:bg-gray-100 ">--}}
-{{--                        <x-filament::icon :icon="\Filament\Support\Icons\Heroicon::OutlinedPencil"></x-filament::icon>--}}
-{{--                    </a>--}}
-                </div>
-
             </div>
 
 

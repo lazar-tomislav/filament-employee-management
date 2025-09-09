@@ -10,6 +10,7 @@ use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -51,6 +52,16 @@ class EmployeeAction
             ->action(function (array $data) {
                 return Excel::download(new AllEmployeTimeReportExport($data['month'], $data['year']), 'izvjestaj-svi-zaposlenici.xlsx');
             });
+    }
+
+    public static function editEmployee(Employee $record):Action
+    {
+        return  Action::make("edit")
+            ->label("Uredi podatke zaposlenika")
+            ->slideOver()
+            ->modalHeading('Uredi zaposlenika')
+            ->icon(Heroicon::OutlinedPencil)
+            ->schema(fn(Schema $schema) => EmployeeResource\Schemas\EmployeeForm::configure($schema)->record($record));
     }
 
     public static function requestLeave(Employee $record): Action
