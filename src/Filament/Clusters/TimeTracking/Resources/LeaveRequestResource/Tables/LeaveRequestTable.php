@@ -2,9 +2,11 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Tables;
 
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Actions\LeaveRequestActions;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Schemas\LeaveRequestForm;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Schemas\LeaveRequestInfolist;
 use Filament\Actions;
+use Filament\Actions\ActionGroup;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -47,12 +49,13 @@ class LeaveRequestTable
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
-                Actions\ViewAction::make()
-                    ->schema(fn($schema) => LeaveRequestInfolist::configure($schema))
-                    ->slideOver(),
-                Actions\EditAction::make()
-                    ->schema(fn($schema, $record) => LeaveRequestForm::configure($schema, $record->employee))
-                    ->slideOver(),
+                ActionGroup::make([
+                    Actions\ViewAction::make()
+                        ->schema(fn($schema) => LeaveRequestInfolist::configure($schema))
+                        ->slideOver(),
+                    LeaveRequestActions::approveAction(),
+                    LeaveRequestActions::rejectAction(),
+                ])
             ])
             ->toolbarActions([
                 Actions\BulkActionGroup::make([

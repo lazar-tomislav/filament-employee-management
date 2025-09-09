@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestType;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Actions\LeaveRequestActions;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Filament\Actions\ActionGroup;
@@ -86,66 +87,9 @@ class AbsenceWidget extends TableWidget
             ])
             ->recordActions(
                 ActionGroup::make([
-                    \Filament\Actions\Action::make('approve')
-                        ->icon(Heroicon::OutlinedCheck)
-                        ->label('Odobri zahtjev')
-                        ->color('success')
-                        ->visible(auth()->user()->isUredAdministrativnoOsoblje())
-                        ->requiresConfirmation()
-                        ->action(function (LeaveRequest $record) {
-                            $record->update([
-                                'status' => LeaveRequestStatus::APPROVED->value,
-                                'approved_by' => auth()->id(),
-                            ]);
-                            Notification::make()
-                                ->title('Zahtjev odobren')
-                                ->body('Zaposlenik je obaviješten o promjeni statusa.')
-                                ->success()
-                                ->send();
-                        }),
-                    \Filament\Actions\Action::make('reject')
-                        ->label('Odbij zahtjev')
-                        ->icon(Heroicon::OutlinedXCircle)
-                        ->visible(auth()->user()->isUredAdministrativnoOsoblje())
-                        ->color('danger')
-                        ->schema([
-                            Textarea::make('rejection_reason')
-                                ->label('Razlog odbijanja')
-                                ->helperText("Zaposlenik će primiti obavijest o odbijanju zahtjeva s razlogom.")
-                                ->required(),
-                        ])
-                        ->action(function (LeaveRequest $record, array $data) {
-                            $record->update([
-                                'status' => LeaveRequestStatus::REJECTED->value,
-                                'approved_by' => auth()->id(),
-                                'rejection_reason' => $data['rejection_reason'],
-                            ]);
-                            Notification::make()
-                                ->title('Zahtjev obijen')
-                                ->body('Zaposlenik je obaviješten o promjeni statusa.')
-                                ->success()
-                                ->send();
-                        }),
-
-                    \Filament\Actions\Action::make('cancel_request')
-                        ->label('Otkaži zahtjev')
-                        ->icon(Heroicon::OutlinedXMark)
-                        ->color('danger')
-                        ->visible(function(LeaveRequest $record):bool {
-                            $isEmployee = auth()->user()->isEmployee() && auth()->user()->employee->id == $record->employee->id;
-                            $isAlreadyCancelled = $record->status === LeaveRequestStatus::CANCELED;
-                            return $isEmployee && !$isAlreadyCancelled;
-                        })
-                        ->requiresConfirmation()
-                        ->action(function (LeaveRequest $record) {
-                            $record->update([
-                                'status' => LeaveRequestStatus::CANCELED->value,
-                            ]);
-                            Notification::make()
-                                ->title('Zahtjev uspješno otkazan')
-                                ->warning()
-                                ->send();
-                        }),
+                    LeaveRequestActions::approveAction(),
+                    LeaveRequestActions::rejectAction(),
+                    LeaveRequestActions::cancelRequestAction(),
                 ])
             );
     }
