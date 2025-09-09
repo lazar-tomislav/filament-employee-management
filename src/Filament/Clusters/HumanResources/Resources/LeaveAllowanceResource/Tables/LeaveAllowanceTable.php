@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveAllowanceResource\Tables;
 
+use Amicus\FilamentEmployeeManagement\Models\LeaveAllowance;
 use Filament\Actions;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -12,33 +13,37 @@ class LeaveAllowanceTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultGroup( Tables\Grouping\Group::make("year")->label("Godina"))
             ->columns([
                 Tables\Columns\TextColumn::make('employee.first_name')
-                    ->formatStateUsing(fn($record) => $record->employee->full_name . " (" . $record->employee->email . ")")
-                    ->sortable(),
+                    ->formatStateUsing(fn($record) => $record->employee->full_name . " (" . $record->employee->email . ")"),
                 Tables\Columns\TextColumn::make('year')
-                    ->label("Godina")
-                    ->sortable(),
+                    ->label("Godina"),
 
                 Tables\Columns\TextColumn::make('total_days')
                     ->label('Ukupno dana G.O')
-                    ->numeric()
-                    ->sortable(),
+                    ->numeric(),
 
                 Tables\Columns\TextColumn::make('used_days')
                     ->state(fn($record) => $record->used_days)
                     ->label('Iskorišteno dana')
-                    ->numeric()
-                    ->sortable(),
+                    ->numeric(),
 
                 Tables\Columns\TextColumn::make('remaining_days')
                     ->state(fn($record) => $record->total_days - $record->used_days)
                     ->label('Preostalo dana')
                     ->numeric()
-                    ->color(fn($state) => $state <= 5 ? 'danger' : 'success')
-                    ->sortable(),
+                    ->color(fn($state) => $state <= 5 ? 'danger' : 'success'),
             ])
             ->filters([
+                //year filter
+                Tables\Filters\SelectFilter::make('year')
+                    ->options(fn() => LeaveAllowance::query()
+                        ->select('year')
+                        ->distinct()
+                        ->pluck('year', 'year'))
+                    ->label('Godina')
+                    ->placeholder('Sve godine'),
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->searchable()

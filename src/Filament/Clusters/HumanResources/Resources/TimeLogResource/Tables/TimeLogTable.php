@@ -16,6 +16,11 @@ class TimeLogTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultGroup( Tables\Grouping\Group::make("date")
+                ->label("Datum")
+                ->getTitleFromRecordUsing(function ($record) {
+                    return $record->date ? $record->date->format('d.m.Y') : 'N/A';
+            }))
             ->columns([
                 Tables\Columns\TextColumn::make('employee.first_name')
                     ->label('Zaposlenik')
@@ -116,33 +121,20 @@ class TimeLogTable
                     ->label('Obrisani zapisi'),
             ])
             ->recordActions([
-
                 Actions\ViewAction::make()
-                    ->schema(fn($schema)=>TimeLogInfolist::configure($schema))
+                    ->schema(fn($schema) => TimeLogInfolist::configure($schema))
                     ->slideOver()
                     ->modalHeading("Pregled unosa")
                     ->label('Prikaži'),
 
                 Actions\EditAction::make()
-                    ->schema(fn($schema)=>TimeLogForm::configure($schema))
+                    ->schema(fn($schema) => TimeLogForm::configure($schema))
                     ->slideOver()
                     ->label('Uredi'),
 
                 Actions\DeleteAction::make()
                     ->requiresConfirmation()
                     ->label('Obriši'),
-            ])
-            ->toolbarActions([
-                Actions\CreateAction::make()
-                    ->label('Novi unos'),
-                Actions\BulkActionGroup::make([
-                    Actions\DeleteBulkAction::make()
-                        ->label('Obriši odabrane'),
-                    Actions\ForceDeleteBulkAction::make()
-                        ->label('Trajno obriši'),
-                    Actions\RestoreBulkAction::make()
-                        ->label('Vrati obrisane'),
-                ]),
             ]);
     }
 }
