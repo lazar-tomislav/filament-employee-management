@@ -66,7 +66,7 @@ class EmployeeResource extends Resource
             'index' => HumanResources\Resources\EmployeeResource\Pages\ListEmployees::route('/'),
             #'create' => HumanResources\Resources\EmployeeResource\Pages\CreateEmployee::route('/create'),
             'view' => HumanResources\Resources\EmployeeResource\Pages\ViewEmployee::route('/{record}'),
-            'edit' => HumanResources\Resources\EmployeeResource\Pages\EditEmployee::route('/{record}/edit'),
+           # 'edit' => HumanResources\Resources\EmployeeResource\Pages\EditEmployee::route('/{record}/edit'),
         ];
     }
 

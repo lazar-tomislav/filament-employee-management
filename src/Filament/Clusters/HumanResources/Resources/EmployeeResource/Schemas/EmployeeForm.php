@@ -8,6 +8,7 @@ use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Enums\Operation;
 
 class EmployeeForm
 {
@@ -20,6 +21,7 @@ class EmployeeForm
                 Section::make('Predispuni po postojećem korisniku')
                     ->columnSpan(1)
                     ->columnSpan(2)
+                    ->visibleOn(Operation::Create)
                     ->schema([
                         Forms\Components\Select::make('user_id')
                             ->label("Postojeći korisnik")

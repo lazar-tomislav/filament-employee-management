@@ -4,7 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Schemas\EmployeeInfolist;
-use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
@@ -59,5 +59,16 @@ class ViewEmployee extends Page implements HasSchemas
     public function employeeInfoList(Schema $schema): Schema
     {
         return EmployeeInfolist::configure($schema)->record($this->record);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make("edit")
+                ->label("Uredi podatek zaposlenika")
+                ->slideOver()
+                ->modalHeading('Uredi zaposlenika')
+                ->schema(fn(Schema $schema) => EmployeeResource\Schemas\EmployeeForm::configure($schema)->record($this->record))
+        ];
     }
 }

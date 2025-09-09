@@ -41,7 +41,29 @@ class EmployeeObserver
      */
     public function updated(Employee $employee): void
     {
-        //
+        // If a password is provided, update the user's password.
+        if (! empty($employee->password) && $employee->user) {
+            $employee->user->update([
+                'password' => Hash::make($employee->password),
+            ]);
+            $employee->user->notify(new UserCredentialNotification($employee->password));
+        }
+
+        // If no user is associated, but email and password are provided, create a new user.
+        if (! $employee->user && empty($employee->user_id) && ! empty($employee->password)) {
+            $user = User::create([
+                'name' => $employee->first_name . ' ' . $employee->last_name,
+                'email' => $employee->email,
+                'password' => Hash::make($employee->password),
+            ]);
+            unset($employee->password);
+            $employee->user_id = $user->id;
+            $employee->save();
+
+            // Send email notification
+            $user->notify(new UserCredentialNotification($employee->password));
+            $user->assignRole(Employee::ROLE_EMPLOYEE);
+        }
     }
 
     /**
