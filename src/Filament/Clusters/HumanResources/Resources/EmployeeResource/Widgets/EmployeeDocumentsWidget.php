@@ -24,8 +24,4 @@ class EmployeeDocumentsWidget extends Widget implements HasActions,HasSchemas
     {
         return EmployeeAction::downloadMonthlyTimeReportAction($this->record);
     }
-    public function requestLeaveAction():Action
-    {
-        return EmployeeAction::requestLeave($this->record);
-    }
 }

@@ -59,11 +59,9 @@ class EmployeeAction
         return Action::make('requestLeave')
             ->label('Zatraži godišnji odmor')
             ->icon(Heroicon::OutlinedCalendarDays)
-            //visible if user is employee and is on his own profile
             ->visible(fn() => auth()->user()->isEmployee() && auth()->user()->employee->id === $record->id)
             ->color('')
             ->url(fn() => EmployeeResource::getUrl('view', ['record' => $record, 'tab' => 'absence']));
-
     }
 
     public static function downloadMonthlyTimeReportAction(Employee $record): Action

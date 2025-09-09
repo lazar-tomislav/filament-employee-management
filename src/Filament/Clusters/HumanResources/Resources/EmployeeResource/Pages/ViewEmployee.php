@@ -39,6 +39,10 @@ class ViewEmployee extends Page implements HasSchemas
     {
         $this->record = $this->resolveRecord($record);
 
+        if(auth()->user()->isEmployee() && auth()->user()->employee->id != $this->record->id){
+            abort(403, "Nemate ovlasti za pregled ovog zaposlenika.");
+        }
+
         $this->record->employee_details = [
             'Ime' => $this->record->first_name ?? "-",
             'Prezime' => $this->record->last_name ?? "-",
