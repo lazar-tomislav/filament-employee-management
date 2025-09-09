@@ -11,6 +11,14 @@ class ListEmployees extends ListRecords
 {
     protected static string $resource = EmployeeResource::class;
 
+
+    public function mount(): void
+    {
+        if(auth()->user()->isEmployee()){
+            redirect()->to(EmployeeResource::getUrl('view',['record'=>auth()->user()->employee->id]));
+        }
+    }
+
     public function getHeading(): string | Htmlable
     {
      return "Zaposlenici";

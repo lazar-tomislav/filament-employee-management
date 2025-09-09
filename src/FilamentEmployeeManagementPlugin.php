@@ -26,13 +26,13 @@ class FilamentEmployeeManagementPlugin implements Plugin
             ->discoverWidgets(in: __DIR__ . '/Filament/Widgets', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Widgets')
             ->discoverResources(in: __DIR__ . '/Filament/Resources', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Resources')
             ->discoverClusters(in: __DIR__ . '/Filament/Clusters', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Clusters')
-            ->navigationItems([
-                NavigationItem::make("Profi")
-                    ->visible(fn() => auth()->user()->isEmployee() && auth()->user()->employee->id)
-                    ->sort(2)
-                    ->url(fn() => EmployeeResource::getUrl('view', ['record' => auth()->user()->employee->id]))
-                    ->icon(Heroicon::OutlinedUserCircle),
-            ])
+//            ->navigationItems([
+//                NavigationItem::make("Profi")
+//                    ->visible(fn() => auth()->user()->isEmployee() && auth()->user()->employee->id)
+//                    ->sort(2)
+//                    ->url(fn() => EmployeeResource::getUrl('view', ['record' => auth()->user()->employee->id]))
+//                    ->icon(Heroicon::OutlinedUserCircle),
+//            ])
         ;
     }
 

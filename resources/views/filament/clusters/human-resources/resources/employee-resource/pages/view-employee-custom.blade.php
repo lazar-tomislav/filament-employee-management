@@ -54,23 +54,25 @@
                                 'border-primary-500 text-primary-600 dark:text-primary-400': activeTab === 'info',
                                 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:border-gray-600': activeTab !== 'info'
                             }"
-                            class="py-4 px-1 border-b-2 text-sm font-medium">
-                        Osnovne informacije
+                            class="py-4 px-1 border-b-2 text-xs md:text-sm font-medium">
+                        <span class="md:hidden">Info</span>
+                        <span class="hidden md:inline">Osnovne informacije</span>
                     </button>
                     <button @click.prevent="activeTab = 'time'"
                             :class="{
                                 'border-primary-500 text-primary-600 dark:text-primary-400': activeTab === 'time',
                                 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:border-gray-600': activeTab !== 'time'
                             }"
-                            class="py-4 px-1 border-b-2 text-sm font-medium">
-                        Evidencija rada
+                            class="py-4 px-1 border-b-2 text-xs md:text-sm font-medium">
+                        <span class="md:hidden">Rad</span>
+                        <span class="hidden md:inline">Evidencija rada</span>
                     </button>
                     <button @click.prevent="activeTab = 'absence'"
                             :class="{
                                 'border-primary-500 text-primary-600 dark:text-primary-400': activeTab === 'absence',
                                 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:border-gray-600': activeTab !== 'absence'
                             }"
-                            class="py-4 px-1 border-b-2 text-sm font-medium">
+                            class="py-4 px-1 border-b-2 text-xs md:text-sm font-medium">
                         Odsutnost
                     </button>
                     <button @click.prevent="activeTab = 'monthly_report'"
@@ -78,8 +80,9 @@
                                 'border-primary-500 text-primary-600 dark:text-primary-400': activeTab === 'monthly_report',
                                 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300 dark:hover:border-gray-600': activeTab !== 'monthly_report'
                             }"
-                            class="py-4 px-1 border-b-2 text-sm font-medium">
-                        Mjesečni izvještaj
+                            class="py-4 px-1 border-b-2 text-xs md:text-sm font-medium">
+                        <span class="md:hidden">Izvještaj</span>
+                        <span class="hidden md:inline">Mjesečni izvještaj</span>
                     </button>
                 </div>
             </nav>
