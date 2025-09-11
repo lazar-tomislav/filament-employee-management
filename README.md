@@ -1,5 +1,13 @@
 # Telegram
 
+```bash
+php artisan migrate --path=packages/filament-employee-management/database/migrations
+```
+
+add to user.php
+```php
+    use HasEmployeeRole;
+```
 ### 1. Install the package in main project
 ```bash
 composer require laravel-notification-channels/telegram
