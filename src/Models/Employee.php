@@ -95,13 +95,13 @@ class Employee extends Model
 
     protected function fullName():Attribute
     {
-        if($this->is_active){
+        if($this->is_active && $this->deleted_at == null){
             return Attribute::make(
                 get: fn () => "{$this->first_name} {$this->last_name}",
             );
         }
         return Attribute::make(
-            get: fn () => "{$this->first_name} {$this->last_name} (NEAKTIVAN)",
+            get: fn () => "{$this->first_name} {$this->last_name} (NEAKTIVAN / OBRISAN)",
         );
     }
     protected function fullNameEmail():Attribute

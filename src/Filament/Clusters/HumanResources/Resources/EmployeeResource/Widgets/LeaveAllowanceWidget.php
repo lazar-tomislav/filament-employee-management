@@ -23,7 +23,7 @@ class LeaveAllowanceWidget extends TableWidget
 
     public function mount(): void
     {
-        $this->record = Employee::find(request()->route('record'));
+        $this->record = Employee::query()->withTrashed()->find(request()->route('record'));
     }
 
     protected function getTableQuery(): Builder

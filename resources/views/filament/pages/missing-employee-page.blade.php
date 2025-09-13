@@ -7,7 +7,7 @@
                 </div>
                 <div class="space-y-2">
                     <h2 class="text-lg font-semibold text-gray-900">
-                        Dobro došli! Dovršite svoj profil zaposlenika
+                        Dobro došli! Dovršite svoj profil
                     </h2>
                     <p class="text-sm text-gray-600">
                         Za pristup sustavu potrebno je da imate profil zaposlenika. Molimo unesite svoje podatke ili se povežite s postojećim korisnikom.
