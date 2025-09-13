@@ -33,19 +33,13 @@ class LeaveRequestStatusChangeNotification extends Notification implements Shoul
             return null;
         }
         $employee = $this->leaveRequest->employee;
-        $status = $this->leaveRequest->status;
+        $status = $this->leaveRequest->status->getLabel();
         $startDate = $this->leaveRequest->start_date->format('d.m.Y');
         $endDate = $this->leaveRequest->end_date->format('d.m.Y');
 
-        $statusText = match($status) {
-            'approved' => 'odobren',
-            'rejected' => 'odbačen',
-            default => 'ažuriran'
-        };
-
         $message = TelegramMessage::create()
             ->to($notifiable->telegram_chat_id)
-            ->content("Zahtjev za godišnji odmor za zaposlenika {$employee->full_name} ({$startDate} - {$endDate}) je {$statusText}.");
+            ->content("Zahtjev za godišnji ({$startDate} - {$endDate}) ima novi status: {$status} \n\n Razlog: {$this->leaveRequest->rejection_reason}");
 
         return $message;
     }

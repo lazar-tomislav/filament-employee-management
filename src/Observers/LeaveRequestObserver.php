@@ -16,9 +16,11 @@ class LeaveRequestObserver
      */
     public function created(LeaveRequest $leaveRequest): void
     {
-        User::allAdministrativeUsers()->each(function (User $user) use ($leaveRequest) {
-            $user->notify(new NewLeaveRequestNotification($leaveRequest));
-        });
+        User::allAdministrativeUsers()
+            ->filter() // Remove null values
+            ->each(function (User $user) use ($leaveRequest) {
+                $user->employee->notify(new NewLeaveRequestNotification($leaveRequest));
+            });
     }
 
     /**
@@ -28,8 +30,8 @@ class LeaveRequestObserver
     {
         if ($leaveRequest->isDirty('status')) {
 
-            if($leaveRequest->status === LeaveRequestStatus::CANCELED->value) {
-                Log::info("Leave request {$leaveRequest->id} has been canceled.");
+            if ($leaveRequest->status === LeaveRequestStatus::CANCELED->value) {
+                Log::info("Leave request $leaveRequest->id has been canceled.");
                 return;
             }
             $leaveRequest->employee->notify(new LeaveRequestStatusChangeNotification($leaveRequest));

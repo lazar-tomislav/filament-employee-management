@@ -41,11 +41,13 @@ trait HasEmployeeRole
     public static function allAdministrativeUsers(): \Illuminate\Database\Eloquent\Collection
     {
         return static::query()
-            ->where(function ($query) {
-                $query->where('role', self::ROLE_UPRAVA_ADMIN)
-                    ->orWhere('role', self::ROLE_SUPER_ADMIN)
-                    ->orWhere('role', self::ROLE_URED_ADMINISTRATIVNO_OSOBLJE);
-            })->get();
-
+            ->whereHas('roles', function ($query) {
+                $query->whereIn('name', [
+                    self::ROLE_UPRAVA_ADMIN,
+                    self::ROLE_SUPER_ADMIN,
+                    self::ROLE_URED_ADMINISTRATIVNO_OSOBLJE
+                ]);
+            })
+            ->get();
     }
 }
