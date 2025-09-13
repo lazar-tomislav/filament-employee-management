@@ -42,8 +42,8 @@ class MissingTelegramChatIdPage extends Page implements HasActions, HasSchemas
 
     public function mount(): void
     {
-        // Redirect if user already has employee record
-        if(auth()->user()->employee->telegram_chat_id){
+        // Redirect if user already has employee record or if they have denied telegram_denied_at
+        if(auth()->user()->employee->telegram_chat_id || auth()->user()->employee->telegram_denied_at){
             redirect()->to(Dashboard::getUrl());
         }
         $this->form->fill();
@@ -59,60 +59,99 @@ class MissingTelegramChatIdPage extends Page implements HasActions, HasSchemas
                 ]),
             ]);
     }
+
+    public function skipAction(): Action
+    {
+        return Action::make('skip')
+            ->color('secondary')
+            ->label("Preskoči")
+            ->action(function () {
+                auth()->user()->employee()->update([
+                    'telegram_denied_at' => now()
+                ]);
+
+                redirect()->to(Dashboard::getUrl());
+            });
+    }
+
     public function deleteAction(): Action
     {
         return Action::make('delete')
             ->color('primary')
             ->label("Dohvati Telegram Chat ID")
-            ->modalHeading("Jeste li poslali poruku botu?")
-            ->modalDescription("Ako niste poslali poruku botu, molimo to učinite prije nego što nastavite jer u suprotnom nećete moći dohvatiti Chat ID.")
-            ->requiresConfirmation()
-            ->action(function () {
+            ->modalHeading("Odaberite svoj korisničko ime")
+            ->modalDescription("Odaberite svoje korisničko ime iz popisa korisnika koji su nedavno poslali poruku botu:")
+            ->schema([
+                \Filament\Forms\Components\Select::make('selected_chat_id')
+                    ->label('Korisničko ime')
+                    ->options(function () {
+                        try{
+                            $botToken = config('services.telegram-bot-api.token');
+                            $telegramApi = "https://api.telegram.org/bot{$botToken}/getUpdates";
+
+                            $response = file_get_contents($telegramApi);
+
+                            if($response === false){
+                                return [];
+                            }
+
+                            $data = json_decode($response, true);
+                            if(!$data || !$data['ok']){
+                                return [];
+                            }
+
+                            $results = $data['result'] ?? [];
+
+                            if(empty($results)){
+                                return [];
+                            }
+
+                            $users = [];
+                            // Get last 10 messages to show recent users
+                            $recentMessages = array_slice($results, -10);
+
+                            foreach($recentMessages as $message){
+                                $chatId = $message['message']['chat']['id'] ?? null;
+                                $userName = $message['message']['from']['first_name'] ?? '';
+                                $userLastName = $message['message']['from']['last_name'] ?? '';
+                                $username = $message['message']['from']['username'] ?? null;
+
+                                if($chatId){
+                                    $displayName = trim($userName . ' ' . $userLastName);
+                                    if($username){
+                                        $displayName .= " (@{$username})";
+                                    }
+
+                                    $users[$chatId] = $displayName;
+                                }
+                            }
+
+                            return array_reverse($users, true); // Show newest first
+                        }catch(\Exception $e){
+                            return [];
+                        }
+                    })
+                    ->required()
+                    ->placeholder('Odaberite svoje ime iz popisa')
+                    ->native(true)
+            ])
+            ->action(function (array $data) {
                 try{
-                    $botToken = config('services.telegram-bot-api.token');
-                    $telegramApi = "https://api.telegram.org/bot{$botToken}/getUpdates";
+                    $selectedChatId = $data['selected_chat_id'];
 
-                    $response = file_get_contents($telegramApi);
-
-                    if($response === false){
-                        throw new \Exception('Failed to connect to Telegram API');
+                    if(!$selectedChatId){
+                        throw new \Exception('Chat ID not selected');
                     }
 
-                    $data = json_decode($response, true);
-                    if(!$data || !$data['ok']){
-                        throw new \Exception('Invalid response from Telegram API');
-                    }
-
-                    $results = $data['result'] ?? [];
-
-                    if(empty($results)){
-                        Notification::make()
-                            ->title('Nema novih poruka')
-                            ->body('Molimo pošaljite bilo koju poruku botu na Telegramu pa pokušajte ponovo.')
-                            ->warning()
-                            ->send();
-                        return;
-                    }
-
-                    $latestMessage = end($results);
-                    $chatId = $latestMessage['message']['chat']['id'] ?? null;
-                    $userName = $latestMessage['message']['from']['first_name'] ?? '';
-                    $userLastName = $latestMessage['message']['from']['last_name'] ?? '';
-
-                    if(!$chatId){
-                        throw new \Exception('Chat ID not found in the response');
-                    }
-
-                    $this->data['telegram_chat_id'] = $chatId;
+                    $this->data['telegram_chat_id'] = $selectedChatId;
                     $this->form->fill($this->data);
 
                     auth()->user()->employee()->update([
-                        'telegram_chat_id' => $chatId
+                        'telegram_chat_id' => $selectedChatId
                     ]);
 
                     Notification::make()
-                        ->title('Chat ID uspješno dohvaćen!')
-                        ->body("Pronađen Chat ID za korisnika: {$userName} {$userLastName}: {$chatId}")
+                        ->title('Chat ID uspješno postavljen!')
                         ->success()
                         ->send();
 
@@ -122,6 +161,7 @@ class MissingTelegramChatIdPage extends Page implements HasActions, HasSchemas
                     report($e);
                     Notification::make()
                         ->title('Greška pri dohvaćanju Chat ID-a')
+                        ->body('Molimo pokušajte ponovo ili kontaktirajte administratora.')
                         ->danger()
                         ->send();
                 }

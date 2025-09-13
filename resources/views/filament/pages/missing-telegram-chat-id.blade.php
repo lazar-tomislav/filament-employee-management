@@ -44,6 +44,7 @@
             <div class="space-y-6 mt-6">
                 {{ $this->form }}
                 <div class="w-full flex justify-end">
+                    {{$this->skipAction}}
                     {{$this->deleteAction}}
                 </div>
             </div>

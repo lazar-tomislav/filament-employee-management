@@ -13,20 +13,20 @@ class EnsureUserHasTelegramChatId
     public function handle(Request $request, Closure $next): Response
     {
         // Skip if not authenticated
-        if (!auth()->check()) {
+        if(!auth()->check()){
             return $next($request);
         }
 
         // Skip if already on the missing employee page
-        if ($request->routeIs(MissingTelegramChatIdPage::getRouteName())) {
+        if($request->routeIs(MissingTelegramChatIdPage::getRouteName())){
             return $next($request);
         }
 
         // Skip if not in admin area
-        if (!$request->is('admin*')&& !$request->is('app*')) {
+        if(!$request->is('admin*') && !$request->is('app*')){
             return $next($request);
         }
-        if (auth()->user()->employee->telegram_chat_id) {
+        if(auth()->user()->employee->telegram_chat_id || auth()->user()->employee->telegram_denied_at){
             return $next($request);
         }
 
