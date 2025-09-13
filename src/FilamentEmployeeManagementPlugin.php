@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement;
 
 use Amicus\FilamentEmployeeManagement\Http\Middleware\EnsureUserHasEmployeeRecord;
+use Amicus\FilamentEmployeeManagement\Http\Middleware\EnsureUserHasTelegramChatId;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
@@ -22,6 +23,7 @@ class FilamentEmployeeManagementPlugin implements Plugin
             ])
             ->middleware([
                 EnsureUserHasEmployeeRecord::class,
+                EnsureUserHasTelegramChatId::class,
             ])
             ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Pages')
             ->discoverWidgets(in: __DIR__ . '/Filament/Widgets', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Widgets')

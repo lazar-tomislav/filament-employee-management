@@ -47,6 +47,8 @@ class Employee extends Model
     ];
 
     protected $fillable = [
+        'telegram_denied_at',
+        'telegram_chat_id',
         'user_id',
         'first_name',
         'last_name',
@@ -63,6 +65,7 @@ class Employee extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'telegram_denied_at' => 'datetime',
     ];
 
     protected static function booted(): void
@@ -75,7 +78,7 @@ class Employee extends Model
     protected function telegramChatId():Attribute
     {
         return Attribute::make(
-            get: fn () => config('employee-management.telegram-bot-api.general_notification'),
+            get: fn ($value) => $value,
         );
     }
 
