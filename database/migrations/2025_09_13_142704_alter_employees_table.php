@@ -9,8 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('employees', function (Blueprint $table) {
-            $table->id();
-            $table->string('telegram_chat_id')->index()->after('id');
+            $table->string('telegram_chat_id')->index()->after('id')->nullable();
             $table->dateTime("telegram_denied_at")->nullable()->after('telegram_chat_id');
         });
     }

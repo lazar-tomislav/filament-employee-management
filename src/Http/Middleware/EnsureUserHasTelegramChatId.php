@@ -26,8 +26,7 @@ class EnsureUserHasTelegramChatId
         if (!$request->is('admin*')&& !$request->is('app*')) {
             return $next($request);
         }
-
-        if (auth()->user()->employee->telegram_chat_id !== null) {
+        if (auth()->user()->employee->telegram_chat_id) {
             return $next($request);
         }
 

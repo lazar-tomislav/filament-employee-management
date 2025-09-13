@@ -32,7 +32,7 @@
                         </div>
                         <li>Pošaljite bilo koju poruku botu (npr. "Pozdrav" ili "/start")</li>
                         <li>Otvorite NetEko aplikaciju</li>
-                        <li>Pritisnite: Poslao sam poruku</li>
+                        <li>Pritisnite: Dohvati Telegram Chat ID</li>
                     </ol>
                     <div class="mt-4 p-3 bg-warning-50 dark:bg-warning-900/20 border border-warning-200 dark:border-warning-800 rounded-lg">
                         <p class="text-warning-800 dark:text-warning-200 text-sm">
@@ -41,10 +41,14 @@
                     </div>
                 </div>
             </div>
-            <div class="space-y-6 mt-4">
-                    {{$this->getChatId()}}
+            <div class="space-y-6 mt-6">
                 {{ $this->form }}
+                <div class="w-full flex justify-end">
+                    {{$this->deleteAction}}
+                </div>
             </div>
         </div>
     </div>
+    <x-filament-actions::modals />
+
 </x-filament-panels::page>
