@@ -120,7 +120,7 @@ class EmployeeForm
 
                         Forms\Components\Textarea::make('note')
                             ->label('Napomena')
-                            ->visible(fn()=>!$isCurrentRouteMissingEmployeePage && !$isUserEmployee)
+                            ->visible(fn() => !$isCurrentRouteMissingEmployeePage && !$isUserEmployee)
                             ->placeholder('Dodatne napomene o zaposleniku.')
                             ->columnSpanFull(),
 
@@ -129,7 +129,7 @@ class EmployeeForm
                             ->columnSpanFull()
                             ->label('Je li zaposlenik aktivan korisnik sustava?')
                             ->helperText('Ako je zaposlenik neaktivan, neće moći pristupiti sustavu, neće se prikazivati u popisu zaposlenika.')
-                            ->visible(fn()=>!$isCurrentRouteMissingEmployeePage && !$isUserEmployee)
+                            ->visible(fn() => !$isCurrentRouteMissingEmployeePage && !$isUserEmployee)
                             ->default(true),
                     ])->columns(2),
             ]);
@@ -163,5 +163,19 @@ class EmployeeForm
                 ->required(),
         ]);
 
+    }
+
+    public static function getTelegramChatIdFields(): array
+    {
+        return [
+            Forms\Components\TextInput::make('telegram_chat_id')
+                ->label('Telegram Chat ID')
+                ->required()
+                ->placeholder('Unesite Telegram Chat ID')
+                ->helperText('Ovaj ID se koristi za slanje obavijesti putem Telegrama.')
+                ->maxLength(255)
+                ->columnSpanFull()
+                ->visible(fn() => auth()->user()->employee->telegram_chat_id === null)
+        ];
     }
 }

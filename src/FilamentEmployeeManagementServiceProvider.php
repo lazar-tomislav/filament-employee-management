@@ -196,6 +196,7 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             'create_time_logs_table',
             'create_holidays_table',
             'insert_user_roles',
+            'alter_employees_table',
         ];
     }
 }
