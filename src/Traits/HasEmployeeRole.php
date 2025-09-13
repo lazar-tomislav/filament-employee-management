@@ -16,7 +16,7 @@ trait HasEmployeeRole
      */
     public function isEmployee(): bool
     {
-        return $this->hasRole(self::ROLE_EMPLOYEE) && $this->employee !==null;
+        return $this->hasRole(self::ROLE_EMPLOYEE);
     }
 
     public function isAdmin(bool $strict = false): bool

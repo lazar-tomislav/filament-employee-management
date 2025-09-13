@@ -28,6 +28,11 @@ class EmployeeObserver
 
     public function created(Employee $employee): void
     {
+       self::onCreatedEvent($employee);
+    }
+
+    public static function onCreatedEvent(Employee $employee): void
+    {
         LeaveAllowance::create([
             'employee_id' => $employee->id,
             'year' => now()->year,

@@ -2,12 +2,10 @@
 
 namespace Amicus\FilamentEmployeeManagement;
 
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource;
+use Amicus\FilamentEmployeeManagement\Http\Middleware\EnsureUserHasEmployeeRecord;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Contracts\Plugin;
-use Filament\Navigation\NavigationItem;
 use Filament\Panel;
-use Filament\Support\Icons\Heroicon;
 
 class FilamentEmployeeManagementPlugin implements Plugin
 {
@@ -21,6 +19,9 @@ class FilamentEmployeeManagementPlugin implements Plugin
         $panel
             ->plugins([
                 FilamentShieldPlugin::make(),
+            ])
+            ->middleware([
+                EnsureUserHasEmployeeRecord::class,
             ])
             ->discoverPages(in: __DIR__ . '/Filament/Pages', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Pages')
             ->discoverWidgets(in: __DIR__ . '/Filament/Widgets', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Widgets')
@@ -38,6 +39,7 @@ class FilamentEmployeeManagementPlugin implements Plugin
 
     public function boot(Panel $panel): void
     {
+        //
     }
 
     public static function make(): static

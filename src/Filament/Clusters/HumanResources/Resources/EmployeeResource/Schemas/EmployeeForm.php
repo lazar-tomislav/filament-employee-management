@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Schemas;
 
+use Amicus\FilamentEmployeeManagement\Filament\Pages\MissingEmployeePage;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
@@ -14,6 +15,10 @@ class EmployeeForm
 {
     public static function configure(Schema $schema): Schema
     {
+        // if auth user is not employee then show this field
+        $isUserEmployee = !auth()->user()->isEmployee();
+        $isCurrentRouteMissingEmployeePage = request()->routeIs(MissingEmployeePage::getRouteName());
+
         return $schema
             ->columns(2)
             ->extraAttributes(['class' => 'max-w-2xl mx-auto'])
@@ -25,7 +30,7 @@ class EmployeeForm
                     ->schema([
                         Forms\Components\Select::make('user_id')
                             ->label("Postojeći korisnik")
-                            ->options(function(){
+                            ->options(function () {
                                 // all users which do not have an employee record
                                 return User::query()
                                     ->whereDoesntHave('employee')
@@ -55,16 +60,19 @@ class EmployeeForm
                     ->columns(3)
                     ->schema([
                         Forms\Components\TextInput::make('first_name')
+                            ->label('Ime')
                             ->placeholder('Ivan')
                             ->required()
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('last_name')
+                            ->label('Prezime')
                             ->placeholder('Horvat')
                             ->required()
                             ->maxLength(255),
 
                         Forms\Components\TextInput::make('email')
+                            ->label('Email')
                             ->placeholder('ivan.horvat@primjer.com')
                             ->email()
                             ->required()
@@ -82,8 +90,9 @@ class EmployeeForm
                             ->password()
                             ->placeholder('*********')
                             ->columnSpanFull()
-                            ->required(fn(string $context): bool => $context === 'create')
-                            ->helperText('Ako nije odabran korisnik na početku obrasca, lozinka za prijavu je obavezna. Lozinka mora sadržavati najmanje 8 znakova.'),
+                            ->required(fn(string $context, $get): bool => $context === 'create' && empty($get('user_id')))
+                            ->visible(fn($get): bool => empty($get('user_id')))
+                            ->helperText('Lozinka je obavezna kad nije odabran postojeći korisnik. Lozinka mora sadržavati najmanje 8 znakova.'),
 
                         Forms\Components\TextInput::make('oib')
                             ->label('OIB')
@@ -111,6 +120,7 @@ class EmployeeForm
 
                         Forms\Components\Textarea::make('note')
                             ->label('Napomena')
+                            ->visible(fn()=>!$isCurrentRouteMissingEmployeePage && !$isUserEmployee)
                             ->placeholder('Dodatne napomene o zaposleniku.')
                             ->columnSpanFull(),
 
@@ -119,6 +129,7 @@ class EmployeeForm
                             ->columnSpanFull()
                             ->label('Je li zaposlenik aktivan korisnik sustava?')
                             ->helperText('Ako je zaposlenik neaktivan, neće moći pristupiti sustavu, neće se prikazivati u popisu zaposlenika.')
+                            ->visible(fn()=>!$isCurrentRouteMissingEmployeePage && !$isUserEmployee)
                             ->default(true),
                     ])->columns(2),
             ]);
