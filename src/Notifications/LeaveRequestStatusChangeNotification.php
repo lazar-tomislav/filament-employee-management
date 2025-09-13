@@ -27,8 +27,11 @@ class LeaveRequestStatusChangeNotification extends Notification implements Shoul
         return new LeaveRequestStatusNotification($this->leaveRequest);
     }
 
-    public function toTelegram(object $notifiable): TelegramMessage
+    public function toTelegram(object $notifiable): ?TelegramMessage
     {
+        if(!$notifiable->telegram_chat_id){
+            return null;
+        }
         $employee = $this->leaveRequest->employee;
         $status = $this->leaveRequest->status;
         $startDate = $this->leaveRequest->start_date->format('d.m.Y');

@@ -31,8 +31,11 @@ class NewLeaveRequestNotification extends Notification implements ShouldQueue
             ->to($notifiable->email);
     }
 
-    public function toTelegram(object $notifiable): TelegramMessage
+    public function toTelegram(object $notifiable): ?TelegramMessage
     {
+        if(!$notifiable->telegram_chat_id){
+            return null;
+        }
         $url = EmployeeResource::getUrl('view', [
             'record' => $this->leaveRequest->employee_id,
             'tab' => 'absence',

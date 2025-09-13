@@ -2,6 +2,8 @@
 
 namespace Amicus\FilamentEmployeeManagement\Notifications;
 
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Pages\ViewEmployee;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -20,9 +22,13 @@ class EmployeeMonthlyHoursReportNotification extends Notification implements Sho
         return ['telegram'];
     }
 
-    public function toTelegram(object $notifiable): TelegramMessage
+    public function toTelegram(object $notifiable): ?TelegramMessage
     {
-        $url = config('app.url');
+        if(!$notifiable->telegram_chat_id){
+            return null;
+        }
+
+        $url = EmployeeResource::getUrl('view', ['record' => $notifiable->id,]) . '?tab=info';
         $message = TelegramMessage::create()
             ->to($notifiable->telegram_chat_id)
             ->content("Izvještaj radnih sati\n\n" .

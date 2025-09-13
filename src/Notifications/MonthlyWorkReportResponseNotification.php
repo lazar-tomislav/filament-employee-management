@@ -22,9 +22,12 @@ class MonthlyWorkReportResponseNotification extends Notification implements Shou
         return ['telegram'];
     }
 
-    public function toTelegram(object $notifiable): TelegramMessage
+    public function toTelegram(object $notifiable): ?TelegramMessage
     {
         $employee = $this->monthlyWorkReport->employee;
+        if(!$employee->telegram_chat_id){
+            return null;
+        }
         $month = $this->monthlyWorkReport->for_month->format('m/Y');
 
         $message = TelegramMessage::create()
