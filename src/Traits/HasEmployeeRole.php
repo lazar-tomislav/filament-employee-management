@@ -37,4 +37,15 @@ trait HasEmployeeRole
         // administrativno + roles above it can see
         return $this->hasRole(self::ROLE_URED_ADMINISTRATIVNO_OSOBLJE) || $this->isSuperAdmin() || $this->isAdmin();
     }
+
+    public static function allAdministrativeUsers(): \Illuminate\Database\Eloquent\Collection
+    {
+        return static::query()
+            ->where(function ($query) {
+                $query->where('role', self::ROLE_UPRAVA_ADMIN)
+                    ->orWhere('role', self::ROLE_SUPER_ADMIN)
+                    ->orWhere('role', self::ROLE_URED_ADMINISTRATIVNO_OSOBLJE);
+            })->get();
+
+    }
 }

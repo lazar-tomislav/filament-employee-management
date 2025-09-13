@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Observers;
 
 use Amicus\FilamentEmployeeManagement\Models\MonthlyWorkReport;
 use Amicus\FilamentEmployeeManagement\Notifications\MonthlyWorkReportResponseNotification;
+use App\Models\User;
 use Illuminate\Support\Facades\Notification;
 
 class MonthlyWorkReportObserver
@@ -15,10 +16,9 @@ class MonthlyWorkReportObserver
     {
         if ($monthlyWorkReport->isDirty('denied_at') && $monthlyWorkReport->denied_at !== null) {
             if (!empty($monthlyWorkReport->deny_reason)) {
-                // The recipient is hardcoded in the notification itself.
-                // We just need a notifiable to send the notification.
-                $notifiable = $monthlyWorkReport->employee;
-                $notifiable->notify(new MonthlyWorkReportResponseNotification($monthlyWorkReport));
+                User::allAdministrativeUsers()->each(function (User $user) use ($monthlyWorkReport) {
+                    $user->notify(new MonthlyWorkReportResponseNotification($monthlyWorkReport));
+                });
             }
         }
     }

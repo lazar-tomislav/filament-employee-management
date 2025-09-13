@@ -16,9 +16,9 @@ class LeaveRequestObserver
      */
     public function created(LeaveRequest $leaveRequest): void
     {
-        // TODO: Replace with actual admin/manager retrieval logic
-        $recipient = User::first();
-        $recipient->notify(new NewLeaveRequestNotification($leaveRequest));
+        User::allAdministrativeUsers()->each(function (User $user) use ($leaveRequest) {
+            $user->notify(new NewLeaveRequestNotification($leaveRequest));
+        });
     }
 
     /**
