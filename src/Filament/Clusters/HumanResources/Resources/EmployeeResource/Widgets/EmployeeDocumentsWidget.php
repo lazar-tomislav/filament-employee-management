@@ -13,7 +13,7 @@ use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 
-class EmployeeDocumentsWidget extends Widget implements HasActions,HasSchemas
+class EmployeeDocumentsWidget extends Widget implements HasActions, HasSchemas
 {
     use InteractsWithActions;
     use InteractsWithSchemas;
@@ -22,23 +22,13 @@ class EmployeeDocumentsWidget extends Widget implements HasActions,HasSchemas
 
     public ?Employee $record = null;
 
-    public function downloadMonthlyTimeReportAction():Action
+    public function downloadMonthlyTimeReportAction(): Action
     {
         return EmployeeAction::downloadMonthlyTimeReportAction($this->record);
     }
 
     public function connectToTelegramAction(): Action
     {
-        return Action::make('connectToTelegram')
-            ->label('Spoji s telegramom')
-            ->color('')
-            ->icon(Heroicon::OutlinedEnvelope)
-            ->action(function () {
-                $this->record->update([
-                    'telegram_denied_at' => null,
-                    'telegram_chat_id' => null
-                ]);
-                $this->redirect(Dashboard::getUrl());
-            });
+        return EmployeeAction::connectToTelegramAction($this->record);
     }
 }

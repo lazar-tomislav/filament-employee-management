@@ -10,6 +10,7 @@ use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Pages\Dashboard;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Google\Service\Books\Notification;
@@ -55,9 +56,9 @@ class EmployeeAction
             });
     }
 
-    public static function editEmployee(Employee $record):Action
+    public static function editEmployee(Employee $record): Action
     {
-        return  Action::make("edit")
+        return Action::make("edit")
             ->label("Uredi podatke zaposlenika")
             ->slideOver()
             ->color("")
@@ -126,4 +127,18 @@ class EmployeeAction
             ->modalCancelActionLabel('Odustani');
     }
 
+    public static function connectToTelegramAction(Employee $employee): Action
+    {
+        return Action::make('connectToTelegram')
+            ->label('Spoji s telegramom')
+            ->color('')
+            ->icon(Heroicon::OutlinedEnvelope)
+            ->action(function () use ($employee) {
+                $employee->update([
+                    'telegram_denied_at' => null,
+                    'telegram_chat_id' => null
+                ]);
+                return redirect()->to(Dashboard::getUrl());
+            });
+    }
 }
