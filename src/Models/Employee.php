@@ -10,8 +10,11 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Amicus\FilamentEmployeeManagement\Database\Factories\EmployeeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -25,6 +28,13 @@ class Employee extends Model
     use HasRoles;
     use HasEmployeeRole;
 
+    /**
+     * Create a new factory instance for the model.
+     */
+    protected static function newFactory(): EmployeeFactory
+    {
+        return EmployeeFactory::new();
+    }
 
     const HOURS_PER_WORK_DAY = 8;
     const WORK_DAYS = [
@@ -211,5 +221,26 @@ class Employee extends Model
         }
 
         return $report;
+    }
+
+    /**
+     * Dohvaća sva ažuriranja zadataka koja je ovaj zaposlenik napisao.
+     */
+    public function taskUpdates(): HasMany
+    {
+        return $this->hasMany(\App\Models\TaskUpdate::class, 'employee_id');
+    }
+
+    /**
+     * Dohvaća sva ažuriranja u kojima je ovaj zaposlenik bio spomenut.
+     */
+    public function mentionsInTaskUpdates(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            \App\Models\TaskUpdate::class,
+            'task_update_mentions',
+            'mentioned_employee_id',
+            'task_update_id'
+        );
     }
 }
