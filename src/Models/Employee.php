@@ -37,6 +37,7 @@ class Employee extends Model
     }
 
     const HOURS_PER_WORK_DAY = 8;
+
     const WORK_DAYS = [
         Carbon::MONDAY,
         Carbon::TUESDAY,
@@ -223,17 +224,11 @@ class Employee extends Model
         return $report;
     }
 
-    /**
-     * Dohvaća sva ažuriranja zadataka koja je ovaj zaposlenik napisao.
-     */
     public function taskUpdates(): HasMany
     {
         return $this->hasMany(\App\Models\TaskUpdate::class, 'employee_id');
     }
 
-    /**
-     * Dohvaća sva ažuriranja u kojima je ovaj zaposlenik bio spomenut.
-     */
     public function mentionsInTaskUpdates(): BelongsToMany
     {
         return $this->belongsToMany(

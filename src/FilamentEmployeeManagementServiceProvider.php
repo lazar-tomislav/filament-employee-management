@@ -97,9 +97,8 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
         Gate::policy(Employee::class, EmployeePolicy::class);
         Gate::policy(Holiday::class, HolidayPolicy::class);
         Gate::policy(LeaveAllowance::class, LeaveAllowancePolicy::class);
-        Gate::policy(LeaveRequestPolicy::class, LeaveRequest::class);
+        Gate::policy(LeaveRequest::class, LeaveRequestPolicy::class);
         Gate::policy(TimeLog::class, TimeLogPolicy::class);
-
 
         // Handle Stubs
         if (app()->runningInConsole()) {
