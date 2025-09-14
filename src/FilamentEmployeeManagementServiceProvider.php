@@ -5,6 +5,7 @@ namespace Amicus\FilamentEmployeeManagement;
 use Amicus\FilamentEmployeeManagement\Commands\FilamentEmployeeManagementCommand;
 use Amicus\FilamentEmployeeManagement\Commands\TestMonthlyReportNotificationCommand;
 use Amicus\FilamentEmployeeManagement\Commands\TestTelegramNotificationCommand;
+use Amicus\FilamentEmployeeManagement\Livewire\Tasks\TaskTable;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\Holiday;
 use Amicus\FilamentEmployeeManagement\Models\LeaveAllowance;
@@ -29,6 +30,7 @@ use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Features\SupportTesting\Testable;
+use Livewire\Livewire;
 use NotificationChannels\Telegram\TelegramServiceProvider;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\Package;
@@ -107,6 +109,9 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
         Gate::policy(LeaveAllowance::class, LeaveAllowancePolicy::class);
         Gate::policy(LeaveRequest::class, LeaveRequestPolicy::class);
         Gate::policy(TimeLog::class, TimeLogPolicy::class);
+
+        // Register Livewire components
+        $this->discoverLivewireComponents();
 
         // Handle Stubs
         if (app()->runningInConsole()) {
@@ -206,5 +211,35 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             'insert_user_roles',
             'alter_employees_table',
         ];
+    }
+
+    protected function discoverLivewireComponents(): void
+    {
+        $livewirePath = __DIR__ . '/Livewire';
+
+        if (is_dir($livewirePath)) {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($livewirePath)
+            );
+
+            foreach ($iterator as $file) {
+                if ($file->isFile() && $file->getExtension() === 'php') {
+                    $relativePath = str_replace($livewirePath . DIRECTORY_SEPARATOR, '', $file->getPathname());
+                    $relativePath = str_replace(DIRECTORY_SEPARATOR, '\\', $relativePath);
+                    $className = str_replace('.php', '', $relativePath);
+
+                    $fullClass = "Amicus\\FilamentEmployeeManagement\\Livewire\\$className";
+
+                    if (class_exists($fullClass)) {
+                        // Convert PascalCase to kebab-case
+                        $componentPath = strtolower(preg_replace('/([a-z])([A-Z])/', '$1-$2', $className));
+                        $componentPath = str_replace('\\', '.', $componentPath);
+                        $componentName = 'filament-employee-management::' . $componentPath;
+
+                        Livewire::component($componentName, $fullClass);
+                    }
+                }
+            }
+        }
     }
 }

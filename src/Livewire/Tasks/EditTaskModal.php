@@ -111,6 +111,6 @@ class EditTaskModal extends Component implements HasSchemas, HasActions
 
     public function render()
     {
-        return view('livewire.tasks.edit-task-modal');
+        return view('filament-employee-management::livewire.tasks.edit-task-modal');
     }
 }
