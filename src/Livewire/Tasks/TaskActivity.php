@@ -135,7 +135,7 @@ class TaskActivity extends Component implements HasSchemas, HasActions
 
     public function render()
     {
-        return view('filament-employee-management::filament.livewire.tasks.task-activity', [
+        return view('filament-employee-management::livewire.tasks.task-activity', [
             'updates' => $this->updates,
         ]);
     }

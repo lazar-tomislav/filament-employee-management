@@ -40,7 +40,7 @@
             <div class="mt-4">
                 @if($activeTab === 'updates')
                     @if($task)
-                        <livewire:tasks.task-activity :task="$task" :key="'task-activity-'.$task->id"/>
+                        <livewire:filament-employee-management::tasks.task-activity :task="$task" :key="'task-activity-'.$task->id"/>
                     @endif
                 @endif
 
