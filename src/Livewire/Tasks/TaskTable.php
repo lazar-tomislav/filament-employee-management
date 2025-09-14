@@ -9,8 +9,11 @@ use Amicus\FilamentEmployeeManagement\Models\Task;
 use App\Models\Client;
 use App\Models\Project;
 use Filament\Actions\Action;
+use Filament\Actions\BulkActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Components\Select;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -18,6 +21,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
 
 class TaskTable extends Component implements HasActions, HasSchemas, HasTable
@@ -79,6 +83,8 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
         return TaskAction::quickCreateTask($this, $this->status, $this->client?->id, $this->project?->id);
     }
 
+
+
     public function table(Table $table): Table
     {
         return TasksTable::configure($table)
@@ -91,6 +97,7 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
                     ->query(fn($query) => $query->whereNull('project_id'))
             ])
             ->deferFilters(false)
+
             ->query(
                 Task::query()
                     ->where('status', $this->status)

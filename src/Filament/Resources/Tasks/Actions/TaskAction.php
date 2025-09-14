@@ -8,9 +8,11 @@ use Amicus\FilamentEmployeeManagement\Livewire\Tasks\TaskTable;
 use Amicus\FilamentEmployeeManagement\Models\Task;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
+use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class TaskAction
 {
@@ -44,7 +46,7 @@ class TaskAction
             ->fillForm(fn() => [
                 "assignee_id" => auth()->user()->employee?->id,
             ])
-            ->schema(fn($schema) => TaskForm::configure($schema, isQuickProjectCreate:true))
+            ->schema(fn($schema) => TaskForm::configure($schema, isQuickProjectCreate: true))
             ->action(function ($data) use ($status, $component, $clientId, $projectId) {
                 try{
                     $data['client_id'] = $clientId;
@@ -74,6 +76,35 @@ class TaskAction
                 $table->getLivewire()->dispatch('open-modal', id: 'edit-task-modal', params: [
                     'taskId' => $record->id,
                 ]);
+            });
+    }
+
+    public static function changeStatusAction(Table $table): Action
+    {
+        return Action::make('changeStatus')
+            ->label('Promijeni status')
+            ->icon('heroicon-o-arrow-path')
+            ->schema(fn($record) => [
+                Select::make('status')
+                    ->label('Novi status')
+                    ->autofocus()
+                    ->native(false)
+                    ->options(fn($record)=>
+                        collect(TaskStatus::cases())
+                            ->filter(fn($case) => $case !== $record->status)
+                            ->mapWithKeys(fn($case) => [$case->value => $case->getLabel()])
+                    )
+                    ->required()
+            ])
+            ->action(function (array $data, $record) use ($table): void {
+                try{
+                    $newStatus = TaskStatus::from($data['status']);
+                    $record->update(['status' => $newStatus]);
+                    $table->getLivewire()->dispatch('task-created');
+                }catch(\Exception $e){
+                    report($e);
+                    Notification::make()->title('Greška prilikom promjene statusa')->danger()->send();
+                }
             });
     }
 }

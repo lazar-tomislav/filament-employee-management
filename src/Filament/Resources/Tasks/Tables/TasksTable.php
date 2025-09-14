@@ -2,19 +2,24 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Tables;
 
+use Amicus\FilamentEmployeeManagement\Enums\TaskStatus;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Pages\ViewEmployee;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ViewProject;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Actions\TaskAction;
+use Amicus\FilamentEmployeeManagement\Models\Task;
 use App\Filament\Resources\Clients\Pages\ViewClient;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\ForceDeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Select;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class TasksTable
 {
@@ -77,6 +82,7 @@ class TasksTable
             ])
             ->recordActions([
                 TaskAction::editInCustomModal($table),
+                TaskAction::changeStatusAction($table),
                 DeleteAction::make()->hiddenLabel()->modalHeading("Obriši zadatak"),
             ])
             ->emptyStateHeading("Nema zadataka")
@@ -84,7 +90,6 @@ class TasksTable
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),
-                    ForceDeleteBulkAction::make(),
                     RestoreBulkAction::make(),
                 ]),
             ]);

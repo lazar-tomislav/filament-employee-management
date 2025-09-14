@@ -48,7 +48,6 @@ class EmployeeTable
             ->toolbarActions([
                 Actions\BulkActionGroup::make([
                     Actions\DeleteBulkAction::make(),
-                    Actions\ForceDeleteBulkAction::make(),
                     Actions\RestoreBulkAction::make(),
                 ]),
             ]);
