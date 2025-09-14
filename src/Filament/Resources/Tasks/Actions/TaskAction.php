@@ -46,11 +46,13 @@ class TaskAction
             ->fillForm(fn() => [
                 "assignee_id" => auth()->user()->employee?->id,
             ])
-            ->schema(fn($schema) => TaskForm::configure($schema, isQuickProjectCreate: true))
+            ->schema(fn($schema) => TaskForm::configure($schema, (bool) ($clientId && $projectId)))
             ->action(function ($data) use ($status, $component, $clientId, $projectId) {
                 try{
-                    $data['client_id'] = $clientId;
-                    $data['project_id'] = $projectId;
+                    if($clientId && $projectId) {
+                        $data['client_id'] = $clientId;
+                        $data['project_id'] = $projectId;
+                    }
                     $data['status'] = $status->value;
                     $data['creator_id'] = auth()->id();
 
