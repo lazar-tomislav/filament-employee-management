@@ -5,6 +5,7 @@ namespace Amicus\FilamentEmployeeManagement\Notifications;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource;
 use Amicus\FilamentEmployeeManagement\Mail\LeaveRequestApprovalNotification;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -22,7 +23,7 @@ class NewLeaveRequestNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'telegram'];
+        return ['mail', 'telegram', 'database'];
     }
 
     public function toMail(object $notifiable): LeaveRequestApprovalNotification
@@ -48,5 +49,13 @@ class NewLeaveRequestNotification extends Notification implements ShouldQueue
             ->button('Idi u aplikaciju', $url);
 
         return $message;
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        return FilamentNotification::make()
+            ->title('Novi zahtjev za godišnji odmor')
+            ->body("Zaposlenik: {$this->leaveRequest->employee->full_name}\nPeriod: {$this->leaveRequest->start_date->format('d.m.Y')} - {$this->leaveRequest->end_date->format('d.m.Y')}")
+            ->getDatabaseMessage();
     }
 }

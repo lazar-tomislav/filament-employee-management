@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Notifications;
 
 use Amicus\FilamentEmployeeManagement\Models\MonthlyWorkReport;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -19,7 +20,7 @@ class MonthlyWorkReportResponseNotification extends Notification implements Shou
 
     public function via(object $notifiable): array
     {
-        return ['telegram'];
+        return ['telegram', 'database'];
     }
 
     public function toTelegram(object $notifiable): ?TelegramMessage
@@ -36,5 +37,16 @@ class MonthlyWorkReportResponseNotification extends Notification implements Shou
                 "Razlog: {$this->monthlyWorkReport->deny_reason}");
 
         return $message;
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        $employee = $this->monthlyWorkReport->employee;
+        $month = $this->monthlyWorkReport->for_month->format('m/Y');
+
+        return FilamentNotification::make()
+            ->title('Izvještaj o radnim satima odbijen')
+            ->body("Izvještaj za zaposlenika {$employee->full_name} za mjesec {$month} je odbijen.\nRazlog: {$this->monthlyWorkReport->deny_reason}")
+            ->getDatabaseMessage();
     }
 }

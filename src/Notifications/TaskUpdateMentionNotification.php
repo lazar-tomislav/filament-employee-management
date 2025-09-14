@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Notifications;
 
 use Amicus\FilamentEmployeeManagement\Models\TaskUpdate;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -21,7 +22,7 @@ class TaskUpdateMentionNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['telegram'];
+        return ['telegram', 'database'];
     }
     public function toTelegram(object $notifiable): ?TelegramMessage
     {
@@ -38,5 +39,15 @@ class TaskUpdateMentionNotification extends Notification implements ShouldQueue
             ->button('Otvori zadatak', $this->taskUpdate->task->view_url);
 
         return $message;
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        $body = strip_tags($this->taskUpdate->body);
+
+        return FilamentNotification::make()
+            ->title('Spomenuti ste u komentaru')
+            ->body("{$this->taskUpdate->author->full_name} vas je spomenuo u komentaru za zadatak: {$this->taskUpdate->task->title}")
+            ->getDatabaseMessage();
     }
 }

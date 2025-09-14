@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Notifications;
 
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Pages\ViewEmployee;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -19,7 +20,7 @@ class EmployeeMonthlyHoursReportNotification extends Notification implements Sho
 
     public function via(object $notifiable): array
     {
-        return ['telegram'];
+        return ['telegram', 'database'];
     }
 
     public function toTelegram(object $notifiable): ?TelegramMessage
@@ -32,9 +33,17 @@ class EmployeeMonthlyHoursReportNotification extends Notification implements Sho
         $message = TelegramMessage::create()
             ->to($notifiable->telegram_chat_id)
             ->content("Izvještaj radnih sati\n\n" .
-                "Molimo vas da do kraja radnog dana potvrdite radne sate za tekući mjesec kako da vam se može izdati plaća.")
+                "Molimo vas da do kraja radnog dana potvrdite radne sate za tekući mjesec kako bi vam se mogla izdati plaća.")
             ->button('Otvori izvještaj', $url);
 
         return $message;
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        return FilamentNotification::make()
+            ->title('Izvještaj radnih sati')
+            ->body('Molimo vas da do kraja radnog dana potvrdite radne sate za tekući mjesec kako bi vam se mogla izdati plaća.')
+            ->getDatabaseMessage();
     }
 }

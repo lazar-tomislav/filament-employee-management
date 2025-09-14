@@ -76,8 +76,8 @@ class EmployeeForm
                             ->placeholder('ivan.horvat@primjer.com')
                             ->email()
                             ->required()
-                            ->maxLength(255)
-                            ->unique('employees', 'email', ignoreRecord: true),
+                            ->unique('employees', 'email', ignoreRecord: true)
+                            ->maxLength(255),
 
                         Forms\Components\TextInput::make('phone_number')
                             ->label('Broj telefona')

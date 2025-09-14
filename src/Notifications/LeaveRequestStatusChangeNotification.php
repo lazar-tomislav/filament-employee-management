@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Notifications;
 
 use Amicus\FilamentEmployeeManagement\Mail\LeaveRequestStatusNotification;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -19,7 +20,7 @@ class LeaveRequestStatusChangeNotification extends Notification implements Shoul
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'telegram'];
+        return ['mail', 'telegram', 'database'];
     }
 
     public function toMail(object $notifiable): LeaveRequestStatusNotification
@@ -42,5 +43,17 @@ class LeaveRequestStatusChangeNotification extends Notification implements Shoul
             ->content("Zahtjev za godišnji ({$startDate} - {$endDate}) ima novi status: {$status} \n\n Razlog: {$this->leaveRequest->rejection_reason}");
 
         return $message;
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        $status = $this->leaveRequest->status->getLabel();
+        $startDate = $this->leaveRequest->start_date->format('d.m.Y');
+        $endDate = $this->leaveRequest->end_date->format('d.m.Y');
+
+        return FilamentNotification::make()
+            ->title('Zahtjev za godišnji ažuriran')
+            ->body("Zahtjev za godišnji ({$startDate} - {$endDate}) ima novi status: {$status}\nRazlog: {$this->leaveRequest->rejection_reason}")
+            ->getDatabaseMessage();
     }
 }

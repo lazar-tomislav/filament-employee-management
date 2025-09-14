@@ -26,9 +26,15 @@ class EnsureUserHasTelegramChatId
         if(!$request->is('admin*') && !$request->is('app*')){
             return $next($request);
         }
+        // if the user is not an employee or has no employee record, allow access because other middleware will handle it
+        if(!auth()->user()->employee()->exists()){
+            return $next($request);
+        }
+
         if(auth()->user()->employee->telegram_chat_id || auth()->user()->employee->telegram_denied_at){
             return $next($request);
         }
+
 
         // Redirect to missing telegram page
         return redirect()->to(MissingTelegramChatIdPage::getUrl());

@@ -116,7 +116,7 @@ class Employee extends Model
     public static function options()
     {
         // pluck all to array (first_name, last name (email) as value) and id as key
-        return self::all()->pluck(function ($employee) {
+        return self::query()->withTrashed()->get()->pluck(function ($employee) {
             return $employee->full_name_email;
         }, 'id');
     }

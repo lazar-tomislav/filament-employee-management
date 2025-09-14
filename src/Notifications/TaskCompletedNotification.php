@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Notifications;
 
 use Amicus\FilamentEmployeeManagement\Models\Task;
+use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -21,7 +22,12 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['telegram'];
+        // For GeneralNotificationTarget, only use telegram channel
+        if ($notifiable instanceof \Amicus\FilamentEmployeeManagement\Services\GeneralNotificationTarget) {
+            return ['telegram'];
+        }
+
+        return ['telegram', 'database'];
     }
 
     public function toTelegram(object $notifiable): ?TelegramMessage
@@ -44,5 +50,17 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
         }
 
         return $message;
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        $taskInfo = $this->task->project
+            ? "Projekt: {$this->task->project->name}"
+            : "Jednokratni zadatak";
+
+        return FilamentNotification::make()
+            ->title('Zadatak je završen!')
+            ->body("Zadatak '{$this->task->title}' je završen.\n{$taskInfo}\nZavršio: {$this->task->assignee->full_name}")
+            ->getDatabaseMessage();
     }
 }

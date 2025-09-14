@@ -17,6 +17,7 @@ use Filament\Support\Exceptions\Halt;
 use Filament\Support\Icons\Heroicon;
 use BackedEnum;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 
 class MissingEmployeePage extends Page implements HasSchemas
 {
@@ -34,7 +35,7 @@ class MissingEmployeePage extends Page implements HasSchemas
     public function mount(): void
     {
         // Redirect if user already has employee record
-        if(auth()->user()->isEmployee()){
+        if(auth()->user()->employee()->exists()){
             redirect()->to(Dashboard::getUrl());
         }
 
@@ -82,16 +83,13 @@ class MissingEmployeePage extends Page implements HasSchemas
                 ->title('Profil uspješno ažuriran. Možete nastaviti s radom.')
                 ->success()
                 ->send();
-
             redirect()->to(Dashboard::getUrl());
-
+        }catch(ValidationException $e){
+            Notification::make()->title("Provjerite unesene podatke")->body($e->getMessage())->danger()->send();
         }catch(\Exception $e){
             report($e);
-            Log::error('Greška prilikom kreiranja profila zaposlenika: ' . $e->getMessage());
-            Notification::make()
-                ->title('Greška prilikom kreiranja profila')
-                ->danger()
-                ->send();
+            logger()->error($e);
+            Notification::make()->title('Greška prilikom kreiranja profila')->danger()->send();
         }
     }
 
@@ -107,6 +105,6 @@ class MissingEmployeePage extends Page implements HasSchemas
 
     public static function canAccess(): bool
     {
-        return auth()->check() && !auth()->user()->isEmployee();
+        return !auth()->user()->employee()->exists();
     }
 }

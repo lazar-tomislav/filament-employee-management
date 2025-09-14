@@ -25,9 +25,8 @@ class EnsureUserHasEmployeeRecord
         if (!$request->is('admin*')&& !$request->is('app*')) {
             return $next($request);
         }
-        // Skip if user already has employee record
-        if (auth()->user()->isEmployee() || auth()->user()->employee()->exists()) {
 
+        if(auth()->user()->employee()->exists()){
             return $next($request);
         }
 

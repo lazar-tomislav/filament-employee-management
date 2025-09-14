@@ -43,7 +43,7 @@ class MissingTelegramChatIdPage extends Page implements HasActions, HasSchemas
     public function mount(): void
     {
         // Redirect if user already has employee record or if they have denied telegram_denied_at
-        if(auth()->user()->employee->telegram_chat_id || auth()->user()->employee->telegram_denied_at){
+        if(auth()->user()->employee && (auth()->user()->employee->telegram_chat_id || auth()->user()->employee->telegram_denied_at)){
             redirect()->to(Dashboard::getUrl());
         }
         $this->form->fill();
@@ -213,6 +213,6 @@ class MissingTelegramChatIdPage extends Page implements HasActions, HasSchemas
 
     public static function canAccess(): bool
     {
-        return (auth()->user()->employee->telegram_chat_id == null);
+        return (auth()->user()->employee && auth()->user()->employee->telegram_chat_id == null);
     }
 }
