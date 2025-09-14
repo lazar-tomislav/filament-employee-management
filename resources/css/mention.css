@@ -1,0 +1,347 @@
+/* Mention dropdown container */
+.mention-dropdown {
+    background-color: white;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    backdrop-filter: blur(4px);
+    padding: 0.25rem;
+    max-height: 16rem;
+    overflow-y: auto;
+    min-width: 280px;
+    max-width: 320px;
+    animation: fadeInZoom 200ms ease-out;
+    position: relative;
+}
+
+@keyframes fadeInZoom {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Individual mention item */
+.mention-item {
+    padding: 0.625rem 0.75rem;
+    cursor: pointer;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    transition: all 150ms ease;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border: 1px solid transparent;
+    animation: fadeInUp 0.2s ease-out backwards;
+}
+
+.mention-item:hover {
+    background: rgba(239, 246, 255, 0.8);
+    border-color: rgb(191, 219, 254);
+    transform: translateY(-1px);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    background: linear-gradient(to right, rgb(239, 246, 255), rgba(238, 242, 255, 0.3));
+}
+
+/* Selected mention item */
+.mention-item.selected,
+.mention-item[data-selected="true"] {
+    background-color: rgb(239, 246, 255);
+    border-color: rgba(147, 197, 253, 0.5);
+    color: rgb(30, 58, 138);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Avatar circle */
+.mention-avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.75rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 0 0 2px white, 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Alternative avatar colors for variety */
+.mention-avatar.variant-1 {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.mention-avatar.variant-2 {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.mention-avatar.variant-3 {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.mention-avatar.variant-4 {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.mention-avatar.variant-5 {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+/* User info container */
+.mention-user-info {
+    flex: 1;
+    min-width: 0;
+}
+
+/* User name */
+.mention-user-name {
+    font-weight: 500;
+    color: rgb(17, 24, 39);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 150ms ease;
+}
+
+.mention-item:hover .mention-user-name {
+    color: rgb(30, 58, 138);
+}
+
+/* User email/subtitle */
+.mention-user-email {
+    font-size: 0.75rem;
+    color: rgb(107, 114, 128);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-top: 0.125rem;
+    transition: color 150ms ease;
+}
+
+.mention-item:hover .mention-user-email {
+    color: rgb(29, 78, 216);
+}
+
+/* No results message */
+.mention-no-results {
+    padding: 1.5rem 1rem;
+    text-align: center;
+    color: rgb(107, 114, 128);
+    font-size: 0.875rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mention-no-results svg {
+    width: 2rem;
+    height: 2rem;
+    color: rgb(156, 163, 175);
+    margin-bottom: 0.5rem;
+}
+
+.mention-no-results-icon {
+    width: 2rem;
+    height: 2rem;
+    color: rgb(156, 163, 175);
+    margin-bottom: 0.25rem;
+}
+
+/* Loading state */
+.mention-loading {
+    padding: 1.5rem 1rem;
+    text-align: center;
+    color: rgb(107, 114, 128);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.mention-loading-spinner {
+    animation: spin 1s linear infinite;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgb(59, 130, 246);
+    border-top-color: transparent;
+    border-radius: 50%;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Mention tag in text (rendered mention) */
+.mention {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 0.20rem;
+    border-radius: 0.375rem;
+    font-size: 0.775rem;
+    font-weight: 500;
+    background-color: rgb(219, 234, 254);
+    color: rgb(30, 64, 175);
+    border: 1px solid rgb(147, 197, 253);
+    cursor: pointer;
+    gap: 0.25rem;
+    transition: all 150ms ease;
+}
+
+.mention:hover {
+    background-color: rgb(191, 219, 254);
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Mention tag avatar */
+.mention .mention-tag-avatar {
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, rgb(59, 130, 246), rgb(147, 51, 234));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Monday.com style improvements */
+.mention-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 1rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: white;
+    border-left: 1px solid rgb(229, 231, 235);
+    border-top: 1px solid rgb(229, 231, 235);
+    transform: rotate(45deg);
+    z-index: 10;
+}
+
+/* Scrollbar styling */
+.mention-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mention-dropdown::-webkit-scrollbar-track {
+    background-color: rgb(249, 250, 251);
+    border-radius: 9999px;
+}
+
+.mention-dropdown::-webkit-scrollbar-thumb {
+    background-color: rgb(209, 213, 219);
+    border-radius: 9999px;
+}
+
+.mention-dropdown::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156, 163, 175);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .mention-dropdown {
+        min-width: 240px;
+        max-width: 280px;
+    }
+}
+
+/* Animation keyframes */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mention-item:nth-child(1) { animation-delay: 0ms; }
+.mention-item:nth-child(2) { animation-delay: 50ms; }
+.mention-item:nth-child(3) { animation-delay: 100ms; }
+.mention-item:nth-child(4) { animation-delay: 150ms; }
+.mention-item:nth-child(5) { animation-delay: 200ms; }
+
+/* Focus states for accessibility */
+.mention-item:focus,
+.mention-item:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgb(59, 130, 246), 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+
+/* Tippy overrides za mention dropdown */
+
+/* Ukloni tippy background i styling */
+[data-tippy-root] {
+    background-color: transparent !important;
+}
+
+.tippy-box[data-theme~="mention"] {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.tippy-content[data-theme~="mention"] {
+    background-color: transparent !important;
+    padding: 0 !important;
+}
+
+/* Alternativno - globalno za sve tippy instance s mention */
+.tippy-box:has(.mention-dropdown) {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+.tippy-content:has(.mention-dropdown) {
+    background-color: transparent !important;
+    padding: 0 !important;
+}
+
+/* Ukloni tippy arrow ako ne želiš */
+.tippy-box:has(.mention-dropdown) .tippy-arrow {
+    display: none;
+}
+
+/* Ili custom style za arrow */
+.tippy-box:has(.mention-dropdown) .tippy-arrow {
+    color: white;
+}
+
+.tippy-box:has(.mention-dropdown) .tippy-arrow::before {
+    border-color: transparent transparent white transparent;
+}
+
+/* Mention dropdown dodatni fix za pozicioniranje */
+.mention-dropdown {
+    background-color: white;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    backdrop-filter: blur(4px);
+    padding: 0.25rem;
+    max-height: 16rem;
+    overflow-y: auto;
+    min-width: 280px;
+    max-width: 320px;
+    animation: fadeInZoom 200ms ease-out;
+    position: relative;
+    z-index: 10;
+}

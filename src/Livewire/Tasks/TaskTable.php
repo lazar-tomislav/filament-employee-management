@@ -1,0 +1,98 @@
+<?php
+
+namespace Amicus\FilamentEmployeeManagement\Livewire\Tasks;
+
+use Amicus\FilamentEmployeeManagement\Enums\TaskStatus;
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Actions\TaskAction;
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Tables\TasksTable;
+use Amicus\FilamentEmployeeManagement\Models\Task;
+use App\Models\Client;
+use App\Models\Project;
+use Filament\Actions\Action;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Illuminate\Contracts\View\View;
+use Livewire\Component;
+
+class TaskTable extends Component implements HasActions, HasSchemas, HasTable
+{
+    use InteractsWithActions;
+    use InteractsWithSchemas;
+    use InteractsWithTable;
+
+    public TaskStatus $status;
+
+    public bool $isCollapsed = false;
+
+    public ?Client $client = null;
+
+    public ?Project $project = null;
+
+    protected $listeners = [
+        'task-created' => '$refresh',
+    ];
+
+    public function mount(TaskStatus $status, null|string|int $clientId = null, null|string|int $projectId = null): void
+    {
+        $this->status = $status;
+        $this->project = ($projectId !== null ? Project::find($projectId) : null);
+        $this->client = ($clientId !== null ? Client::find($clientId) : null);
+        if(! $this->client && $this->project) {
+            $this->client = $this->project->client;
+        }
+
+        $sessionKey = 'task_table_collapsed_' . $this->status->value
+            . ($this->client ? '_client_' . $this->client->id : '')
+            . ($this->project ? '_project_' . $this->project->id : '');
+
+        if(session()->has($sessionKey)){
+            $this->isCollapsed = session()->get($sessionKey);
+        }else{
+            $taskCount = Task::query()
+                ->where('status', $this->status)
+                ->when($this->client, fn($query) => $query->where('client_id', $this->client->id))
+                ->when($this->project, fn($query) => $query->where('project_id', $this->project->id))
+                ->count();
+
+            $this->isCollapsed = ($taskCount === 0);
+        }
+    }
+
+    public function toggleCollapse(): void
+    {
+        $this->isCollapsed = !$this->isCollapsed;
+
+        $sessionKey = 'task_table_collapsed_' . $this->status->value
+            . ($this->client ? '_client_' . $this->client->id : '')
+            . ($this->project ? '_project_' . $this->project->id : '');
+        session()->put($sessionKey, $this->isCollapsed);
+    }
+
+    public function quickCreateAction(): Action
+    {
+        return TaskAction::quickCreateTask($this, $this->status, $this->client?->id, $this->project?->id);
+    }
+
+    public function table(Table $table): Table
+    {
+        return TasksTable::configure($table)
+            ->paginated(false)
+            ->recordAction('edit')
+            ->query(
+                Task::query()
+                    ->where('status', $this->status)
+                    ->when($this->client, fn($query) => $query->where('client_id', $this->client->id))
+                    ->when($this->project, fn($query) => $query->where('project_id', $this->project->id))
+            );
+    }
+
+    public function render(): View
+    {
+        return view('filament-employee-management::livewire.tasks.task-table');
+    }
+}

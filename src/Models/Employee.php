@@ -2,15 +2,14 @@
 
 namespace Amicus\FilamentEmployeeManagement\Models;
 
+use Amicus\FilamentEmployeeManagement\Database\Factories\EmployeeFactory;
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestType;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveAllowanceResource\Tables\LeaveAllowanceTable;
 use Amicus\FilamentEmployeeManagement\Observers\EmployeeObserver;
 use Amicus\FilamentEmployeeManagement\Traits\HasEmployeeRole;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Amicus\FilamentEmployeeManagement\Database\Factories\EmployeeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -229,13 +228,13 @@ class Employee extends Model
 
     public function taskUpdates(): HasMany
     {
-        return $this->hasMany(\App\Models\TaskUpdate::class, 'employee_id');
+        return $this->hasMany(\Amicus\FilamentEmployeeManagement\Models\TaskUpdate::class, 'employee_id');
     }
 
     public function mentionsInTaskUpdates(): BelongsToMany
     {
         return $this->belongsToMany(
-            \App\Models\TaskUpdate::class,
+            \Amicus\FilamentEmployeeManagement\Models\TaskUpdate::class,
             'task_update_mentions',
             'mentioned_employee_id',
             'task_update_id'
