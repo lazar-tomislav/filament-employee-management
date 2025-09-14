@@ -28,13 +28,17 @@ class TaskActivity extends Component implements HasSchemas, HasActions
 
     public ?int $editingUpdateId = null;
 
+    public bool $updatesLoaded = false;
+
     public function mount(Task $task): void
     {
         $this->task = $task;
         $this->commentForm->fill();
+    }
 
-
-
+    public function loadUpdates(): void
+    {
+        $this->updatesLoaded = true;
     }
 
     public function commentForm(Schema $schema): Schema
@@ -66,6 +70,7 @@ class TaskActivity extends Component implements HasSchemas, HasActions
         if ($taskId) {
             $this->task = Task::find($taskId);
             $this->commentForm->fill();
+            $this->updatesLoaded = false; // Reset loading state
         }
     }
 
@@ -111,7 +116,11 @@ class TaskActivity extends Component implements HasSchemas, HasActions
 
     public function getUpdatesProperty()
     {
-        return $this->task ? $this->task->updates()->with(['author', 'mentions'])->get() : collect();
+        if (!$this->task || !$this->updatesLoaded) {
+            return collect();
+        }
+
+        return $this->task->updates()->with(['author', 'mentions'])->get();
     }
 
     public function editAction(): Action
