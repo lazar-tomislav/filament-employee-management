@@ -2,7 +2,10 @@
 
 namespace Amicus\FilamentEmployeeManagement\Observers;
 
+use Amicus\FilamentEmployeeManagement\Enums\TaskStatus;
 use Amicus\FilamentEmployeeManagement\Models\Task;
+use Amicus\FilamentEmployeeManagement\Notifications\TaskCompletedNotification;
+use Illuminate\Support\Facades\Notification;
 
 class TaskObserver
 {
@@ -43,7 +46,19 @@ class TaskObserver
      */
     public function updated(Task $task): void
     {
-        //
+        // Check if status was changed to DONE and task has a project (projektni zadatak)
+        if ($task->wasChanged('status') &&
+            $task->status === TaskStatus::DONE &&
+            $task->project_id !== null) {
+
+            // Create a general notification target for telegram
+            $generalNotificationTarget = new \Amicus\FilamentEmployeeManagement\Services\GeneralNotificationTarget();
+
+            // Send notification to general telegram channel
+            $generalNotificationTarget->notify(new TaskCompletedNotification($task));
+
+            logger("Task completed notification sent for task ID: {$task->id}");
+        }
     }
 
     /**

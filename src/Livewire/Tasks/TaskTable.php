@@ -15,6 +15,7 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
@@ -83,6 +84,13 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
         return TasksTable::configure($table)
             ->paginated(false)
             ->recordAction('edit')
+            ->filters([
+                Filters\Filter::make('is_onetime')
+                    ->toggle()
+                    ->label('Samo jednokratni zadaci')
+                    ->query(fn($query) => $query->whereNull('project_id'))
+            ])
+            ->deferFilters(false)
             ->query(
                 Task::query()
                     ->where('status', $this->status)

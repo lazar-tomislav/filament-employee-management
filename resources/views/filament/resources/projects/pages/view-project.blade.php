@@ -8,6 +8,10 @@
         {{$this->projectInfoList}}
     </div>
 
+    <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">
+        Zadaci projekta
+    </h2>
+
     <div class="space-y-6">
         @foreach([
             TaskStatus::TODO,
