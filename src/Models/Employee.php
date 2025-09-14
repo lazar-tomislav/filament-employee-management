@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Notifications\ChannelManager;
 use Spatie\Permission\Traits\HasRoles;
 
 #[ObservedBy([EmployeeObserver::class])]
@@ -239,5 +240,20 @@ class Employee extends Model
             'mentioned_employee_id',
             'task_update_id'
         );
+    }
+
+    /**
+     * Override notify method to also send notification to associated user
+     * for Filament panel notifications
+     */
+    public function notify($instance)
+    {
+        // Send notification to employee using Notifiable trait method
+        app(ChannelManager::class)->send($this, $instance);
+
+        // Also send to associated user for Filament panel
+        if ($this->user) {
+            $this->user->notify($instance);
+        }
     }
 }
