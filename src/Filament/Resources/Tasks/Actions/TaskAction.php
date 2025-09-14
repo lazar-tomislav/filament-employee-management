@@ -42,15 +42,16 @@ class TaskAction
             ->modalHeading("Novi zadatak")
             ->slideOver()
             ->fillForm(fn() => [
-                'client_id' => $clientId,
-                'project_id' => $projectId,
                 "assignee_id" => auth()->user()->employee?->id,
             ])
-            ->schema(fn($schema) => TaskForm::configure($schema))
-            ->action(function ($data) use ($status, $component) {
+            ->schema(fn($schema) => TaskForm::configure($schema, isQuickProjectCreate:true))
+            ->action(function ($data) use ($status, $component, $clientId, $projectId) {
                 try{
+                    $data['client_id'] = $clientId;
+                    $data['project_id'] = $projectId;
                     $data['status'] = $status->value;
                     $data['creator_id'] = auth()->id();
+
                     $taskId = Task::query()->insertGetId($data);
                     Notification::make()->title('Zadatak uspješno kreiran')->success()->send();
 

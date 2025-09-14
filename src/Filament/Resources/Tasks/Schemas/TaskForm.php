@@ -15,7 +15,7 @@ use Filament\Schemas\Schema;
 
 class TaskForm
 {
-    public static function configure(Schema $schema, ?array $defaults = null): Schema
+    public static function configure(Schema $schema, bool $isQuickProjectCreate=false): Schema
     {
         return $schema
             ->columns(2)
@@ -23,6 +23,7 @@ class TaskForm
                 TextInput::make('title')
                     ->label('Zadatak')
                     ->columnSpanFull()
+                    ->autofocus()
                     ->placeholder('Izradi izvedbenu shemu')
                     ->required(),
 
@@ -37,21 +38,14 @@ class TaskForm
                     ])
                     ->helperText('Detaljan opis zadatka i svih potrebnih informacija'),
 
-//                Select::make('status')
-//                    ->label('Status')
-//                    ->selectablePlaceholder(false)
-//                    ->options(TaskStatus::class)
-//                    ->default(TaskStatus::TODO)
-//                    ->helperText('Trenutni status zadatka')
-//                    ->required(),
-
-                ClientForm::clientSelect(),
+                ClientForm::clientSelect()->visible(fn()=> !$isQuickProjectCreate),
 
                 Select::make('project_id')
                     ->label('Projekt')
                     ->options(Project::options())
                     ->placeholder('Odaberite projekt (opcionalno)')
                     ->helperText('Ostavite prazno ako je jednokratan zadatak ili nije vezan uz projekt')
+                    ->visible(fn()=>!$isQuickProjectCreate)
                     ->searchable()
                     ->preload(),
 
