@@ -27,6 +27,12 @@ class ProjectResource extends Resource
     protected static ?string $breadcrumb="Projekti";
 
     protected static ?string $navigationLabel="Projekti";
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return config('employee-management.enabled_features.projects');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ProjectForm::configure($schema);

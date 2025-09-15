@@ -28,6 +28,11 @@ class TaskResource extends Resource
     protected static ?string $navigationLabel = "Zadaci";
     protected static ?string $breadcrumb="Zadaci";
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return config('employee-management.enabled_features.projects');
+    }
+
     public static function table(Table $table): Table
     {
         return TasksTable::configure($table);
