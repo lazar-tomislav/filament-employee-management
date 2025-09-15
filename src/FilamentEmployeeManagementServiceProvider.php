@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement;
 
 use Amicus\FilamentEmployeeManagement\Commands\FilamentEmployeeManagementCommand;
+use Amicus\FilamentEmployeeManagement\Commands\PopulateHolidays;
 use Amicus\FilamentEmployeeManagement\Commands\TestMonthlyReportNotificationCommand;
 use Amicus\FilamentEmployeeManagement\Commands\TestTelegramNotificationCommand;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
@@ -162,6 +163,7 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             FilamentEmployeeManagementCommand::class,
             TestTelegramNotificationCommand::class,
             TestMonthlyReportNotificationCommand::class,
+            PopulateHolidays::class,
         ];
     }
 
