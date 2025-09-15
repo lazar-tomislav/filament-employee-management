@@ -45,6 +45,9 @@ const defaultOptions = {
 
 compile({
     ...defaultOptions,
-    entryPoints: ['./resources/js/index.js'],
-    outfile: './resources/dist/filament-employee-management.js',
+    entryPoints: [
+        './resources/js/index.js',
+        './resources/js/rich-content-plugins/mention.js'
+    ],
+    outdir: './resources/dist',
 })

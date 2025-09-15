@@ -90,7 +90,6 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             Js::make('rich-content-plugins/mention', __DIR__ . '../resources/js/dist/filament/rich-content-plugins/mention.js')
                 ->loadedOnRequest(),
 
-
             Css::make('rich-content-plugins/mention', __DIR__ . '../resources/css/mention.css'),
         ]);
 
