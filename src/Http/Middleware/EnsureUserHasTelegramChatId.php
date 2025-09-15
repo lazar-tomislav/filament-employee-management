@@ -26,6 +26,11 @@ class EnsureUserHasTelegramChatId
         if(!$request->is('admin*') && !$request->is('app*')){
             return $next($request);
         }
+
+        // Skip logout route
+        if ($request->is('logout')) {
+            return $next($request);
+        }
         // if the user is not an employee or has no employee record, allow access because other middleware will handle it
         if(!auth()->user()->employee()->exists()){
             return $next($request);

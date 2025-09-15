@@ -26,6 +26,11 @@ class EnsureUserHasEmployeeRecord
             return $next($request);
         }
 
+        // Skip logout route
+        if ($request->is('logout')) {
+            return $next($request);
+        }
+
         if(auth()->user()->employee()->exists()){
             return $next($request);
         }
