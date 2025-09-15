@@ -5,6 +5,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Pages\ListTasks;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Schemas\TaskForm;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Tables\TasksTable;
+use Amicus\FilamentEmployeeManagement\FilamentEmployeeManagementServiceProvider;
 use Amicus\FilamentEmployeeManagement\Models\Task;
 use App\Filament\Resources\Tasks\Pages\CreateTask;
 use App\Filament\Resources\Tasks\Pages\EditTask;
@@ -26,11 +27,6 @@ class TaskResource extends Resource
 
     protected static ?string $navigationLabel = "Zadaci";
     protected static ?string $breadcrumb="Zadaci";
-
-    public static function form(Schema $schema): Schema
-    {
-        return TaskForm::configure($schema);
-    }
 
     public static function table(Table $table): Table
     {

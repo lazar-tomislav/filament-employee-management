@@ -207,6 +207,20 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
         ];
     }
 
+    public static function getFormClass(string $formKey): ?string
+    {
+        $forms = config('employee-management.forms');
+        // Prefer app class if it exists
+        if (isset($forms[$formKey]['app']) && class_exists($forms[$formKey]['app'])) {
+            return $forms[$formKey]['app'];
+        }
+        // Fallback to package class
+        if (isset($forms[$formKey]['package']) && class_exists($forms[$formKey]['package'])) {
+            return $forms[$formKey]['package'];
+        }
+        return null;
+    }
+
     protected function discoverLivewireComponents(): void
     {
         $livewirePath = __DIR__ . '/Livewire';

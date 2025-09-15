@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Livewire\Tasks;
 
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Schemas\TaskForm;
+use Amicus\FilamentEmployeeManagement\FilamentEmployeeManagementServiceProvider;
 use Amicus\FilamentEmployeeManagement\Models\Task;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -45,8 +46,8 @@ class EditTaskModal extends Component implements HasSchemas, HasActions
 
     public function editTaskForm(Schema $schema): Schema
     {
-        return TaskForm::configure($schema)
-            ->statePath('taskFormData');
+        $formClass = FilamentEmployeeManagementServiceProvider::getFormClass('task') ?? TaskForm::class;
+        return $formClass::configure($schema)->statePath('taskFormData');
     }
 
     #[On("open-modal")]

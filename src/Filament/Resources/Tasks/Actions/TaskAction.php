@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Actions;
 
 use Amicus\FilamentEmployeeManagement\Enums\TaskStatus;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Schemas\TaskForm;
+use Amicus\FilamentEmployeeManagement\FilamentEmployeeManagementServiceProvider;
 use Amicus\FilamentEmployeeManagement\Livewire\Tasks\TaskTable;
 use Amicus\FilamentEmployeeManagement\Models\Task;
 use Filament\Actions\Action;
@@ -21,7 +22,10 @@ class TaskAction
     {
         return CreateAction::make()
             ->slideOver()
-            ->schema(fn($schema) => TaskForm::configure($schema))
+            ->schema(function ($schema) {
+                $formClass = FilamentEmployeeManagementServiceProvider::getFormClass('task') ?? TaskForm::class;
+                return $formClass::configure($schema);
+            })
             ->label("Kreiraj zadatak")
             ->modalHeading("Kreiraj zadatak")
             ->successNotificationTitle("Zadatak uspješno kreiran.")
@@ -46,7 +50,10 @@ class TaskAction
             ->fillForm(fn() => [
                 "assignee_id" => auth()->user()->employee?->id,
             ])
-            ->schema(fn($schema) => TaskForm::configure($schema, (bool) ($clientId && $projectId)))
+            ->schema(function ($schema) use ($clientId, $projectId) {
+                $formClass = FilamentEmployeeManagementServiceProvider::getFormClass('task') ?? TaskForm::class;
+                return $formClass::configure($schema, ($clientId && $projectId));
+            })
             ->action(function ($data) use ($status, $component, $clientId, $projectId) {
                 try{
                     if($clientId && $projectId) {

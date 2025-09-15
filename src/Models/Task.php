@@ -6,7 +6,6 @@ use Amicus\FilamentEmployeeManagement\Enums\TaskStatus;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\TaskResource;
 use Amicus\FilamentEmployeeManagement\Observers\TaskObserver;
 use App\Models\Client;
-use App\Models\Project;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;

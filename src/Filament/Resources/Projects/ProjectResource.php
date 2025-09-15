@@ -7,9 +7,7 @@ use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ViewProj
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectForm;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectInfolist;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Tables\ProjectsTable;
-use App\Filament\Resources\Projects\Pages\CreateProject;
-use App\Filament\Resources\Projects\Pages\EditProject;
-use App\Models\Project;
+use Amicus\FilamentEmployeeManagement\Models\Project;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;

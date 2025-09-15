@@ -3,8 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Schemas;
 
 use Amicus\FilamentEmployeeManagement\Models\Employee;
-use App\Filament\Resources\Clients\Schemas\ClientForm;
-use App\Models\Project;
+use Amicus\FilamentEmployeeManagement\Models\Project;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\RichEditor;
@@ -15,7 +14,7 @@ use Filament\Schemas\Schema;
 
 class TaskForm
 {
-    public static function configure(Schema $schema, bool $isQuickProjectCreate=false): Schema
+    public static function configure(Schema $schema, bool $isQuickProjectCreate=false, array $extraFields = []): Schema
     {
         return $schema
             ->columns(2)
@@ -38,7 +37,7 @@ class TaskForm
                     ])
                     ->helperText('Detaljan opis zadatka i svih potrebnih informacija'),
 
-                ClientForm::clientSelect()->visible(fn()=> !$isQuickProjectCreate),
+                ...$extraFields,
 
                 Select::make('project_id')
                     ->label('Projekt')

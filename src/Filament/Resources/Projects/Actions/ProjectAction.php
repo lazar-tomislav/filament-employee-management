@@ -4,7 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Actions;
 
 use Amicus\FilamentEmployeeManagement\Enums\StatusProjekta;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectForm;
-use App\Models\Project;
+use Amicus\FilamentEmployeeManagement\Models\Project;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Notifications\Notification;

@@ -5,15 +5,12 @@ namespace Amicus\FilamentEmployeeManagement\Livewire\Tasks;
 use Amicus\FilamentEmployeeManagement\Enums\TaskStatus;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Actions\TaskAction;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Tables\TasksTable;
+use Amicus\FilamentEmployeeManagement\Models\Project;
 use Amicus\FilamentEmployeeManagement\Models\Task;
 use App\Models\Client;
-use App\Models\Project;
 use Filament\Actions\Action;
-use Filament\Actions\BulkActionGroup;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Forms\Components\Select;
-use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -21,7 +18,6 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
 
 class TaskTable extends Component implements HasActions, HasSchemas, HasTable
