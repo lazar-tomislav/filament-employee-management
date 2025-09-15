@@ -87,10 +87,10 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
         );
 
         FilamentAsset::register([
-            Js::make('rich-content-plugins/mention', __DIR__ . '../resources/dist/rich-content-plugins/mention.js')
+            Js::make('rich-content-plugins/mention', __DIR__ . '/../resources/dist/rich-content-plugins/mention.js')
                 ->loadedOnRequest(),
 
-            Css::make('rich-content-plugins/mention', __DIR__ . '../resources/css/mention.css'),
+            Css::make('rich-content-plugins/mention', __DIR__ . '/../resources/css/mention.css'),
         ]);
 
         // Icon Registration
