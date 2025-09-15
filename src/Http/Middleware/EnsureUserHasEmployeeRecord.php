@@ -27,7 +27,7 @@ class EnsureUserHasEmployeeRecord
         }
 
         // Skip logout route
-        if ($request->is('logout')) {
+        if ($request->is('filament.app.auth.logout') || $request->is('filament.admin.auth.logout')) {
             return $next($request);
         }
 

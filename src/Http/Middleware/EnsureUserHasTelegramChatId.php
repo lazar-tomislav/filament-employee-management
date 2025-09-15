@@ -28,7 +28,7 @@ class EnsureUserHasTelegramChatId
         }
 
         // Skip logout route
-        if ($request->is('logout')) {
+        if ($request->is('filament.app.auth.logout') || $request->is('filament.admin.auth.logout')) {
             return $next($request);
         }
         // if the user is not an employee or has no employee record, allow access because other middleware will handle it
