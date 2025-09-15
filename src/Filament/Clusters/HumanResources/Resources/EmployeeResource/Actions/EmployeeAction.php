@@ -132,6 +132,7 @@ class EmployeeAction
         return Action::make('connectToTelegram')
             ->label('Spoji s telegramom')
             ->color('')
+            ->visible(fn()=>config('employee-management.telegram-bot-api.is_active'))
             ->icon(Heroicon::OutlinedEnvelope)
             ->action(function () use ($employee) {
                 $employee->update([
