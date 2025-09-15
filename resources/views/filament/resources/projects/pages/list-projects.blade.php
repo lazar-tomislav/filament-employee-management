@@ -10,7 +10,7 @@
             StatusProjekta::Provedba,
             StatusProjekta::Finalizacija
         ] as $status)
-            @livewire('projects.project-table', ['status' => $status], key('project-table-'.$status->value))
+            @livewire('filament-employee-management::projects.project-table', ['status' => $status], key('project-table-'.$status->value))
         @endforeach
     </div>
 
