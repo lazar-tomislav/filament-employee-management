@@ -75,10 +75,10 @@ class Employee extends Model
         });
     }
 
-    protected function telegramChatId():Attribute
+    protected function telegramChatId(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $value,
+            get: fn($value) => $value,
         );
     }
 
@@ -97,34 +97,43 @@ class Employee extends Model
         return config('employee-management.telegram-bot-api.general_notification');
     }
 
-    protected function fullName():Attribute
+    protected function fullName(): Attribute
     {
         if($this->is_active && $this->deleted_at == null){
             return Attribute::make(
-                get: fn () => "{$this->first_name} {$this->last_name}",
+                get: fn() => "{$this->first_name} {$this->last_name}",
             );
         }
         return Attribute::make(
-            get: fn () => "{$this->first_name} {$this->last_name} (NEAKTIVAN / OBRISAN)",
+            get: fn() => "{$this->first_name} {$this->last_name} (NEAKTIVAN / OBRISAN)",
         );
     }
-    protected function fullNameEmail():Attribute
+
+    protected function fullNameEmail(): Attribute
     {
         return Attribute::make(
-            get: fn () => "{$this->full_name} ({$this->email})",
+            get: fn() => "{$this->full_name} ({$this->email})",
         );
     }
+
+    protected function initials(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => strtoupper(substr($this->first_name, 0, 1) . substr($this->last_name, 0, 1)),
+        );
+    }
+
     public static function options()
     {
         // pluck all to array (first_name, last name (email) as value) and id as key
         return self::query()->withTrashed()->get()->pluck(function ($employee) {
-            return $employee->full_name_email;
+            return $employee->full_name;
         }, 'id');
     }
 
     private function getDailyWorkHours(Carbon $date): float
     {
-        return (float) TimeLog::where('employee_id', $this->id)
+        return (float)TimeLog::where('employee_id', $this->id)
             ->whereDate('date', $date->format('Y-m-d'))
             ->sum('hours');
     }
@@ -137,18 +146,18 @@ class Employee extends Model
             'other_hours' => 0,
         ];
 
-        if (!in_array($date->dayOfWeek, self::WORK_DAYS)) {
+        if(!in_array($date->dayOfWeek, self::WORK_DAYS)){
             return $leaveHours;
         }
 
         $leaveRequest = LeaveRequest::getLeaveRequestsForDate($this->id, $date)->first();
 
-        if ($leaveRequest) {
-            if ($leaveRequest->type === LeaveRequestType::ANNUAL_LEAVE) {
+        if($leaveRequest){
+            if($leaveRequest->type === LeaveRequestType::ANNUAL_LEAVE){
                 $leaveHours['vacation_hours'] = self::HOURS_PER_WORK_DAY;
-            } elseif ($leaveRequest->type === LeaveRequestType::SICK_LEAVE) {
+            }elseif($leaveRequest->type === LeaveRequestType::SICK_LEAVE){
                 $leaveHours['sick_leave_hours'] = self::HOURS_PER_WORK_DAY;
-            } elseif ($leaveRequest->type === LeaveRequestType::PAID_LEAVE) {
+            }elseif($leaveRequest->type === LeaveRequestType::PAID_LEAVE){
                 $leaveHours['other_hours'] = self::HOURS_PER_WORK_DAY;
             }else{
                 report(new \Exception("Unknown leave request type: {$leaveRequest->type}"));
@@ -175,7 +184,7 @@ class Employee extends Model
         $daysInMonth = $month->daysInMonth;
         $holidays = Holiday::getHolidaysForMonth($month);
 
-        for ($day = 1; $day <= $daysInMonth; $day++) {
+        for($day = 1; $day <= $daysInMonth; $day++){
             $date = $month->copy()->setDay($day);
 
             $totalDailyWorkHours = $this->getDailyWorkHours($date);
@@ -194,17 +203,17 @@ class Employee extends Model
             $isStandardWorkDay = $isWorkDayOfWeek && !$isPublicHoliday && !$isOnLeave;
 
             // Available hours are calculated based on potential work days (ignoring personal leave)
-            if ($isWorkDayOfWeek && !$isPublicHoliday) {
+            if($isWorkDayOfWeek && !$isPublicHoliday){
                 $report['totals']['available_hours'] += self::HOURS_PER_WORK_DAY;
             }
 
-            if ($isStandardWorkDay) {
+            if($isStandardWorkDay){
                 $dailyWorkHours = $totalDailyWorkHours;
-                if ($totalDailyWorkHours > self::HOURS_PER_WORK_DAY) {
+                if($totalDailyWorkHours > self::HOURS_PER_WORK_DAY){
                     $dailyWorkHours = self::HOURS_PER_WORK_DAY;
                     $dailyOvertimeHours = $totalDailyWorkHours - self::HOURS_PER_WORK_DAY;
                 }
-            } else { // It's a weekend, a holiday, or a personal leave day
+            }else{ // It's a weekend, a holiday, or a personal leave day
                 $dailyOvertimeHours = $totalDailyWorkHours;
             }
 
@@ -252,7 +261,7 @@ class Employee extends Model
         app(ChannelManager::class)->send($this, $instance);
 
         // Also send to associated user for Filament panel
-        if ($this->user) {
+        if($this->user){
             $this->user->notify($instance);
         }
     }

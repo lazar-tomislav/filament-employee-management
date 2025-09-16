@@ -85,21 +85,25 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
     {
         return TasksTable::configure($table)
             ->paginated(false)
-            ->recordAction('edit')
-            ->filters([
-                Filters\Filter::make('is_onetime')
-                    ->toggle()
-                    ->label('Samo jednokratni zadaci')
-                    ->query(fn($query) => $query->whereNull('project_id'))
-            ])
+//            ->filters([
+//                Filters\Filter::make('is_onetime')
+//                    ->toggle()
+//                    ->label('Samo jednokratni zadaci')
+//                    ->query(fn($query) => $query->whereNull('project_id'))
+//            ])
             ->deferFilters(false)
-
             ->query(
                 Task::query()
                     ->where('status', $this->status)
                     ->when($this->client, fn($query) => $query->where('client_id', $this->client->id))
                     ->when($this->project, fn($query) => $query->where('project_id', $this->project->id))
             );
+    }
+
+    public function openConversation(string $recordId):void{
+        $this->dispatch('open-modal', id: 'edit-task-modal', params: [
+            'taskId' => $recordId,
+        ]);
     }
 
     public function render(): View

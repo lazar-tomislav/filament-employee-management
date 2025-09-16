@@ -1,7 +1,7 @@
 <div class="mb-8"  x-data="{ collapsed: $wire.entangle('isCollapsed') }"
      >
     <div class="mb-4 flex  justify-between">
-        <h3 class="text-lg font-semibold ml-1 text-gray-900 dark:text-white flex items-center space-x-1 cursor-pointer"
+        <h3 class="text-lg font-semibold ml-1 text-gray-900 dark:text-white flex items-center space-x-1 cursor-pointer group"
             wire:click="toggleCollapse">
             <x-filament::icon
                 :icon="$isCollapsed ? \Filament\Support\Icons\Heroicon::ChevronRight : \Filament\Support\Icons\Heroicon::ChevronDown"
@@ -11,8 +11,8 @@
 
             <x-filament::badge
                 :color="$status->getColor()"
-                class="rounded-[100%]"
-            >{{count($this->table->getRecords())}}</x-filament::badge>
+                class="rounded-[100%] opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            >{{count($this->table->getRecords())}} Tasks</x-filament::badge>
         </h3>
         <x-filament::icon
             wire:click="mountAction('quickCreateAction')"

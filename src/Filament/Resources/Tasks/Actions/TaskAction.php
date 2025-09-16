@@ -105,7 +105,7 @@ class TaskAction
                     )
                     ->required()
             ])
-            ->action(function (array $data, $record) use ($table): void {
+            ->action(function (array $data, $record, $component) use ($table): void {
                 try{
                     $newStatus = TaskStatus::from($data['status']);
                     $record->update(['status' => $newStatus]);

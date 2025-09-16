@@ -2,24 +2,19 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Tables;
 
-use Amicus\FilamentEmployeeManagement\Enums\TaskStatus;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Pages\ViewEmployee;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ViewProject;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Actions\TaskAction;
-use Amicus\FilamentEmployeeManagement\Models\Task;
 use App\Filament\Resources\Clients\Pages\ViewClient;
-use Filament\Actions\Action;
+use App\Filament\Tables\Columns\InitialsColumn;
+use App\Filament\Tables\Columns\TaskNameColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
-use Filament\Notifications\Notification;
-use Filament\Schemas\Components\Select;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\TrashedFilter;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Collection;
 
 class TasksTable
 {
@@ -28,61 +23,46 @@ class TasksTable
         return $table
             ->striped()
             ->columns([
-                TextColumn::make('title')
+                TaskNameColumn::make('title')
                     ->label('Zadatak')
-                    ->searchable()
-                    ->sortable()
-                    ->wrap(),
+                    ->width("25rem")
+                    ->alignCenter()
+                    ->grow(false),
 
-                TextColumn::make('client.name')
-                    ->label('Klijent')
-                    ->searchable()
-                    ->url(fn($record) => ViewClient::getUrl(['record' => $record->client_id]))
-                    ->sortable(),
+                InitialsColumn::make('assignee.initials')
+                    ->label('Zadužen')
+                    ->width("3rem")
+                    ->extraCellAttributes(['class'=>"initials-column"])
+                    ->alignCenter()
+                    ->grow(false),
+
+                TextInputColumn::make('due_at')
+                    ->grow(false)
+                    ->label('Rok')
+                    ->type('date')
+                    ->afterStateUpdated(function ($record, $state) {
+                        if ($state) {
+                            $record->update(['due_at' => $state]);
+                        }
+                    })
+                    ->alignCenter()
+                    ->width("8rem")
+                    ->placeholder('Nije postavljen'),
 
                 TextColumn::make('project.name')
                     ->label('Projekt')
-                    ->searchable()
-                    ->sortable()
+                    ->grow(false)
+                    ->alignCenter()
+                    ->width("8rem")
                     ->url(fn($record) => $record->project_id ? ViewProject::getUrl(['record' => $record->project_id]) : null)
                     ->placeholder('Jednokratni zadatak'),
 
-                TextColumn::make('assignee.first_name')
-                    ->formatStateUsing(fn($record) => $record->assignee->full_name_email)
-                    ->label('Zadužena osoba')
-                    ->searchable()
-                    ->url(fn($record) => $record->assignee ? ViewEmployee::getUrl(['record' => $record->assignee_id]) : null)
-                    ->sortable()
-                    ->placeholder('Nedodjeljeno'),
-
-                TextColumn::make('due_at')
-                    ->label('Rok')
-                    ->date('d.m.Y')
-                    ->sortable()
-                    ->placeholder('Nije postavljen'),
-
-                IconColumn::make('is_billable')
-                    ->label('Naplativi')
-                    ->boolean()
-                    ->sortable(),
-
-                TextColumn::make('billed_amount')
-                    ->label('Iznos (€)')
-                    ->numeric(
-                        decimalPlaces: 2,
-                        decimalSeparator: ',',
-                        thousandsSeparator: '.'
-                    )
-                    ->sortable()
-                    ->placeholder('0,00')
-                    ->visible(fn($record) => $record?->is_billable ?? false),
-            ])
-            ->filters([
-                TrashedFilter::make(),
+                TextColumn::make('client.name')
+                    ->label('Klijent')
+                    ->url(fn($record) => ViewClient::getUrl(['record' => $record->client_id])),
             ])
             ->recordActions([
-                TaskAction::editInCustomModal($table),
-                TaskAction::changeStatusAction($table),
+                TaskAction::changeStatusAction($table)->label("")->hiddenLabel(),
                 DeleteAction::make()->hiddenLabel()->modalHeading("Obriši zadatak"),
             ])
             ->emptyStateHeading("Nema zadataka")

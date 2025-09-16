@@ -5,6 +5,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Pages;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Actions\TaskAction;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\TaskResource;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 
 class ListTasks extends ListRecords
@@ -21,7 +22,9 @@ class ListTasks extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            TaskAction::createAction()->after(fn() => $this->dispatch('task-created')),
+            TaskAction::createAction()
+                ->icon(Heroicon::OutlinedBolt)
+                ->after(fn() => $this->dispatch('task-created')),
         ];
     }
 }

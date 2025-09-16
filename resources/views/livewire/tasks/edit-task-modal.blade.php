@@ -1,4 +1,4 @@
-<div wire:init="onModalLoad" >
+<div wire:init="onModalLoad">
     <x-filament::modal
         id="edit-task-modal"
         sticky-header="true"
@@ -11,7 +11,7 @@
         </x-slot>
 
         <div class="w-full justify-start ">
-            <x-filament::tabs >
+            <x-filament::tabs>
                 <x-filament::tabs.item
                     :icon="\Filament\Support\Icons\Heroicon::OutlinedHome"
                     :active="$activeTab === 'updates'"
@@ -40,7 +40,8 @@
             <div class="mt-4">
                 @if($activeTab === 'updates')
                     @if($task)
-                        <livewire:filament-employee-management::tasks.task-activity :task="$task" :key="'task-activity-'.$task->id"/>
+                        <livewire:filament-employee-management::tasks.task-activity :task="$task"
+                                                                                    :key="'task-activity-'.$task->id"/>
                     @endif
                 @endif
 
