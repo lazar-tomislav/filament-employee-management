@@ -6,6 +6,7 @@ use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ViewProject;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Actions\TaskAction;
 use App\Filament\Resources\Clients\Pages\ViewClient;
+use App\Filament\Tables\Columns\DatePickerColumn;
 use App\Filament\Tables\Columns\InitialsColumn;
 use App\Filament\Tables\Columns\TaskNameColumn;
 use Filament\Actions\BulkActionGroup;
@@ -36,18 +37,11 @@ class TasksTable
                     ->alignCenter()
                     ->grow(false),
 
-                TextInputColumn::make('due_at')
+                DatePickerColumn::make('due_at')
                     ->grow(false)
                     ->label('Rok')
-                    ->type('date')
-                    ->afterStateUpdated(function ($record, $state) {
-                        if ($state) {
-                            $record->update(['due_at' => $state]);
-                        }
-                    })
                     ->alignCenter()
-                    ->width("8rem")
-                    ->placeholder('Nije postavljen'),
+                    ->width("8rem"),
 
                 TextColumn::make('project.name')
                     ->label('Projekt')
