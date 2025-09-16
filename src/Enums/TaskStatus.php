@@ -31,4 +31,14 @@ enum TaskStatus: string implements HasLabel, HasColor
             self::POSTPONED => 'info',
         };
     }
+
+    public function getColorClass(): string
+    {
+        return match ($this) {
+            self::TODO => 'task-status-todo',
+            self::IN_PROGRESS => 'task-status-in-progress',
+            self::DONE => 'task-status-done',
+            self::POSTPONED => 'task-status-postponed',
+        };
+    }
 }

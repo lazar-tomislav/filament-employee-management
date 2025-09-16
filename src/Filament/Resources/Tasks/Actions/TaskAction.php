@@ -17,10 +17,9 @@ use Illuminate\Database\Eloquent\Collection;
 
 class TaskAction
 {
-
-    public static function createAction(): CreateAction
+    public static function createAction(): Action
     {
-        return CreateAction::make()
+        return Action::make("delete")
             ->slideOver()
             ->schema(function ($schema) {
                 $formClass = FilamentEmployeeManagementServiceProvider::getFormClass('task') ?? TaskForm::class;

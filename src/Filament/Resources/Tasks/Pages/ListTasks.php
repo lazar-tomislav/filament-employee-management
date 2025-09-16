@@ -53,10 +53,15 @@ class ListTasks extends ListRecords
         return "Zadaci";
     }
 
-    public function taskCreateAction(): Action
+    public function deleteAction(): Action
     {
-        return TaskAction::createAction()
-            ->icon(Heroicon::OutlinedBolt)
-            ->after(fn() => $this->dispatch('task-created'));
+        return TaskAction::createAction();
+    }
+
+    protected function getCachedActions(): array
+    {
+        return [
+            'taskCreateAction' => $this->taskCreateAction(),
+        ];
     }
 }

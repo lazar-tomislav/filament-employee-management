@@ -1,4 +1,5 @@
-<div class="mb-8"  x-data="{ collapsed: $wire.entangle('isCollapsed') }"
+<div class="mb-8  {{$this->status->getColorClass()}}"  x-data="{ collapsed: $wire.entangle('isCollapsed') }"
+
      >
     <div class="mb-4 flex  justify-between">
         <h3 class="text-lg font-semibold ml-1 text-gray-900 dark:text-white flex items-center space-x-1 cursor-pointer group"
