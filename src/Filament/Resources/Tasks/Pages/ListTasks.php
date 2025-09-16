@@ -43,10 +43,7 @@ class ListTasks extends ListRecords
                     }),
                 EmployeeAssigneeField::make('assignee_id')
                     ->hiddenLabel()
-                    ->live(debounce: 300)
-                    ->afterStateUpdated(function ($state) {
-                        $this->dispatch('task-assignee-filter', assigneeId: $state);
-                    }),
+                    ->live(debounce: 300),
             ])
             ->statePath('data');
     }
