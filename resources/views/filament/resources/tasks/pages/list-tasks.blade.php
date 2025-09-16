@@ -4,6 +4,14 @@
 
 <x-filament-panels::page>
 
+    <div class="w-full flex flex-row space-x-4">
+        {{$this->taskCreateAction}}
+        <div class=" flex space-x-2 items-center">
+            {{$this->form}}
+            <x-filament::loading-indicator wire:loading />
+        </div>
+    </div>
+
     <div class="mt-8 space-y-6">
         @foreach([
             TaskStatus::TODO,

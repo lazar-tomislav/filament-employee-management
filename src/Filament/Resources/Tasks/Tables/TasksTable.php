@@ -2,19 +2,18 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Tables;
 
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Pages\ViewEmployee;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ViewProject;
-use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Actions\TaskAction;
 use App\Filament\Resources\Clients\Pages\ViewClient;
 use App\Filament\Tables\Columns\DatePickerColumn;
 use App\Filament\Tables\Columns\InitialsColumn;
+use App\Filament\Tables\Columns\StatusSelectColumn;
 use App\Filament\Tables\Columns\TaskNameColumn;
+use Amicus\FilamentEmployeeManagement\Enums\TaskStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
 
 class TasksTable
@@ -40,6 +39,14 @@ class TasksTable
                 DatePickerColumn::make('due_at')
                     ->grow(false)
                     ->label('Rok')
+                    ->extraCellAttributes(['class'=>"datetime-column"])
+                    ->alignCenter()
+                    ->width("8rem"),
+
+                StatusSelectColumn::make('status')
+                    ->enum(TaskStatus::class)
+                    ->label('Status')
+                    ->grow(false)
                     ->alignCenter()
                     ->width("8rem"),
 
@@ -56,7 +63,6 @@ class TasksTable
                     ->url(fn($record) => ViewClient::getUrl(['record' => $record->client_id])),
             ])
             ->recordActions([
-                TaskAction::changeStatusAction($table)->label("")->hiddenLabel(),
                 DeleteAction::make()->hiddenLabel()->modalHeading("Obriši zadatak"),
             ])
             ->emptyStateHeading("Nema zadataka")

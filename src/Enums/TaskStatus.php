@@ -2,9 +2,10 @@
 
 namespace Amicus\FilamentEmployeeManagement\Enums;
 
+use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
-enum TaskStatus: string implements HasLabel
+enum TaskStatus: string implements HasLabel, HasColor
 {
     case TODO = 'TODO';
     case IN_PROGRESS = 'IN_PROGRESS';
@@ -21,7 +22,7 @@ enum TaskStatus: string implements HasLabel
         };
     }
 
-    public function getColor(): string
+    public function getColor(): string | array | null
     {
         return match ($this) {
             self::TODO => 'gray',
