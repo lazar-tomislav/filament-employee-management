@@ -39,6 +39,8 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
 
     public ?string $searchQuery = null;
 
+    public ?int $assigneeId = null;
+
     protected $listeners = [
         'task-created' => '$refresh',
     ];
@@ -101,6 +103,7 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
                     ->when($this->client, fn($query) => $query->where('client_id', $this->client->id))
                     ->when($this->project, fn($query) => $query->where('project_id', $this->project->id))
                     ->when($this->searchQuery, fn($query) => $query->where('title', 'like', '%' . $this->searchQuery . '%'))
+                    ->when($this->assigneeId, fn($query) => $query->where('assignee_id', $this->assigneeId))
             );
     }
 
@@ -109,6 +112,14 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
     {
         logger("Searching tasks with query: $query");
         $this->searchQuery = $query;
+        $this->resetTable();
+    }
+
+    #[On('task-assignee-filter')]
+    public function filterByAssignee(?int $assigneeId = null): void
+    {
+        logger("Filtering tasks by assignee: $assigneeId");
+        $this->assigneeId = $assigneeId;
         $this->resetTable();
     }
 

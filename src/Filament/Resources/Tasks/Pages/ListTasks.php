@@ -29,6 +29,7 @@ class ListTasks extends ListRecords
     public function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(3)
             ->schema([
                 TextInput::make('title')
                     ->hiddenLabel()
@@ -48,15 +49,6 @@ class ListTasks extends ListRecords
                     }),
             ])
             ->statePath('data');
-    }
-
-    public function create(): void
-    {
-        $data = $this->form->getState();
-
-        // Add your search logic here
-        // For example, you could dispatch an event to filter tasks
-        $this->dispatch('filter-tasks', $data);
     }
 
     public function getTitle(): string|Htmlable
