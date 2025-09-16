@@ -107,19 +107,23 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
             );
     }
 
-    #[On('task-search')]
-    public function searchTasks(?string $query = null): void
+    #[On('filter-tasks')]
+    public function filterTasks(array $filters = []): void
     {
-        logger("Searching tasks with query: $query");
-        $this->searchQuery = $query;
-        $this->resetTable();
-    }
+        if (isset($filters['query'])) {
+            logger("Filtering tasks with query: {$filters['query']}");
+            $this->searchQuery = $filters['query'];
+        }else{
+            $this->searchQuery = null;
+        }
 
-    #[On('task-assignee-filter')]
-    public function filterByAssignee(?int $assigneeId = null): void
-    {
-        logger("Filtering tasks by assignee: $assigneeId");
-        $this->assigneeId = $assigneeId;
+        if (isset($filters['assigneeId'])) {
+            logger("Filtering tasks by assignee: {$filters['assigneeId']}");
+            $this->assigneeId = $filters['assigneeId'];
+        }else{
+            $this->assigneeId = null;
+        }
+
         $this->resetTable();
     }
 

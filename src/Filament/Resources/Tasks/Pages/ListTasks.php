@@ -39,7 +39,7 @@ class ListTasks extends ListRecords
                     ->extraInputAttributes(['class' => "w-84"])
                     ->live(debounce: 300)
                     ->afterStateUpdated(function ($state) {
-                        $this->dispatch('task-search', query: $state);
+                        $this->dispatch('filter-tasks', filters: ['query' => $state]);
                     }),
                 EmployeeAssigneeField::make('assignee_id')
                     ->hiddenLabel()
