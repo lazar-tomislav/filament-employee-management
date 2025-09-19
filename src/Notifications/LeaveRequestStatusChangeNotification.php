@@ -40,7 +40,7 @@ class LeaveRequestStatusChangeNotification extends Notification implements Shoul
 
         $message = TelegramMessage::create()
             ->to($notifiable->telegram_chat_id)
-            ->content("Zahtjev za godišnji ({$startDate} - {$endDate}) ima novi status: {$status} \n\n Razlog: {$this->leaveRequest->rejection_reason}");
+            ->content("Zahtjev za godišnji ({$startDate} - {$endDate}) ima novi status: {$status} \n\n Razlog: {$this->leaveRequest->rejection_reason ?? 'Nije naveden'}");
 
         return $message;
     }
