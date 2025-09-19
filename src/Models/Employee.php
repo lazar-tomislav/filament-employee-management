@@ -263,8 +263,9 @@ class Employee extends Model
             app(ChannelManager::class)->send($this, $instance);
 
             // Also send to associated user for Filament panel
-            if($this->user){
-                $this->user?->notify($instance);
+            $user = $this->user; // Cachiramo referencu
+            if($user && $user->isNotifiable($instance)){
+                $user->notify($instance);
             }
         }catch(\Exception $e){
             report($e);
