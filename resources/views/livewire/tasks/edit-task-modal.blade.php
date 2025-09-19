@@ -7,7 +7,7 @@
         width="4xl"
     >
         <x-slot name="heading">
-            {{ $task?->name ?? 'Novi zadatak' }}
+            {{ $task?->title ?? 'Novi zadatak' }}
         </x-slot>
 
         <div class="w-full justify-start ">
