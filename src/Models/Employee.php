@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Notifications\ChannelManager;
+use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Traits\HasRoles;
 
 #[ObservedBy([EmployeeObserver::class])]
@@ -257,12 +258,17 @@ class Employee extends Model
      */
     public function notify($instance)
     {
-        // Send notification to employee using Notifiable trait method
-        app(ChannelManager::class)->send($this, $instance);
+        try{
+            // Send notification to employee using Notifiable trait method
+            app(ChannelManager::class)->send($this, $instance);
 
-        // Also send to associated user for Filament panel
-        if($this->user){
-            $this->user->notify($instance);
+            // Also send to associated user for Filament panel
+            if($this->user){
+                $this->user->notify($instance);
+            }
+        }catch(\Exception $e){
+            report($e);
+            Log::error("Failed to notify employee {$this->id} ({$this->full_name}): {$e->getMessage()}");
         }
     }
 }
