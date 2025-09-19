@@ -264,7 +264,7 @@ class Employee extends Model
 
             // Also send to associated user for Filament panel
             if($this->user){
-                $this->user->notify($instance);
+                $this->user?->notify($instance);
             }
         }catch(\Exception $e){
             report($e);
