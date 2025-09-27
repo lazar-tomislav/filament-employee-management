@@ -252,6 +252,15 @@ class Employee extends Model
         );
     }
 
+    public function assignedOffers(): ?HasMany
+    {
+        // if model_exists
+        if(class_exists(\App\Models\Offer::class)){
+            return $this->hasMany(\App\Models\Offer::class, 'assigned_to');
+        }
+        return null;
+    }
+
     /**
      * Override notify method to also send notification to associated user
      * for Filament panel notifications
