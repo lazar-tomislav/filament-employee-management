@@ -264,7 +264,11 @@ class Employee extends Model
 
             // Also send to associated user for Filament panel
             $user = $this->user; // Cachiramo referencu
-            if($user && $user->isNotifiable($instance)){
+            if($user && method_exists($user, 'notify')) {
+
+                if($instance->id == null){
+                    return;
+                }
                 $user->notify($instance);
             }
         }catch(\Exception $e){

@@ -15,10 +15,10 @@ enum TaskStatus: string implements HasLabel, HasColor
     public function getLabel(): string
     {
         return match ($this) {
-            self::TODO => 'Treba napraviti',
-            self::IN_PROGRESS => 'U tijeku',
-            self::DONE => 'Riješeno',
-            self::POSTPONED => 'Odgođeno',
+            self::TODO => 'To Do',
+            self::IN_PROGRESS => 'In Progress',
+            self::DONE => 'Done',
+            self::POSTPONED => 'On Hold',
         };
     }
 
