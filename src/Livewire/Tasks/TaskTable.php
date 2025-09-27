@@ -43,6 +43,7 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
 
     protected $listeners = [
         'task-created' => '$refresh',
+        'status-updated' => '$refresh',
     ];
 
     public function mount(TaskStatus $status, null|string|int $clientId = null, null|string|int $projectId = null): void
