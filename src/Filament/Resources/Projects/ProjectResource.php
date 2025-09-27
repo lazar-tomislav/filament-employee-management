@@ -28,6 +28,8 @@ class ProjectResource extends Resource
 
     protected static ?string $navigationLabel="Projekti";
 
+    protected static ?int $navigationSort=4000;
+
     public static function shouldRegisterNavigation(): bool
     {
         return config('employee-management.enabled_features.projects');
