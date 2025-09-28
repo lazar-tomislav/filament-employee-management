@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement\Enums;
 
+use App\Classes\Str;
 use Filament\Support\Contracts\HasColor;
 use Filament\Support\Contracts\HasLabel;
 
@@ -26,6 +27,10 @@ enum StatusProjekta: string implements HasLabel, HasColor
             self::Finalizacija => 'Završetak projekta',
             self::Arhiviran => 'Arhiviran',
         };
+    }
+    public function getSlug(): ?string
+    {
+        return Str::slug($this->getLabel());
     }
 
     public function getColor(): string | array | null

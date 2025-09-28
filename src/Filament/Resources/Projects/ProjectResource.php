@@ -2,7 +2,9 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Projects;
 
+use Amicus\FilamentEmployeeManagement\Enums\StatusProjekta;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ListProjects;
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ProjectsByStatus;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ViewProject;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectForm;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectInfolist;
@@ -61,6 +63,9 @@ class ProjectResource extends Resource
     {
         return [
             'index' => ListProjects::route('/'),
+            StatusProjekta::Priprema->getSlug() => ProjectsByStatus::route('/'.StatusProjekta::Priprema->getSlug()),
+            StatusProjekta::Provedba->getSlug() => ProjectsByStatus::route('/'.StatusProjekta::Provedba->getSlug()),
+            StatusProjekta::Finalizacija->getSlug() => ProjectsByStatus::route('/'.StatusProjekta::Finalizacija->getSlug()),
             'view' => ViewProject::route('/{record}'),
         ];
     }
