@@ -11,13 +11,10 @@ use App\Models\Client;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
-use Filament\Schemas\Schema;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Filters;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\On;
@@ -128,9 +125,10 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
         $this->resetTable();
     }
 
-    public function openConversation(string $recordId):void{
-        $this->dispatch('open-modal', id: 'edit-task-modal', params: [
-            'taskId' => $recordId,
+    public function openConversation(string $recordId): void
+    {
+        $this->dispatch('open-modal', id: 'edit-entity-modal', params: [
+            'entityId' => $recordId,
         ]);
     }
 

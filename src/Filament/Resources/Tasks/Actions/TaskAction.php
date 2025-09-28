@@ -66,8 +66,8 @@ class TaskAction
                     Notification::make()->title('Zadatak uspješno kreiran')->success()->send();
 
                     $component->dispatch('task-created');
-                    $component->dispatch('open-modal', id: 'edit-task-modal', params: [
-                        'taskId' => $taskId,
+                    $component->dispatch('open-modal', id: 'edit-entity-modal', params: [
+                        'entityId' => $taskId,
                     ]);
                 }catch(\Exception $e){
                     report($e);
@@ -81,8 +81,8 @@ class TaskAction
         return Action::make("edit")
             ->label("Uredi")
             ->icon(Heroicon::OutlinedPencil)->action(function ($record) use ($table) {
-                $table->getLivewire()->dispatch('open-modal', id: 'edit-task-modal', params: [
-                    'taskId' => $record->id,
+                $table->getLivewire()->dispatch('open-modal', id: 'edit-entity-modal', params: [
+                    'entityId' => $record->id,
                 ]);
             });
     }

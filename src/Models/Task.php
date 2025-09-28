@@ -6,6 +6,7 @@ use Amicus\FilamentEmployeeManagement\Enums\TaskStatus;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\TaskResource;
 use Amicus\FilamentEmployeeManagement\Observers\TaskObserver;
 use App\Models\Client;
+use App\Traits\HasActivities;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,7 +18,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[ObservedBy(TaskObserver::class)]
 class Task extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, HasActivities;
 
     /**
      * The attributes that are mass assignable.
@@ -90,18 +91,10 @@ class Task extends Model
         return $this->belongsTo(Employee::class, 'assignee_id');
     }
 
-    /**
-     * Dohvaća sva ažuriranja za ovaj zadatak, poredana kronološki.
-     */
-    public function updates(): HasMany
-    {
-        return $this->hasMany(TaskUpdate::class)->latest();
-    }
-
-    public function viewUrl():Attribute
+    public function viewUrl(): Attribute
     {
         return Attribute::make(
-            get: fn () => TaskResource::getUrl('index')."?taskId={$this->id}",
+            get: fn () => TaskResource::getUrl('index')."?modalEntityId={$this->id}",
         );
 
     }
