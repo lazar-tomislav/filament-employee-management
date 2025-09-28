@@ -83,7 +83,8 @@ class ProjectResource extends Resource
 
             NavigationItem::make()
                 ->label("6. Raspored")
-                ->url(fn()=>ProjectSchedule::getUrl())
+                ->isActiveWhen(fn() => request()->routeIs(ProjectSchedule::getRouteName()))
+                ->url(fn() => ProjectSchedule::getUrl())
                 ->group("Projekti")
                 ->sort(60),
 
