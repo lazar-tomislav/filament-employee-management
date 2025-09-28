@@ -9,7 +9,7 @@ use Illuminate\Contracts\Support\Htmlable;
 
 class ProjectsByStatus extends ListRecords
 {
-    protected string $view = 'filament-employee-management::filament.resources.projects.pages.list-projects';
+    protected string $view = 'filament-employee-management::filament.resources.projects.pages.project-by-status';
 
     protected static string $resource = ProjectResource::class;
     protected static bool $shouldRegisterNavigation = true;

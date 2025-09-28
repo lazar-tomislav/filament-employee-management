@@ -3,11 +3,8 @@
 @endphp
 
 <x-filament-panels::page>
-    <div class="space-y-6" wire:ignore>
+            @livewire('tasks-by-status', ['status' => $statusProjekta], key('task-table-'.$statusProjekta->value))
 
-
-
-    </div>
-
+    @livewire('edit-entity-modal', ['entityType' => 'task'])
     <x-filament-actions::modals/>
 </x-filament-panels::page>

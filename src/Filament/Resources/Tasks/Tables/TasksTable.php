@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Tables;
 
+use Amicus\FilamentEmployeeManagement\Enums\StatusProjekta;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ViewProject;
 use App\Filament\Resources\Clients\Pages\ViewClient;
 use App\Filament\Tables\Columns\DatePickerColumn;
@@ -50,16 +51,23 @@ class TasksTable
                     ->alignCenter()
                     ->width("8rem"),
 
+                StatusSelectColumn::make('project_status')
+                    ->enum(StatusProjekta::class)
+                    ->label('Faza projekta')
+                    ->width("8rem")
+                    ->sortable()
+                    ->alignCenter(),
+
                 TextColumn::make('project.name')
                     ->label('Projekt')
-                    ->grow(false)
+                    ->grow(false)->weight('semibold')
                     ->alignCenter()
                     ->width("8rem")
                     ->url(fn($record) => $record->project_id ? ViewProject::getUrl(['record' => $record->project_id]) : null)
                     ->placeholder('Jednokratni zadatak'),
 
                 TextColumn::make('client.name')
-                    ->label('Klijent')
+                    ->label('Klijent')->weight('semibold')
                     ->url(fn($record) => ViewClient::getUrl(['record' => $record->client_id])),
             ])
             ->recordActions([

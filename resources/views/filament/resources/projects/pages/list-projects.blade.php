@@ -11,8 +11,6 @@
             StatusProjekta::Finalizacija
         ] as $status)
             @livewire('filament-employee-management::projects.project-table', ['status' => $status], key('project-table-'.$status->value))
-
-            @livewire('tasks-by-status', ['status' => $status], key('task-table-'.$status->value))
         @endforeach
     </div>
 
