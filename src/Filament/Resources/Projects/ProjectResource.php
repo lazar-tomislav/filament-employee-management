@@ -83,7 +83,7 @@ class ProjectResource extends Resource
                 ->sort(50),
 
             NavigationItem::make()
-                ->label("7. Priprema projekata")
+                ->label("7. Priprema")
                 ->url(static::getUrl(StatusProjekta::Priprema->getSlug()))
                 ->isActiveWhen(fn() => request()->is('*/projects/' . StatusProjekta::Priprema->getSlug()))
                 ->group("Projekti")
@@ -97,7 +97,7 @@ class ProjectResource extends Resource
                 ->sort(80),
 
             NavigationItem::make()
-                ->label("9. Završetak projekta")
+                ->label("9. Završetak")
                 ->url(static::getUrl(StatusProjekta::Finalizacija->getSlug()))
                 ->isActiveWhen(fn() => request()->is('*/projects/' . StatusProjekta::Finalizacija->getSlug()))
                 ->group("Projekti")

@@ -19,7 +19,7 @@ class ProjectSchedule extends Page
 
     protected static ?int $navigationSort =60;
     protected static string | UnitEnum | null $navigationGroup="Projekti";
-    protected static ?string $navigationLabel="6. Projekti";
+    protected static ?string $navigationLabel="6. Raspored";
     protected static ?string $title = null;
 
     public function mount(): void
