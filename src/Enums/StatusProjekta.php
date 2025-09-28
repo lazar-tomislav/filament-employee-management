@@ -20,7 +20,12 @@ enum StatusProjekta: string implements HasLabel, HasColor
 
     public function getLabel(): ?string
     {
-        return $this->value;
+        return match ($this) {
+            self::Priprema => 'Priprema',
+            self::Provedba => 'Montaža',
+            self::Finalizacija => 'Završetak projekta',
+            self::Arhiviran => 'Arhiviran',
+        };
     }
 
     public function getColor(): string | array | null
