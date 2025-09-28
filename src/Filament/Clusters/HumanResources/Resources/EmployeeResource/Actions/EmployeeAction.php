@@ -61,7 +61,6 @@ class EmployeeAction
         return Action::make("edit")
             ->label("Uredi podatke zaposlenika")
             ->slideOver()
-            ->color("")
             ->modalHeading('Uredi zaposlenika')
             ->icon(Heroicon::OutlinedPencil)
             ->fillForm($record->toArray())
