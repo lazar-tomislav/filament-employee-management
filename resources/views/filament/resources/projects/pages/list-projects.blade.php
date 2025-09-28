@@ -5,7 +5,6 @@
 <x-filament-panels::page>
     <div class="space-y-6" wire:ignore>
         @foreach([
-            StatusProjekta::UpitPonuda,
             StatusProjekta::Priprema,
             StatusProjekta::Provedba,
             StatusProjekta::Finalizacija

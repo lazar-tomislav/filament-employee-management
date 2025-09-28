@@ -9,12 +9,10 @@ enum StatusProjekta: string implements HasLabel, HasColor
 {
     /**
      * *Faze svakog projekta su:**
-     * 1. **Upit / Ponuda:** Faza prikupljanja podataka i slanja ponude.
      * 2. **Priprema:** Faza koja počinje nakon prihvaćanja ponude (izrada izvedbene dokumentacije, specifikacija materijala).
      * 3. **Provedba:** Faza koja uključuje narudžbu materijala, pripremu za montažu (radni nalog) i samu montažu.
      * 4. **Finalizacija:** Faza koja uključuje završnu dokumentaciju i financijski obračun (fakturiranje).
     */
-    case UpitPonuda = 'Upit/Ponuda';
     case Priprema = 'Priprema';
     case Provedba = 'Provedba';
     case Finalizacija = 'Finalizacija';
@@ -28,7 +26,6 @@ enum StatusProjekta: string implements HasLabel, HasColor
     public function getColor(): string | array | null
     {
         return match ($this) {
-            self::UpitPonuda => 'info',
             self::Priprema => 'warning',
             self::Provedba => 'primary',
             self::Finalizacija => 'success',

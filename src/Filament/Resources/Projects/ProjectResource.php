@@ -26,9 +26,9 @@ class ProjectResource extends Resource
 
     protected static ?string $breadcrumb="Projekti";
 
-    protected static ?string $navigationLabel="Projekti";
+    protected static ?string $navigationLabel="5. Projekti SVE";
 
-    protected static ?int $navigationSort=4000;
+    protected static ?int $navigationSort=50;
 
     public static function shouldRegisterNavigation(): bool
     {
