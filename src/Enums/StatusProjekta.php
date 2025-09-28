@@ -42,4 +42,11 @@ enum StatusProjekta: string implements HasLabel, HasColor
             self::Arhiviran => 'gray',
         };
     }
+
+    public static function fromSlug(string $slug): ?self
+    {
+        $slugs = array_map(fn(self $status) => $status->getSlug(), self::cases());
+        $index = array_search($slug, $slugs, true);
+        return $index !== false ? self::cases()[$index] : null;
+    }
 }
