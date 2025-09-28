@@ -3,7 +3,7 @@
 @endphp
 
 <x-filament-panels::page>
-            @livewire('tasks-by-status', ['status' => $statusProjekta], key('task-table-'.$statusProjekta->value))
+        @livewire('filament-employee-management::tasks.task-table', ['status' => $statusProjekta], key('task-table-'.$statusProjekta->value))
 
     @livewire('edit-entity-modal', ['entityType' => 'task'])
     <x-filament-actions::modals/>

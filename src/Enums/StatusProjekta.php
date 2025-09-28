@@ -43,6 +43,16 @@ enum StatusProjekta: string implements HasLabel, HasColor
         };
     }
 
+    public function getColorClass(): string
+    {
+        return match ($this) {
+            self::Priprema => 'project-status-priprema',
+            self::Provedba => 'project-status-provedba',
+            self::Finalizacija => 'project-status-finalizacija',
+            self::Arhiviran => 'project-status-arhiviran',
+        };
+    }
+
     public static function fromSlug(string $slug): ?self
     {
         $slugs = array_map(fn(self $status) => $status->getSlug(), self::cases());

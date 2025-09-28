@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement\Livewire\Tasks;
 
+use Amicus\FilamentEmployeeManagement\Enums\StatusProjekta;
 use Amicus\FilamentEmployeeManagement\Enums\TaskStatus;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Actions\TaskAction;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Tables\TasksTable;
@@ -26,9 +27,11 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
     use InteractsWithSchemas;
     use InteractsWithTable;
 
-    public TaskStatus $status;
+    public TaskStatus|StatusProjekta $status;
 
     public bool $isCollapsed = false;
+
+    public bool $isProjectStatusMode = false;
 
     public ?Client $client = null;
 
@@ -43,9 +46,10 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
         'status-updated' => '$refresh',
     ];
 
-    public function mount(TaskStatus $status, null|string|int $clientId = null, null|string|int $projectId = null): void
+    public function mount(TaskStatus|StatusProjekta $status, null|string|int $clientId = null, null|string|int $projectId = null): void
     {
         $this->status = $status;
+        $this->isProjectStatusMode = $status instanceof StatusProjekta;
         $this->project = ($projectId !== null ? Project::find($projectId) : null);
         $this->client = ($clientId !== null ? Client::find($clientId) : null);
         if(! $this->client && $this->project) {
@@ -60,7 +64,10 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
             $this->isCollapsed = session()->get($sessionKey);
         }else{
             $taskCount = Task::query()
-                ->where('status', $this->status)
+                ->when($this->isProjectStatusMode,
+                    fn($query) => $query->where('project_status', $this->status)->whereNotNull('project_id'),
+                    fn($query) => $query->where('status', $this->status)
+                )
                 ->when($this->client, fn($query) => $query->where('client_id', $this->client->id))
                 ->when($this->project, fn($query) => $query->where('project_id', $this->project->id))
                 ->count();
@@ -97,11 +104,15 @@ class TaskTable extends Component implements HasActions, HasSchemas, HasTable
             ->deferFilters(false)
             ->query(
                 Task::query()
-                    ->where('status', $this->status)
+                    ->when($this->isProjectStatusMode,
+                        fn($query) => $query->where('project_status', $this->status)->whereNotNull('project_id'),
+                        fn($query) => $query->where('status', $this->status)
+                    )
                     ->when($this->client, fn($query) => $query->where('client_id', $this->client->id))
                     ->when($this->project, fn($query) => $query->where('project_id', $this->project->id))
                     ->when($this->searchQuery, fn($query) => $query->where('title', 'like', '%' . $this->searchQuery . '%'))
                     ->when($this->assigneeId, fn($query) => $query->where('assignee_id', $this->assigneeId))
+                    ->with(['assignee', 'project', 'client'])
             );
     }
 
