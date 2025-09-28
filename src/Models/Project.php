@@ -8,6 +8,7 @@ use App\Models\Client;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
@@ -15,6 +16,7 @@ class Project extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'offer_id',
         'name',
         'client_id',
         'employee_id',
@@ -54,6 +56,16 @@ class Project extends Model
     {
         return $this->belongsTo(Employee::class, 'employee_id')
             ->withTrashed();
+    }
+
+    public function offer(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Offer::class, 'offer_id');
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(\Amicus\FilamentEmployeeManagement\Models\Task::class, 'project_id');
     }
 
     public static function options()

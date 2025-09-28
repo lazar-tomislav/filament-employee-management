@@ -29,6 +29,7 @@ class Task extends Model
         'title',
         'description',
         'status',
+        'project_status',
         'client_id',
         'project_id',
         'creator_id',
@@ -45,6 +46,7 @@ class Task extends Model
      */
     protected $casts = [
         'status' => TaskStatus::class,
+        'project_status' => \Amicus\FilamentEmployeeManagement\Enums\StatusProjekta::class,
         'due_at' => 'datetime',
         'is_billable' => 'boolean',
     ];

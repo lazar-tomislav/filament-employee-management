@@ -26,7 +26,7 @@ class ProjectsTable
             ->columns([
                 TextColumn::make('name')
                     ->label('Naziv projekta')
-                    ->searchable()
+                    ->searchable()->weight('semibold')
                     ->sortable(),
 
                 TextColumn::make('client.name')
