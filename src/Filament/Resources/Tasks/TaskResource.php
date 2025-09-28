@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks;
 
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Widgets\ProjectStatsWidget;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Pages\ListTasks;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Tables\TasksTable;
 use Amicus\FilamentEmployeeManagement\Models\Task;
@@ -55,4 +56,5 @@ class TaskResource extends Resource
                 SoftDeletingScope::class,
             ]);
     }
+
 }
