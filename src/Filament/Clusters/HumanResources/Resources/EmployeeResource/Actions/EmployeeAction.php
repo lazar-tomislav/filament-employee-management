@@ -25,7 +25,7 @@ class EmployeeAction
             ->label('Izvještaj radnih sati svih zaposlenika')
             ->icon(Heroicon::OutlinedDocumentArrowDown)
             ->visible(fn() => auth()->user()->isUredAdministrativnoOsoblje())
-            ->color("")
+            ->color("primary")
             ->schema([
                 Select::make('month')
                     ->label('Mjesec')
