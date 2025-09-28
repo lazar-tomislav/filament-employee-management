@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Projects;
 
 use Amicus\FilamentEmployeeManagement\Enums\StatusProjekta;
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\FinancesPage;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ListProjects;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ProjectsByStatus;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ProjectSchedule;
@@ -111,7 +112,8 @@ class ProjectResource extends Resource
 
             NavigationItem::make()
                 ->label("10. Financije")
-                ->url("#")
+                ->isActiveWhen(fn() => request()->routeIs(FinancesPage::getRouteName()))
+                ->url(fn() => FinancesPage::getUrl())
                 ->group("Projekti")
                 ->sort(100),
         ];

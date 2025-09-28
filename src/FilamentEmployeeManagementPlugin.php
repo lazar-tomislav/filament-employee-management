@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement;
 
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\FinancesPage;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ProjectSchedule;
 use Amicus\FilamentEmployeeManagement\Http\Middleware\EnsureUserHasEmployeeRecord;
 use Amicus\FilamentEmployeeManagement\Http\Middleware\EnsureUserHasTelegramChatId;
@@ -33,6 +34,7 @@ class FilamentEmployeeManagementPlugin implements Plugin
             ->discoverResources(in: __DIR__ . '/Filament/Resources', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Resources')
             ->discoverClusters(in: __DIR__ . '/Filament/Clusters', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Clusters')
             ->pages([
+                FinancesPage::class,
                 ProjectSchedule::class,
             ])
 //            ->navigationItems([
