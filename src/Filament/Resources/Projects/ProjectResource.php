@@ -5,6 +5,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Projects;
 use Amicus\FilamentEmployeeManagement\Enums\StatusProjekta;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ListProjects;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ProjectsByStatus;
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ProjectSchedule;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ViewProject;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectForm;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectInfolist;
@@ -21,7 +22,6 @@ use UnitEnum;
 class ProjectResource extends Resource
 {
     protected static ?string $model = Project::class;
-
 
     protected static ?string $recordTitleAttribute = 'name';
 
@@ -83,7 +83,7 @@ class ProjectResource extends Resource
 
             NavigationItem::make()
                 ->label("6. Raspored")
-                ->url("#")
+                ->url(fn()=>ProjectSchedule::getUrl())
                 ->group("Projekti")
                 ->sort(60),
 

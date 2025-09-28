@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement;
 
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ProjectSchedule;
 use Amicus\FilamentEmployeeManagement\Http\Middleware\EnsureUserHasEmployeeRecord;
 use Amicus\FilamentEmployeeManagement\Http\Middleware\EnsureUserHasTelegramChatId;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
@@ -31,6 +32,9 @@ class FilamentEmployeeManagementPlugin implements Plugin
             ->discoverWidgets(in: __DIR__ . '/Filament/Widgets', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Widgets')
             ->discoverResources(in: __DIR__ . '/Filament/Resources', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Resources')
             ->discoverClusters(in: __DIR__ . '/Filament/Clusters', for: 'Amicus\\FilamentEmployeeManagement\\Filament\\Clusters')
+            ->pages([
+                ProjectSchedule::class,
+            ])
 //            ->navigationItems([
 //                NavigationItem::make("Profi")
 //                    ->visible(fn() => auth()->user()->isEmployee() && auth()->user()->employee->id)
