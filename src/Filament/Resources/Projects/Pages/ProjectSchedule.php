@@ -7,6 +7,7 @@ use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\ProjectResourc
 use Filament\Pages\Page;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Support\Htmlable;
+use UnitEnum;
 
 class ProjectSchedule extends Page
 {
@@ -16,6 +17,9 @@ class ProjectSchedule extends Page
     protected static bool $shouldRegisterNavigation = true;
     protected static ?string $breadcrumb = "Pregled";
 
+    protected static ?int $navigationSort =60;
+    protected static string | UnitEnum | null $navigationGroup="Projekti";
+    protected static ?string $navigationLabel="6. Projekti";
     protected static ?string $title = null;
 
     public function mount(): void

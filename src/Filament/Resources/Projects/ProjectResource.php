@@ -83,13 +83,6 @@ class ProjectResource extends Resource
                 ->sort(50),
 
             NavigationItem::make()
-                ->label("6. Raspored")
-                ->isActiveWhen(fn() => request()->routeIs(ProjectSchedule::getRouteName()))
-                ->url(fn() => ProjectSchedule::getUrl())
-                ->group("Projekti")
-                ->sort(60),
-
-            NavigationItem::make()
                 ->label("7. Priprema projekata")
                 ->url(static::getUrl(StatusProjekta::Priprema->getSlug()))
                 ->isActiveWhen(fn() => request()->is('*/projects/' . StatusProjekta::Priprema->getSlug()))
@@ -109,13 +102,6 @@ class ProjectResource extends Resource
                 ->isActiveWhen(fn() => request()->is('*/projects/' . StatusProjekta::Finalizacija->getSlug()))
                 ->group("Projekti")
                 ->sort(90),
-
-            NavigationItem::make()
-                ->label("10. Financije")
-                ->isActiveWhen(fn() => request()->routeIs(FinancesPage::getRouteName()))
-                ->url(fn() => FinancesPage::getUrl())
-                ->group("Projekti")
-                ->sort(100),
         ];
     }
 
