@@ -8,6 +8,7 @@ use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ListProj
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ProjectsByStatus;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ProjectSchedule;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ViewProject;
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Widgets\ProjectStatsWidget;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectForm;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectInfolist;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Tables\ProjectsTable;
@@ -58,6 +59,13 @@ class ProjectResource extends Resource
     {
         return [
             //
+        ];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            ProjectStatsWidget::class,
         ];
     }
 

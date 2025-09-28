@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages;
 
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Actions\ProjectAction;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\ProjectResource;
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Widgets\ProjectStatsWidget;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Support\Htmlable;
 
@@ -24,6 +25,13 @@ class ListProjects extends ListRecords
     {
         return [
             ProjectAction::createAction()->after(fn() => $this->dispatch('project-created')),
+        ];
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            ProjectStatsWidget::class,
         ];
     }
 }
