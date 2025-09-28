@@ -23,13 +23,17 @@ class EmployeeResource extends Resource
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
     protected static ?string $cluster = HumanResources::class;
-    protected static ?int $navigationSort=2000;
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationLabel = "Zaposlenici";
 
     protected static ?string $recordTitleAttribute = 'first_name';
 
-    protected static ?string $modelLabel="zaposlenika";
-    protected static ?string $pluralLabel="zaposlenici";
+    protected static ?string $modelLabel = "zaposlenika";
+    protected static ?string $pluralLabel = "zaposlenici";
     protected static ?string $label = 'zaposlenik';
+
     public static function form(Schema $schema): Schema
     {
         return EmployeeForm::configure($schema);
@@ -40,7 +44,7 @@ class EmployeeResource extends Resource
         return EmployeeTable::configure($table)
             ->modifyQueryUsing(function (Builder $query) {
                 // if user is employee, show only their own record
-                if (auth()->user()->isEmployee()) {
+                if(auth()->user()->isEmployee()){
                     $query->where('id', auth()->user()->employee->id);
                 }
             });
@@ -50,7 +54,6 @@ class EmployeeResource extends Resource
     {
         return "Zaposlenici";
     }
-    protected static ?string $navigationLabel="Zaposlenici";
 
 
     public static function getRelations(): array
@@ -66,7 +69,7 @@ class EmployeeResource extends Resource
             'index' => HumanResources\Resources\EmployeeResource\Pages\ListEmployees::route('/'),
             #'create' => HumanResources\Resources\EmployeeResource\Pages\CreateEmployee::route('/create'),
             'view' => HumanResources\Resources\EmployeeResource\Pages\ViewEmployee::route('/{record}'),
-           # 'edit' => HumanResources\Resources\EmployeeResource\Pages\EditEmployee::route('/{record}/edit'),
+            # 'edit' => HumanResources\Resources\EmployeeResource\Pages\EditEmployee::route('/{record}/edit'),
         ];
     }
 

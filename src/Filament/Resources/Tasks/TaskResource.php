@@ -20,9 +20,9 @@ class TaskResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'title';
 
-    protected static ?string $navigationLabel = "Zadaci";
     protected static ?string $breadcrumb = "Zadaci";
-    protected static ?int $navigationSort = 3000;
+    protected static ?int $navigationSort = 30;
+    protected static ?string $navigationLabel = "3. Zadaci";
 
     public static function shouldRegisterNavigation(): bool
     {
