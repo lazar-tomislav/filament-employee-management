@@ -20,7 +20,7 @@ class ViewProject extends ViewRecord implements HasSchemas
 
     protected static string $resource = ProjectResource::class;
 
-    protected string $view= 'filament-employee-management::filament.resources.projects.pages.view-project';
+    protected string $view = 'filament-employee-management::filament.resources.projects.pages.view-project';
 
     public function getTitle(): string|Htmlable
     {
@@ -42,11 +42,13 @@ class ViewProject extends ViewRecord implements HasSchemas
                 ->modalHeading("Uredi projekt"),
 
             ActionGroup::make([
-                ProjectAction::generateIzjavaProjektant()
-            ])->button()
+                ProjectAction::generateIzjavaProjektant(),
+                ProjectAction::generateZapisnikOPrimopredaji()
+            ])
+                ->button()
                 ->color("primary")
                 ->icon(Heroicon::OutlinedDocumentText)
-            ->label("Dokumentacija projekta")
+                ->label("Dokumentacija")
 
         ];
     }

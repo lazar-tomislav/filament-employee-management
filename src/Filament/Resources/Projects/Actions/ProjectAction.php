@@ -65,14 +65,14 @@ class ProjectAction
     public static function generateIzjavaProjektant(): Action
     {
         return Action::make('generateIzjavaProjektant')
-            ->label('Izjava ovlaštenog projektanta')
+            ->label('Izjava projektanta')
             ->icon('heroicon-o-document-text')
             ->color('primary')
 
             ->action(function (Project $record) {
                 $timestamp = now()->format('y-m-d-h-i');
                 $fileName = "izjava_projektant_{$timestamp}.docx";
-                $projectDirectory = "/projekti/{$record->id}";
+                $projectDirectory = "/private/projekti/{$record->id}";
 
                 $data = [
                     'naziv_objekta' => $record->object->name,
@@ -99,6 +99,49 @@ class ProjectAction
                     Notification::make()
                         ->title('Greška')
                         ->body('Template izjava_projektant.docx ne postoji.')
+                        ->danger()
+                        ->send();
+
+                    return;
+                }
+
+                return response()->download($outputPath, $fileName);
+            });
+    }
+
+    public static function generateZapisnikOPrimopredaji(): Action
+    {
+        return Action::make('generateZapisnikOPrimopredaji')
+            ->label('Zapisnik o primopredaji')
+            ->icon('heroicon-o-document-text')
+            ->color('primary')
+            ->action(function (Project $record) {
+                $timestamp = now()->format('y-m-d-h-i');
+                $fileName = "zapisnik-o-primopredaji-{$timestamp}.docx";
+                $projectDirectory = "/private/projekti/{$record->id}";
+
+                $data = [
+                    "klijent_naziv"=> $record->client->name,
+                    "klijent_adresa"=> $record->client->address,
+                    "klijent_zip_code"=> $record->client->zip_code,
+                    "klijent_grad"=> $record->client->grad,
+                    "klijent_oib"=> $record->client->oib,
+
+                    'danasnji_datum' => now()->format('d.m.Y.'),
+                ];
+
+
+                $outputPath = DocxTemplates::generate(
+                    DocxTemplates::PRIMOPREDAJNI_ZAPISNIK,
+                    $data,
+                    $projectDirectory,
+                    $fileName
+                );
+
+                if (! $outputPath) {
+                    Notification::make()
+                        ->title('Greška')
+                        ->body('Template izjava o primopredaji ne postoji.')
                         ->danger()
                         ->send();
 
