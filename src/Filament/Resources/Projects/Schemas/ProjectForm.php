@@ -6,6 +6,7 @@ use Amicus\FilamentEmployeeManagement\Enums\StatusProjekta;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use App\Enums\TipProjekta;
 use App\Filament\Resources\Clients\Schemas\ClientForm;
+use App\Filament\Resources\Offers\Schemas\ConstructionObjectForm;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -28,6 +29,8 @@ class ProjectForm
 
                 ClientForm::clientSelect()->searchable(),
 
+                ConstructionObjectForm::objectSelect(),
+
                 Select::make('employee_id')
                     ->label('Zadužena osoba')
                     ->placeholder('Odaberite zaposlenika')
@@ -39,13 +42,14 @@ class ProjectForm
 
                 Select::make('type')
                     ->label('Tip projekta')
-                    ->placeholder('Odaberite tip projekta')
+                    ->selectablePlaceholder(false)
                     ->options(TipProjekta::class)
                     ->default(TipProjekta::Tvrtke->value)
                     ->required(),
 
                 Select::make('status')
                     ->label('Status projekta')
+                    ->selectablePlaceholder(false)
                     ->placeholder('Odaberite status')
                     ->options(StatusProjekta::class)
                     ->default(StatusProjekta::Priprema->value)
@@ -59,7 +63,6 @@ class ProjectForm
                 TextInput::make('contract_amount')
                     ->label('Vrijednost ugovora (€)')
                     ->placeholder('25000.00')
-                    ->helperText('Ukupna vrijednost ugovora u eurima (dogovorena cijena)')
                     ->numeric()
                     ->columnSpanFull()
                     ->prefix("€ ")

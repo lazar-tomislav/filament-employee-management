@@ -2,13 +2,16 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages;
 
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Actions\ProjectAction;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\ProjectResource;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectInfolist;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Contracts\Support\Htmlable;
 
 class ViewProject extends ViewRecord implements HasSchemas
@@ -35,8 +38,16 @@ class ViewProject extends ViewRecord implements HasSchemas
     {
         return [
             EditAction::make()
-            ->slideOver()
-            ->modalHeading("Uredi projekt"),
+                ->slideOver()
+                ->modalHeading("Uredi projekt"),
+
+            ActionGroup::make([
+                ProjectAction::generateIzjavaProjektant()
+            ])->button()
+                ->color("primary")
+                ->icon(Heroicon::OutlinedDocumentText)
+            ->label("Dokumentacija projekta")
+
         ];
     }
 }

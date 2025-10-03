@@ -19,6 +19,8 @@ class Project extends Model
         'offer_id',
         'name',
         'client_id',
+        'object_id',
+        'investitor_id',
         'employee_id',
         'type',
         'status',
@@ -61,6 +63,16 @@ class Project extends Model
     public function offer(): BelongsTo
     {
         return $this->belongsTo(\App\Models\Offer::class, 'offer_id');
+    }
+
+    public function object(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\ConstructionObject::class, 'object_id');
+    }
+
+    public function investitor(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Investitor::class, 'investitor_id');
     }
 
     public function tasks(): HasMany
