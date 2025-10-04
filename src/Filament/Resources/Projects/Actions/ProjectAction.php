@@ -205,4 +205,14 @@ class ProjectAction
             ->url(route('gradiliste-lista.generate'))
             ->openUrlInNewTab();
     }
+
+    public static function generateRobaGradiliste(): Action
+    {
+        return Action::make('generateRobaGradiliste')
+            ->label('Roba za gradilište')
+            ->icon('heroicon-o-document-text')
+            ->color('primary')
+            ->url(route('roba-gradiliste.generate'))
+            ->openUrlInNewTab();
+    }
 }

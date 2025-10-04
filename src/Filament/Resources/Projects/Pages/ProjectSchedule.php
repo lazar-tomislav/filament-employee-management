@@ -36,6 +36,7 @@ class ProjectSchedule extends Page
     {
         return [
             \Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Actions\ProjectAction::generateGradilisteLista(),
+            \Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Actions\ProjectAction::generateRobaGradiliste(),
         ];
     }
 }
