@@ -35,6 +35,7 @@ class ProjectSchedule extends Page
     protected function getHeaderActions(): array
     {
         return [
+            \Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Actions\ProjectAction::generateGradilisteLista(),
         ];
     }
 }

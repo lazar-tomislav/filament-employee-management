@@ -13,19 +13,18 @@ use Filament\Support\Icons\Heroicon;
 
 class ProjectAction
 {
-
     public static function createAction(): CreateAction
     {
         return CreateAction::make()
             ->slideOver()
-            ->schema(fn($schema) => ProjectForm::configure($schema))
-            ->label("Kreiraj projekt")
-            ->modalHeading("Kreiraj projekt")
-            ->successNotificationTitle("Projekt uspješno kreiran, možete ga pregledati u popisu.")
+            ->schema(fn ($schema) => ProjectForm::configure($schema))
+            ->label('Kreiraj projekt')
+            ->modalHeading('Kreiraj projekt')
+            ->successNotificationTitle('Projekt uspješno kreiran, možete ga pregledati u popisu.')
             ->action(function (array $data) {
-                try{
+                try {
                     Project::query()->create($data);
-                }catch(\Exception $e){
+                } catch (\Exception $e) {
                     report($e);
                     Notification::make()->title('Greška')->body('Neuspješno kreiranje projekta.')->danger()->send();
                 }
@@ -37,21 +36,21 @@ class ProjectAction
         return Action::make('quick_create')
             ->icon(Heroicon::OutlinedPlus)
             ->hiddenLabel()
-            ->modalHeading("Novi projekt")
+            ->modalHeading('Novi projekt')
             ->slideOver()
-            ->fillForm(fn() => [
+            ->fillForm(fn () => [
                 'status' => $status,
                 'client_id' => $clientId,
             ])
-            ->schema(fn($schema) => ProjectForm::configure($schema))
-            ->action(function($data){
+            ->schema(fn ($schema) => ProjectForm::configure($schema))
+            ->action(function ($data) {
                 try {
                     Project::create($data);
                     Notification::make()
                         ->title('Projekt uspješno kreiran')
                         ->success()
                         ->send();
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     report($e);
                     Notification::make()
                         ->title('Greška')
@@ -82,8 +81,8 @@ class ProjectAction
                     'investitor_zip_code' => $record->investitor->zip_code,
                     'investitor_oib' => $record->investitor->oib,
 
-                    "objekt_adresa"=>$record->object->address,
-                    "danasnji_datum"=>now()->format('d.m.Y.'),
+                    'objekt_adresa' => $record->object->address,
+                    'danasnji_datum' => now()->format('d.m.Y.'),
 
                     'investitor_grad' => $record->investitor->grad,
                 ];
@@ -121,15 +120,14 @@ class ProjectAction
                 $projectDirectory = "/private/projekti/{$record->id}";
 
                 $data = [
-                    "klijent_naziv"=> $record->client->name,
-                    "klijent_adresa"=> $record->client->address,
-                    "klijent_zip_code"=> $record->client->zip_code,
-                    "klijent_grad"=> $record->client->grad,
-                    "klijent_oib"=> $record->client->oib,
+                    'klijent_naziv' => $record->client->name,
+                    'klijent_adresa' => $record->client->address,
+                    'klijent_zip_code' => $record->client->zip_code,
+                    'klijent_grad' => $record->client->grad,
+                    'klijent_oib' => $record->client->oib,
 
                     'danasnji_datum' => now()->format('d.m.Y.'),
                 ];
-
 
                 $outputPath = DocxTemplates::generate(
                     DocxTemplates::PRIMOPREDAJNI_ZAPISNIK,
@@ -164,7 +162,7 @@ class ProjectAction
                 $projectDirectory = "/private/projekti/{$record->id}";
 
                 $data = [
-                    'broj_gradilista' => "01 / 2025",
+                    'broj_gradilista' => '01 / 2025',
                     'naziv_objekta' => $record->object->name,
                     'snaga_elektrane' => $record->power_plant_power ?? '',
                     'investitor_naziv' => $record->investitor->name,
@@ -196,5 +194,15 @@ class ProjectAction
 
                 return response()->download($outputPath, $fileName);
             });
+    }
+
+    public static function generateGradilisteLista(): Action
+    {
+        return Action::make('generateGradilisteLista')
+            ->label('Prazna špranca za gradilište')
+            ->icon('heroicon-o-document-text')
+            ->color('primary')
+            ->url(route('gradiliste-lista.generate'))
+            ->openUrlInNewTab();
     }
 }
