@@ -3,13 +3,6 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
             <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Plan Gradilišta</h2>
-                <div class="flex gap-2">
-                    {{-- Promjena: Uklonjeni gumbi za Tjedan i Mjesec --}}
-                    <button id="btn-day"
-                            class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded">
-                        Dan
-                    </button>
-                </div>
             </div>
             <div id="gantt-container" class="p-4"></div>
         </div>
@@ -68,12 +61,11 @@
                 ];
 
                 const gantt = new Gantt("#gantt-container", tasks, {
-                    // Promjena: Zadani prikaz je 'Day'
                     view_mode: 'Day',
-                    bar_height: 40,
-                    // Promjena: Povećana širina stupca radi bolje čitljivosti u dnevnom prikazu
-                    column_width: 50,
-                    padding: 18,
+                    bar_height: 60,
+                    column_width: 60,
+                    column_height: 60,
+                    padding: 15,
                     language: 'hr',
                     date_format: 'DD.MM.YYYY',
                     popup_on: "click",
@@ -93,10 +85,6 @@
                     },
                 });
 
-                // View mode button
-                document.getElementById('btn-day').addEventListener('click', function () {
-                    gantt.change_view_mode('Day');
-                });
 
                 // Helper functions
                 function addDays(date, days) {
