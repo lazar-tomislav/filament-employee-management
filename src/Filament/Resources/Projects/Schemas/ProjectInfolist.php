@@ -20,7 +20,6 @@ class ProjectInfolist
                             'Zadužena osoba' => $record->employee->full_name_email,
                             'Tip projekta' => $record->type->getLabel(),
                             'Status projekta' => $record->status->getLabel(),
-                            'Lokacija' => $record->site_location,
                             'Iznos ugovora' => $record->contract_amount_formatted,
                             'Početak projekta' => $record->start_date?->format('d.m.Y') ?? "-",
                             'Kraj projekta' => $record->end_date?->format('d.m.Y')??"-",

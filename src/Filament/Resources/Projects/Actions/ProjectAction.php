@@ -151,4 +151,50 @@ class ProjectAction
                 return response()->download($outputPath, $fileName);
             });
     }
+
+    public static function generateImenovanjeVoditeljGradilista(): Action
+    {
+        return Action::make('generateImenovanjeVoditeljGradilista')
+            ->label('Imenovanje voditelj gradilišta')
+            ->icon('heroicon-o-document-text')
+            ->color('primary')
+            ->action(function (Project $record) {
+                $timestamp = now()->format('y-m-d-h-i');
+                $fileName = "imenovanje-voditelj-gradilista-{$timestamp}.docx";
+                $projectDirectory = "/private/projekti/{$record->id}";
+
+                $data = [
+                    'broj_gradilista' => "01 / 2025",
+                    'naziv_objekta' => $record->object->name,
+                    'snaga_elektrane' => $record->power_plant_power ?? '',
+                    'investitor_naziv' => $record->investitor->name,
+                    'investitor_oib' => $record->investitor->oib,
+                    'investitor_adresa' => $record->investitor->address,
+                    'investitor_zip_code' => $record->investitor->zip_code,
+                    'investitor_grad' => $record->investitor->grad,
+                    'objekt_adresa' => $record->object->address,
+                    'parcel_reference' => $record->object->parcel_reference ?? '',
+                    'danasnji_datum' => now()->format('d.m.Y'),
+                ];
+
+                $outputPath = DocxTemplates::generate(
+                    DocxTemplates::IMENOVANJE_VODITELJ_GRADILISTA,
+                    $data,
+                    $projectDirectory,
+                    $fileName
+                );
+
+                if (! $outputPath) {
+                    Notification::make()
+                        ->title('Greška')
+                        ->body('Template imenovanje-voditelj-gradilista.docx ne postoji.')
+                        ->danger()
+                        ->send();
+
+                    return;
+                }
+
+                return response()->download($outputPath, $fileName);
+            });
+    }
 }

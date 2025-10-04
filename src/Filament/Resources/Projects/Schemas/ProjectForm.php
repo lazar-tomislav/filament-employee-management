@@ -55,11 +55,6 @@ class ProjectForm
                     ->default(StatusProjekta::Priprema->value)
                     ->required(),
 
-                TextInput::make('site_location')
-                    ->label('Gradilište')
-                    ->placeholder('Zagreb, Savska cesta 123')
-                    ->required(),
-
                 TextInput::make('contract_amount')
                     ->label('Vrijednost ugovora (€)')
                     ->placeholder('25000.00')
@@ -67,6 +62,12 @@ class ProjectForm
                     ->columnSpanFull()
                     ->prefix("€ ")
                     ->inputMode('decimal')
+                    ->required(),
+
+                TextInput::make('power_plant_power')
+                    ->label('Snaga elektrane')
+                    ->placeholder('50,00 kW')
+                    ->columnSpanFull()
                     ->required(),
 
                 Grid::make(2)

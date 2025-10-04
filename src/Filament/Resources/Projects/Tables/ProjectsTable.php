@@ -54,12 +54,6 @@ class ProjectsTable
 //                    ->badge()
 //                    ->sortable(),
 
-                TextColumn::make('site_location')
-                    ->label('Gradilište')
-                    ->searchable()
-                    ->sortable()
-                    ->wrap(),
-
                 TextColumn::make('contract_amount')
                     ->label('Vrijednost (€)')
                     ->numeric(

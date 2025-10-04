@@ -43,7 +43,8 @@ class ViewProject extends ViewRecord implements HasSchemas
 
             ActionGroup::make([
                 ProjectAction::generateIzjavaProjektant(),
-                ProjectAction::generateZapisnikOPrimopredaji()
+                ProjectAction::generateZapisnikOPrimopredaji(),
+                ProjectAction::generateImenovanjeVoditeljGradilista(),
             ])
                 ->button()
                 ->color("primary")
