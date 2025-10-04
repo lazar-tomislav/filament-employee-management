@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages;
 
 use Amicus\FilamentEmployeeManagement\Enums\StatusProjekta;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\ProjectResource;
+use Filament\Actions\ActionGroup;
 use Filament\Pages\Page;
 use Filament\Resources\Pages\ListRecords;
 use Illuminate\Contracts\Support\Htmlable;
@@ -35,8 +36,10 @@ class ProjectSchedule extends Page
     protected function getHeaderActions(): array
     {
         return [
-            \Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Actions\ProjectAction::generateGradilisteLista(),
-            \Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Actions\ProjectAction::generateRobaGradiliste(),
+            ActionGroup::make([
+                \Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Actions\ProjectAction::generateGradilisteLista(),
+                \Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Actions\ProjectAction::generateRobaGradiliste(),
+            ])->label("Prazne Šprance")->button()->color("primary"),
         ];
     }
 }

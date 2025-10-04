@@ -199,7 +199,7 @@ class ProjectAction
     public static function generateGradilisteLista(): Action
     {
         return Action::make('generateGradilisteLista')
-            ->label('Prazna špranca za gradilište')
+            ->label('Lista za gradilište')
             ->icon('heroicon-o-document-text')
             ->color('primary')
             ->url(route('gradiliste-lista.generate'))
