@@ -33,7 +33,6 @@ class LeaveRequestForm
                             ->label('Datum od')
                             ->native()
                             ->required()
-                            ->default(now()->addDay())
                             ->live()
                             ->afterStateUpdated($afterStateUpdated)
                             ->displayFormat('d.m.Y')
@@ -46,7 +45,6 @@ class LeaveRequestForm
                             ->native()
                             ->required()
                             ->afterStateUpdated($afterStateUpdated)
-                            ->default(now()->addDay())
                             ->live()
                             ->format('Y-m-d')
                             ->minDate(fn($get) => $get('start_date')),
