@@ -76,10 +76,6 @@ class EmployeeForm
                     ->placeholder('Zagreb')
                     ->maxLength(255),
 
-                Forms\Components\TextInput::make('mobile_tariff')
-                    ->label('Tarifa mobilnog broja')
-                    ->placeholder('L Tarifa')
-                    ->maxLength(255),
 
                 Forms\Components\Textarea::make('note')
                     ->label('Napomena')

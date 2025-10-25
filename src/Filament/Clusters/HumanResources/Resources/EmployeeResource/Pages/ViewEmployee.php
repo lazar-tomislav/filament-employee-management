@@ -52,7 +52,6 @@ class ViewEmployee extends Page implements HasSchemas
             "Broj telefona" => $this->record->phone_number ?? "-",
             'Adresa' => $this->record->address ?? "-",
             'Grad' => $this->record->city ?? "-",
-            'Tarifa mobilnog broja' => $this->record->mobile_tariff ?? "-",
             "Napomena" => $this->record->note ?? "-",
         ];
     }

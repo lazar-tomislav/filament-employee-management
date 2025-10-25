@@ -72,7 +72,6 @@ class MissingEmployeePage extends Page implements HasSchemas
                 'address' => $data['address'],
                 'city' => $data['city'],
                 'oib' => $data['oib'],
-                'mobile_tariff' => $data['mobile_tariff'] ?? null,
                 'note' => null,
                 'is_active' => true,
             ]);

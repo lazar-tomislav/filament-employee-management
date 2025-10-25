@@ -59,7 +59,6 @@ class Employee extends Model
         'address',
         'city',
         'oib',
-        'mobile_tariff',
         'note',
         'is_active',
     ];

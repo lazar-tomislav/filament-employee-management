@@ -27,7 +27,6 @@ class EmployeeFactory extends Factory
             'address' => $this->faker->streetAddress(),
             'city' => $this->faker->city(),
             'oib' => $this->faker->numerify('###########'),
-            'mobile_tariff' => $this->faker->randomFloat(2, 10, 100),
             'note' => $this->faker->optional()->sentence(),
             'is_active' => true,
         ];

@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('city')->nullable();
             $table->string('oib')->nullable();
-            $table->string('mobile_tariff')->nullable();
             $table->text('note')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
