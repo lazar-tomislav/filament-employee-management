@@ -24,5 +24,7 @@ composer require laravel-notification-channels/telegram
 ## Theme
 ### 1. Add to theme.css
 
+```text
 @source '../../../../packages/filament-employee-management/resources/views/filament/**/*';
 @source '../../../../packages/filament-employee-management/resources/css/index.css';
+```
