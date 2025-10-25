@@ -5,14 +5,12 @@ namespace Amicus\FilamentEmployeeManagement\Models;
 use Amicus\FilamentEmployeeManagement\Enums\TaskStatus;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\TaskResource;
 use Amicus\FilamentEmployeeManagement\Observers\TaskObserver;
-use App\Models\Client;
-use App\Traits\HasActivities;
+use Amicus\FilamentEmployeeManagement\Traits\HasActivities;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[ObservedBy(TaskObserver::class)]
@@ -29,14 +27,10 @@ class Task extends Model
         'title',
         'description',
         'status',
-        'project_status',
-        'client_id',
         'project_id',
         'creator_id',
         'assignee_id',
         'due_at',
-        'is_billable',
-        'billed_amount',
     ];
 
     /**
@@ -46,9 +40,7 @@ class Task extends Model
      */
     protected $casts = [
         'status' => TaskStatus::class,
-        'project_status' => \Amicus\FilamentEmployeeManagement\Enums\StatusProjekta::class,
         'due_at' => 'datetime',
-        'is_billable' => 'boolean',
     ];
 
     /**
@@ -57,15 +49,6 @@ class Task extends Model
     public function isStandAlone(): bool
     {
         return is_null($this->project_id);
-    }
-
-    /**
-     * Get the client that owns the task.
-     */
-    public function client(): BelongsTo
-    {
-        // Assumes an App\Models\Client model exists
-        return $this->belongsTo(Client::class);
     }
 
     /**

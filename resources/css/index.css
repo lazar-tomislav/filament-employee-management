@@ -1,0 +1,10 @@
+@import './employee-asignee-field.css';
+@import './date-picker-column.css';
+@import './status-select-column.css';
+@import './task-name-column.css';
+
+
+.initials-column > .fi-ta-col, .datetime-column > .fi-ta-col{
+    justify-content: center !important;
+    text-align: center !important;
+}

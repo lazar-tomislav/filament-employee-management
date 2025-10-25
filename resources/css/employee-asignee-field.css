@@ -1,0 +1,130 @@
+.assignee-selector {
+    min-width: auto;
+    width: fit-content;
+}
+
+.initials-circle-small {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #c03304;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.initials-circle-small.empty {
+    background-color: #c03304;
+    color:white;
+    border: 1px dashed #d1d5db;
+}
+
+/* Dark mode styles */
+.dark .initials-circle-small {
+    background-color: #374151;
+}
+
+.dark .initials-circle-small.empty {
+    background-color: #1f2937;
+    border: 1px dashed #4b5563;
+}
+
+/* Focus styles for accessibility */
+button:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+
+/* TABEL COLUMN */
+
+
+
+.initials-circle-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.initials-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #c03304;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.initials-circle:hover {
+    background-color: #d1d5db;
+    transform: scale(1.05);
+}
+
+.initials-circle-small {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #c03304;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.initials-circle-small.empty {
+    background-color: #c03304;
+    border: 1px dashed #d1d5db;
+}
+
+.initials-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+}
+
+/* Dark mode styles */
+.dark .initials-circle {
+    background-color: #374151;
+}
+
+.dark .initials-circle:hover {
+    background-color: #4b5563;
+}
+
+.dark .initials-circle-small {
+    background-color: #374151;
+}
+
+.dark .initials-circle-small.empty {
+    background-color: #1f2937;
+    border: 1px dashed #4b5563;
+}
+
+.dark .initials-text {
+    color: #f3f4f6;
+}
+
+/* Dropdown animation improvements */
+.relative > div[x-show="isOpen"] {
+    transform-origin: top center;
+}
+
+/* Focus styles for accessibility */
+button:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* Monday.com inspired styling */
+.initials-circle-wrapper:hover .initials-circle {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dark .initials-circle-wrapper:hover .initials-circle {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}

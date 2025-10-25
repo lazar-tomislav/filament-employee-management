@@ -1,0 +1,32 @@
+
+.status-cell-component {
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.status-cell-component:hover {
+    opacity: 0.9;
+    transform: scale(1.02);
+}
+
+.status-option:hover .status-color-background {
+    opacity: 0.9;
+}
+
+/* Monday.com inspired styling */
+.status-picker-content ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Focus styles for accessibility */
+.status-option:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: -2px;
+}
+
+/* Dark mode adjustments */
+.dark .status-cell-component {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}

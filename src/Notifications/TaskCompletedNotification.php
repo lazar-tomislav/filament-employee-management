@@ -40,7 +40,6 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
             ->to($notifiable->telegram_chat_id)
             ->content("✅ <strong>Zadatak je završen!</strong>\n\n" .
                 "<strong>{$this->task->title}</strong>\n\n" .
-                "Klijent: {$this->task->client?->name}\n" .
                 ($this->task->project ? "Projekt: {$this->task->project->name}" : "Jednokratni zadatak") . "\n" .
                 "Završio: {$this->task->assignee->full_name}")
             ->options(['parse_mode' => 'HTML']);

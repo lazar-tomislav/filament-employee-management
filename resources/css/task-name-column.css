@@ -1,0 +1,26 @@
+.task-name-column {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    padding-left: 0.75rem;
+    align-items: center;
+}
+
+.task-name-content {
+    flex-basis: 83.333333%;
+    font-weight: 600;
+}
+
+.task-name-icon {
+    flex-basis: 16.666667%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left-width: 1px;
+    border-color: #d1d5db;
+}
+
+.task-name-icon svg:hover {
+    color: #2563eb;
+}

@@ -22,14 +22,17 @@ class TaskAction
         return Action::make("delete")
             ->slideOver()
             ->schema(function ($schema) {
-                $formClass = FilamentEmployeeManagementServiceProvider::getFormClass('task') ?? TaskForm::class;
-                return $formClass::configure($schema);
+                return TaskForm::configure($schema);
             })
             ->label("Kreiraj zadatak")
             ->modalHeading("Kreiraj zadatak")
             ->successNotificationTitle("Zadatak uspješno kreiran.")
             ->action(function (array $data) {
                 try{
+                    if (!auth()->user()->employee) {
+                        Notification::make()->title('Greška')->body('Korisnik nema povezan Employee zapis.')->danger()->send();
+                        return;
+                    }
                     Task::query()->create($data);
                 }catch(\Exception $e){
                     report($e);
@@ -39,7 +42,7 @@ class TaskAction
 
     }
 
-    public static function quickCreateTask(TaskTable $component, TaskStatus $status, ?int $clientId, ?int $projectId): Action
+    public static function quickCreateTask(TaskTable $component, TaskStatus $status): Action
     {
         return Action::make('quick_create')
             ->icon(Heroicon::OutlinedPlus)
@@ -49,20 +52,21 @@ class TaskAction
             ->fillForm(fn() => [
                 "assignee_id" => auth()->user()->employee?->id,
             ])
-            ->schema(function ($schema) use ($clientId, $projectId) {
-                $formClass = FilamentEmployeeManagementServiceProvider::getFormClass('task') ?? TaskForm::class;
-                return $formClass::configure($schema, ($clientId && $projectId));
+            ->schema(function ($schema) {
+                return TaskForm::configure($schema);
             })
-            ->action(function ($data) use ($status, $component, $clientId, $projectId) {
+            ->action(function ($data) use ($status, $component) {
                 try{
-                    if($clientId && $projectId) {
-                        $data['client_id'] = $clientId;
-                        $data['project_id'] = $projectId;
+                    if (!auth()->user()->employee) {
+                        Notification::make()->title('Greška')->body('Korisnik nema povezan Employee zapis.')->danger()->send();
+                        return;
                     }
-                    $data['status'] = $status->value;
-                    $data['creator_id'] = auth()->id();
 
-                    $taskId = Task::query()->insertGetId($data);
+                    $data['status'] = $status->value;
+                    $data['creator_id'] = auth()->user()->employee->id;
+
+                    $task = Task::query()->create($data);
+                    $taskId = $task->id;
                     Notification::make()->title('Zadatak uspješno kreiran')->success()->send();
 
                     $component->dispatch('task-created');

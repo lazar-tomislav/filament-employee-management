@@ -4,11 +4,10 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Tables;
 
 use Amicus\FilamentEmployeeManagement\Enums\StatusProjekta;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ViewProject;
-use App\Filament\Resources\Clients\Pages\ViewClient;
-use App\Filament\Tables\Columns\DatePickerColumn;
-use App\Filament\Tables\Columns\InitialsColumn;
-use App\Filament\Tables\Columns\StatusSelectColumn;
-use App\Filament\Tables\Columns\TaskNameColumn;
+use Amicus\FilamentEmployeeManagement\Filament\Tables\Columns\DatePickerColumn;
+use Amicus\FilamentEmployeeManagement\Filament\Tables\Columns\InitialsColumn;
+use Amicus\FilamentEmployeeManagement\Filament\Tables\Columns\StatusSelectColumn;
+use Amicus\FilamentEmployeeManagement\Filament\Tables\Columns\TaskNameColumn;
 use Amicus\FilamentEmployeeManagement\Enums\TaskStatus;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -65,10 +64,6 @@ class TasksTable
                     ->width("8rem")
                     ->url(fn($record) => $record->project_id ? ViewProject::getUrl(['record' => $record->project_id]) : null)
                     ->placeholder('Jednokratni zadatak'),
-
-                TextColumn::make('client.name')
-                    ->label('Klijent')->weight('semibold')
-                    ->url(fn($record) => ViewClient::getUrl(['record' => $record->client_id])),
             ])
             ->recordActions([
                 DeleteAction::make()->hiddenLabel()->modalHeading("Obriši zadatak"),

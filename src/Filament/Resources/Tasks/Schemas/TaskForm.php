@@ -14,7 +14,7 @@ use Filament\Schemas\Schema;
 
 class TaskForm
 {
-    public static function configure(Schema $schema, bool $isQuickProjectCreate=false, array $extraFields = []): Schema
+    public static function configure(Schema $schema): Schema
     {
         return $schema
             ->columns(2)
@@ -23,7 +23,7 @@ class TaskForm
                     ->label('Zadatak')
                     ->columnSpanFull()
                     ->autofocus()
-                    ->placeholder('Izradi izvedbenu shemu')
+                    ->placeholder('Novi zadatak')
                     ->required(),
 
                 RichEditor::make('description')
@@ -36,17 +36,6 @@ class TaskForm
                         ['undo', 'redo'],
                     ])
                     ->helperText('Detaljan opis zadatka i svih potrebnih informacija'),
-
-                ...$extraFields,
-
-                Select::make('project_id')
-                    ->label('Projekt')
-                    ->options(Project::options())
-                    ->placeholder('Odaberite projekt (opcionalno)')
-                    ->helperText('Ostavite prazno ako je jednokratan zadatak ili nije vezan uz projekt')
-                    ->visible(fn()=>!$isQuickProjectCreate)
-                    ->searchable()
-                    ->preload(),
 
                 Select::make('assignee_id')
                     ->required()
@@ -62,28 +51,6 @@ class TaskForm
                     ->default(now()->addDay(7))
                     ->afterOrEqual(now())
                     ->native(true),
-
-                Section::make()
-                    ->hiddenLabel()
-                    ->key("naplata-billing")
-                    ->columnSpanFull()
-                    ->columns(2)
-
-                ->schema([
-                    Checkbox::make('is_billable')
-                        ->label('Naplativi zadatak')
-                        ->helperText("Ako nije naplatno klijentu, pokriva NetEko.")
-                        ->live()
-                        ->default(true),
-
-                    TextInput::make('billed_amount')
-                        ->label('Iznos naplate klijentu (€)')
-                        ->placeholder('150.00')
-                        ->numeric()
-                        ->prefix('€')
-                        ->step(0.01)
-                        ->visible(fn ($get) => $get('is_billable')),
-                ])
             ]);
     }
 }

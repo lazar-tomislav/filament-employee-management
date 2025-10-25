@@ -202,23 +202,13 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             'create_leave_requests_table',
             'create_time_logs_table',
             'create_holidays_table',
+            'create_projects_table',
+            'create_tasks_table',
             'insert_user_roles',
             'alter_employees_table',
+            'create_activities_table',
+            'create_activity_mentions_table',
         ];
-    }
-
-    public static function getFormClass(string $formKey): ?string
-    {
-        $forms = config('employee-management.forms');
-        // Prefer app class if it exists
-        if (isset($forms[$formKey]['app']) && class_exists($forms[$formKey]['app'])) {
-            return $forms[$formKey]['app'];
-        }
-        // Fallback to package class
-        if (isset($forms[$formKey]['package']) && class_exists($forms[$formKey]['package'])) {
-            return $forms[$formKey]['package'];
-        }
-        return null;
     }
 
     protected function discoverLivewireComponents(): void

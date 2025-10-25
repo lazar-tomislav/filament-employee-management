@@ -1,0 +1,173 @@
+
+.date-picker-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 32px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.date-picker-wrapper:hover {
+    background-color: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.date-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    width: 100%;
+}
+
+.calendar-icon {
+    width: 14px;
+    height: 14px;
+    color: #6b7280;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    margin-right: 6px;
+}
+
+.status-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+}
+
+.status-icon.overdue {
+    color: #dc2626;
+}
+
+.status-circle {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-circle.today {
+    background-color: #f97316; /* Orange */
+}
+
+.status-circle.soon {
+    background-color: #eab308; /* Yellow */
+}
+
+.status-circle.normal {
+    background-color: #16a34a; /* Green */
+}
+
+.date-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.placeholder-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #9ca3af;
+}
+
+.date-input-hidden {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    outline: none;
+}
+
+.date-input-hidden::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Empty state hover effects */
+.empty-state:hover .calendar-icon {
+    color: #3b82f6;
+    transform: scale(1.1);
+}
+
+.empty-state:hover .placeholder-text {
+    color: #6b7280;
+}
+
+/* Dark mode styles */
+.dark .date-picker-wrapper:hover {
+    background-color: #374151;
+    border-color: #4b5563;
+}
+
+.dark .calendar-icon {
+    color: #9ca3af;
+}
+
+.dark .status-icon.overdue {
+    color: #f87171;
+}
+
+.dark .status-circle.today {
+    background-color: #fb923c; /* Lighter orange for dark mode */
+}
+
+.dark .status-circle.soon {
+    background-color: #facc15; /* Lighter yellow for dark mode */
+}
+
+.dark .status-circle.normal {
+    background-color: #22c55e; /* Lighter green for dark mode */
+}
+
+.dark .date-text {
+    color: #f3f4f6;
+}
+
+.dark .placeholder-text {
+    color: #6b7280;
+}
+
+.dark .empty-state:hover .calendar-icon {
+    color: #60a5fa;
+}
+
+.dark .empty-state:hover .placeholder-text {
+    color: #9ca3af;
+}
+
+/* Monday.com inspired styling */
+.date-picker-wrapper:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.dark .date-picker-wrapper:hover {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Focus styles for accessibility */
+.date-input:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+    border-radius: 4px;
+}

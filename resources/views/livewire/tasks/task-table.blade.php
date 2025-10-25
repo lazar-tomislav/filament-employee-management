@@ -32,7 +32,7 @@
         {{ $this->table }}
     </div>
 
-    @livewire('edit-entity-modal', ['entityType' => 'task'])
+    @livewire('filament-employee-management::edit-entity-modal', ['entityType' => 'task'])
 
     <x-filament-actions::modals/>
 </div>
