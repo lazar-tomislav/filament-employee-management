@@ -49,6 +49,7 @@ class AbsenceWidget extends TableWidget
             ->query($this->getTableQuery())
             ->paginated($this->isTablePaginationEnabled())
             ->striped()
+            ->emptyStateHeading("Nema zapisa.")
             ->defaultSort("created_at", 'desc')
             ->heading(null)
             ->columns([

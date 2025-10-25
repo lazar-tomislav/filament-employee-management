@@ -13,6 +13,9 @@ class HumanResources extends Cluster
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
-    protected static ?string $navigationLabel = "2. Ljudski resursi";
-    protected static ?int $navigationSort =20;
+    protected static ?string $navigationLabel = "Ljudski resursi";
+
+    protected static ?string $clusterBreadcrumb = "Ljudski resursi";
+
+    protected static ?int $navigationSort = 20;
 }

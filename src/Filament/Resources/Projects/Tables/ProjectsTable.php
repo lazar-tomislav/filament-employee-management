@@ -5,7 +5,6 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Tables;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Pages\ViewEmployee;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ViewProject;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectForm;
-use App\Filament\Resources\Clients\Pages\ViewClient;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -22,17 +21,10 @@ class ProjectsTable
     {
         return $table
             ->striped()
-            ->recordUrl(fn($record) => ViewProject::getUrl(['record' => $record->id]))
             ->columns([
                 TextColumn::make('name')
                     ->label('Naziv projekta')
                     ->searchable()->weight('semibold')
-                    ->sortable(),
-
-                TextColumn::make('client.name')
-                    ->label('Klijent')
-                    ->searchable()
-                    ->url(fn($record) => ViewClient::getUrl(['record' => $record->id]))
                     ->sortable(),
 
                 TextColumn::make('employee.first_name')
@@ -44,40 +36,16 @@ class ProjectsTable
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('type')
-                    ->label('Tip')
-                    ->badge()
-                    ->sortable(),
-//
-//                TextColumn::make('status')
-//                    ->label('Status')
-//                    ->badge()
-//                    ->sortable(),
-
-                TextColumn::make('contract_amount')
-                    ->label('Vrijednost (€)')
-                    ->numeric(
-                        decimalPlaces: 2,
-                        decimalSeparator: ',',
-                        thousandsSeparator: '.'
-                    )
-                    ->sortable(),
-
-                TextColumn::make('start_date')
-                    ->label('Početak')
-                    ->date('d.m.Y')
-                    ->sortable(),
-
-                TextColumn::make('end_date')
-                    ->label('Završetak')
-                    ->date('d.m.Y')
-                    ->sortable(),
+                TextColumn::make("description")
+                    ->label('Opis')
+                    ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('created_at')
                     ->label('Kreiran')
                     ->dateTime('d.m.Y H:i')
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
 
                 TextColumn::make('updated_at')
                     ->label('Ažuriran')
@@ -95,11 +63,6 @@ class ProjectsTable
                 TrashedFilter::make(),
             ])
             ->recordActions([
-                ViewAction::make()
-                    ->slideOver()
-                    ->fillForm(fn($record) => $record->toArray())
-                    ->schema(fn($schema) => ProjectForm::configure($schema))
-                    ->modalHeading("Pregled projekta"),
 
                 EditAction::make()
                     ->slideOver()

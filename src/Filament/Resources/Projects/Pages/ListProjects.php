@@ -10,7 +10,6 @@ use Illuminate\Contracts\Support\Htmlable;
 
 class ListProjects extends ListRecords
 {
-    protected string $view = 'filament-employee-management::filament.resources.projects.pages.list-projects';
 
     protected static string $resource = ProjectResource::class;
 

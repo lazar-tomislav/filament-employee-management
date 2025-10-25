@@ -2,9 +2,6 @@
 
 namespace Amicus\FilamentEmployeeManagement\Models;
 
-use Amicus\FilamentEmployeeManagement\Enums\StatusProjekta;
-use App\Enums\TipProjekta;
-use App\Models\Client;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Schemas;
 
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectForm;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\Project;
 use Filament\Forms\Components\Checkbox;
@@ -36,6 +37,7 @@ class TaskForm
                         ['undo', 'redo'],
                     ])
                     ->helperText('Detaljan opis zadatka i svih potrebnih informacija'),
+                ProjectForm::projectIdSelect(),
 
                 Select::make('assignee_id')
                     ->required()
@@ -51,6 +53,7 @@ class TaskForm
                     ->default(now()->addDay(7))
                     ->afterOrEqual(now())
                     ->native(true),
+
             ]);
     }
 }
