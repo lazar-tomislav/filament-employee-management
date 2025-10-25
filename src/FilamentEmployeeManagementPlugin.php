@@ -20,7 +20,27 @@ class FilamentEmployeeManagementPlugin implements Plugin
     {
         $panel
             ->plugins([
-                FilamentShieldPlugin::make(),
+                FilamentShieldPlugin::make()
+                    ->navigationLabel('Uloge')
+                    ->modelLabel('Uloga')
+                    ->pluralModelLabel('Uloge')
+                    ->localizePermissionLabels()
+                    ->titleCaseModelLabel(false)
+                    ->navigationGroup('Upravljanje pravima')->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3,
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ]),
             ])
             ->middleware([
                 EnsureUserHasEmployeeRecord::class,
