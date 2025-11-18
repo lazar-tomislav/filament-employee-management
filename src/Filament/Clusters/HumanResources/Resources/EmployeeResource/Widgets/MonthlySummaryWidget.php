@@ -42,7 +42,7 @@ class MonthlySummaryWidget extends Widget implements HasSchemas, HasActions
 
     public function updatedData($value, $key): void
     {
-        if ($key === 'showForMonth') {
+        if($key === 'showForMonth'){
             $this->loadWorkReport();
         }
     }
@@ -75,7 +75,7 @@ class MonthlySummaryWidget extends Widget implements HasSchemas, HasActions
         $end = now()->startOfMonth();
 
         $current = $end->copy();
-        while ($current->gte($start)) {
+        while($current->gte($start)){
             $options[$current->toDateString()] = $current->format('m/Y');
             $current->subMonth();
         }
@@ -117,9 +117,18 @@ class MonthlySummaryWidget extends Widget implements HasSchemas, HasActions
                                     ->required(),
                             ])
                             ->action(function (array $data) use ($selectedMonth, $totals) {
-                                MonthlyWorkReport::updateReportStatus($this->record, $selectedMonth, $totals, false, $data['deny_reason']);
-                                Notification::make()->title('Izvještaj odbijen')->success()->send();
-                                $this->loadWorkReport();
+                                try{
+                                    MonthlyWorkReport::updateReportStatus($this->record, $selectedMonth, $totals, false, $data['deny_reason']);
+                                    Notification::make()->title('Izvještaj odbijen')->success()->send();
+                                    $this->loadWorkReport();
+                                }catch(\Exception $exception){
+                                    report($exception);
+                                    Notification::make()
+                                        ->title('Greška')
+                                        ->body('Došlo je do greške prilikom odbijanja izvještaja. Molimo pokušajte ponovno.')
+                                        ->danger()
+                                        ->send();
+                                }
                             }),
 
                         Action::make('Odobri')

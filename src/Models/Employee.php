@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Notifications\ChannelManager;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -268,7 +267,7 @@ class Employee extends Model
     {
         try{
             // Send notification to employee using Notifiable trait method
-            app(ChannelManager::class)->send($this, $instance);
+            parent::notify($instance);
 
             // Also send to associated user for Filament panel
             $user = $this->user; // Cachiramo referencu
