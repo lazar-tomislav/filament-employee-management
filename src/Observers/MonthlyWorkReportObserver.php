@@ -17,7 +17,9 @@ class MonthlyWorkReportObserver
         if ($monthlyWorkReport->isDirty('denied_at') && $monthlyWorkReport->denied_at !== null) {
             if (!empty($monthlyWorkReport->deny_reason)) {
                 User::allAdministrativeUsers()->each(function (User $user) use ($monthlyWorkReport) {
-                    $user->notify(new MonthlyWorkReportResponseNotification($monthlyWorkReport));
+                    if ($user->employee) {
+                        $user->employee->notify(new MonthlyWorkReportResponseNotification($monthlyWorkReport));
+                    }
                 });
             }
         }
