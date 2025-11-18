@@ -25,6 +25,10 @@ class MonthlyWorkReportResponseNotification extends Notification implements Shou
 
     public function toTelegram(object $notifiable): ?TelegramMessage
     {
+        if (!config('employee-management.telegram-bot-api.is_active')) {
+            return null;
+        }
+
         $employee = $this->monthlyWorkReport->employee;
         if(!$employee->telegram_chat_id){
             return null;

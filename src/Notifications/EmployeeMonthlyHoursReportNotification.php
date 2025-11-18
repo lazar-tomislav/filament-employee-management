@@ -25,6 +25,10 @@ class EmployeeMonthlyHoursReportNotification extends Notification implements Sho
 
     public function toTelegram(object $notifiable): ?TelegramMessage
     {
+        if (!config('employee-management.telegram-bot-api.is_active')) {
+            return null;
+        }
+
         if(!$notifiable->telegram_chat_id){
             return null;
         }
