@@ -94,7 +94,7 @@ class Employee extends Model
 
     public function routeNotificationForTelegram()
     {
-        return config('employee-management.telegram-bot-api.general_notification');
+        return $this->telegram_chat_id;
     }
 
     protected function fullName(): Attribute

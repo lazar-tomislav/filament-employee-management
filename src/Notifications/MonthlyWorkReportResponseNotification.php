@@ -29,16 +29,17 @@ class MonthlyWorkReportResponseNotification extends Notification implements Shou
             return null;
         }
 
-        $employee = $this->monthlyWorkReport->employee;
-        if(!$employee->telegram_chat_id){
+        if(!$notifiable->telegram_chat_id){
             return null;
         }
+
+        $employee = $this->monthlyWorkReport->employee;
         $month = $this->monthlyWorkReport->for_month->format('m/Y');
 
         $message = TelegramMessage::create()
             ->to($notifiable->telegram_chat_id)
             ->content("Izvještaj o radnim satima za zaposlenika {$employee->full_name} za mjesec {$month} je odbijen.\n\n" .
-                "Razlog: {$this->monthlyWorkReport->deny_reason}");
+                "Razlog: " . ($this->monthlyWorkReport->deny_reason ?? 'Nije naveden'));
 
         return $message;
     }
@@ -50,7 +51,7 @@ class MonthlyWorkReportResponseNotification extends Notification implements Shou
 
         return FilamentNotification::make()
             ->title('Izvještaj o radnim satima odbijen')
-            ->body("Izvještaj za zaposlenika {$employee->full_name} za mjesec {$month} je odbijen.\nRazlog: {$this->monthlyWorkReport->deny_reason}")
+            ->body("Izvještaj za zaposlenika {$employee->full_name} za mjesec {$month} je odbijen.\nRazlog: " . ($this->monthlyWorkReport->deny_reason ?? 'Nije naveden'))
             ->getDatabaseMessage();
     }
 }
