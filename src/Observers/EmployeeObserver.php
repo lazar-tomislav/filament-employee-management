@@ -6,29 +6,39 @@ use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\LeaveAllowance;
 use Amicus\FilamentEmployeeManagement\Notifications\UserCredentialNotification;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class EmployeeObserver
 {
     public function creating(Employee $employee): void
     {
-        $strPassword = $employee->password;
-        $user = User::create([
-            'name' => $employee->first_name . ' ' . $employee->last_name,
-            'email' => $employee->email,
-            'password' => Hash::make($strPassword),
-        ]);
+        DB::transaction(function () use ($employee) {
+            try {
+                $strPassword = $employee->password;
+                $user = User::create([
+                    'name' => $employee->first_name . ' ' . $employee->last_name,
+                    'email' => $employee->email,
+                    'password' => Hash::make($strPassword),
+                ]);
 
-        $user->notify(new UserCredentialNotification($strPassword));
-        $user->assignRole(Employee::ROLE_EMPLOYEE);
+                $user->assignRole(Employee::ROLE_EMPLOYEE);
 
-        $employee->user_id = $user->id;
-        unset($employee->password);
+                $employee->user_id = $user->id;
+                unset($employee->password);
+
+                // Send notification after user is created and role assigned
+                $user->notify(new UserCredentialNotification($strPassword));
+            } catch (\Exception $e) {
+                // Handle the exception - maybe log it or rethrow
+                throw $e;
+            }
+        });
     }
 
     public function created(Employee $employee): void
     {
-       self::onCreatedEvent($employee);
+        self::onCreatedEvent($employee);
     }
 
     public static function onCreatedEvent(Employee $employee): void
@@ -77,7 +87,7 @@ class EmployeeObserver
         unset($employee->password);
 
         // if is_active is set to false, delete the user
-        if ($employee->isDirty('is_active') && !$employee->is_active && $employee->user) {
+        if ($employee->isDirty('is_active') && ! $employee->is_active && $employee->user) {
             $employee->user->delete();
         }
         // if is_active is set to true, restore the user

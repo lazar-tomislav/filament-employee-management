@@ -18,7 +18,7 @@ class UserCredentialNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail'];
     }
 
     public function toMail(object $notifiable): UserCredentialMail
@@ -26,11 +26,4 @@ class UserCredentialNotification extends Notification implements ShouldQueue
         return new UserCredentialMail($notifiable->email, $this->password);
     }
 
-    public function toDatabase(object $notifiable): array
-    {
-        return FilamentNotification::make()
-            ->title('Nova lozinka je poslana')
-            ->body('Kreirana je nova lozinka za vaš korisnički račun. Provjerite email.')
-            ->getDatabaseMessage();
-    }
 }
