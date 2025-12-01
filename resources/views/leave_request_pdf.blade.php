@@ -97,10 +97,7 @@
                 @endif
             </td>
             <td class="company-cell">
-                {{-- TODO done: render <br> as actual line breaks instead of showing the tag --}}
                 {!! $companyName !!}
-                {{-- If you prefer to keep HTML escaped but convert newlines to <br>, use:
-                     {!! nl2br(e($companyName)) !!} --}}
             </td>
         </tr>
     </table>

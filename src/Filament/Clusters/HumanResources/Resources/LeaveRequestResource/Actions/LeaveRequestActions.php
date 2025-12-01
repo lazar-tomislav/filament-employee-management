@@ -9,6 +9,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Storage;
 
 class LeaveRequestActions
 {
@@ -29,10 +30,6 @@ class LeaveRequestActions
                     'status' => LeaveRequestStatus::APPROVED->value,
                     'approved_by' => auth()->id(),
                 ]);
-
-                // Generate PDF
-                $pdfPath = LeaveRequestPdfService::generatePdf($record);
-                $record->update(['pdf_path' => $pdfPath]);
 
                 \Filament\Notifications\Notification::make()
                     ->title('Zahtjev odobren')
@@ -92,5 +89,51 @@ class LeaveRequestActions
                     ->send();
             });
 
+    }
+
+    public static function downloadPdfAction(): Action
+    {
+        return Action::make('download_pdf')
+            ->label('Skini PDF')
+            ->icon(Heroicon::OutlinedDocumentArrowDown)
+            ->visible(fn($record) => $record->status === LeaveRequestStatus::APPROVED)
+            ->action(function (LeaveRequest $record) {
+                try {
+                    // Generate PDF if not exists
+                    if (!$record->pdf_path || !Storage::disk('local')->exists($record->pdf_path)) {
+                        $pdfPath = LeaveRequestPdfService::generatePdf($record);
+                        if (!$pdfPath) {
+                            Notification::make()
+                                ->title('Greška')
+                                ->body('PDF se nije mogao generirati. Pokušajte ponovno.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+                        $record->update(['pdf_path' => $pdfPath]);
+                    }
+
+                    if ($record->pdf_path && Storage::disk('local')->exists($record->pdf_path)) {
+                        $file = Storage::disk('local')->get($record->pdf_path);
+                        $filename = basename($record->pdf_path);
+                        return response()->streamDownload(function () use ($file) {
+                            echo $file;
+                        }, $filename, ['Content-Type' => 'application/pdf']);
+                    } else {
+                        Notification::make()
+                            ->title('Greška')
+                            ->body('PDF datoteka nije pronađena.')
+                            ->danger()
+                            ->send();
+                    }
+                } catch (\Exception $e) {
+                    Log::error('PDF download failed: ' . $e->getMessage());
+                    Notification::make()
+                        ->title('Greška')
+                        ->body('Došlo je do greške prilikom preuzimanja PDF-a.')
+                        ->danger()
+                        ->send();
+                }
+            });
     }
 }

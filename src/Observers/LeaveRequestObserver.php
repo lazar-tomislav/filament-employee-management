@@ -39,6 +39,13 @@ class LeaveRequestObserver
                 Log::info("Leave request $leaveRequest->id has been canceled.");
                 return;
             }
+
+            // Generate PDF when leave request is approved
+            if($leaveRequest->status === LeaveRequestStatus::APPROVED->value){
+                $pdfPath = LeaveRequestPdfService::generatePdf($leaveRequest);
+                $leaveRequest->update(['pdf_path' => $pdfPath]);
+            }
+
             $leaveRequest->employee->notify(new LeaveRequestStatusChangeNotification($leaveRequest));
         }
     }
