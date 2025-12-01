@@ -48,7 +48,7 @@ class LeaveAllowanceTable
                     ->placeholder('Sve godine'),
                 Tables\Filters\TrashedFilter::make(),
             ])
-            ->searchable()
+            ->searchable(['employee.first_name', 'employee.last_name', 'employee.email', 'year'])
             ->recordActions([
                 Actions\ViewAction::make()
                     ->modalHeading("Pregled godišnjeg odmora")
