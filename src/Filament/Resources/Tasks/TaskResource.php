@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks;
 
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Widgets\ProjectStatsWidget;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Pages\ListTasks;
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Pages\EditTask;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Tasks\Tables\TasksTable;
 use Amicus\FilamentEmployeeManagement\Models\Task;
 use BackedEnum;
@@ -46,6 +47,7 @@ class TaskResource extends Resource
     {
         return [
             'index' => ListTasks::route('/'),
+            'edit' => Pages\EditTask::route('/{record}/edit'),
         ];
     }
 
