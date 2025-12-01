@@ -16,7 +16,7 @@ class EmployeeTable
             ->columns([
                 Tables\Columns\TextColumn::make('full_name_email')
                     ->label("Zaposlenik")
-                    ->searchable(),
+                    ->searchable(['first_name', 'last_name', 'email']),
                 Tables\Columns\TextColumn::make('phone_number')
                     ->label('Broj telefona')
                     ->searchable(),
