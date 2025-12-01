@@ -13,7 +13,8 @@ class LeaveRequestPdfService
     public static function generatePdf(LeaveRequest $leaveRequest): string
     {
         try {
-            $logoPath = 'file://' . public_path('images/logo.png'); // Path to logo
+            $logoPathFromSettings = app(HumanResourcesSettings::class)->hr_documents_logo;
+            $logoPath = $logoPathFromSettings ? 'file://' . Storage::disk('private')->path($logoPathFromSettings) : null;
             $companyName = app(HumanResourcesSettings::class)->company_name_for_hr_documents ?: '-';
 
             // Set locale for Croatian days

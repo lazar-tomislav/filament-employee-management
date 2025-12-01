@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Exports;
 
 use Amicus\FilamentEmployeeManagement\Models\Employee;
+use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -30,7 +31,11 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
         $drawing = new Drawing();
         $drawing->setName('Logo');
         $drawing->setDescription('This is my logo');
-        $drawing->setPath(public_path('images/logo.png'));
+
+        $logoPathFromSettings = app(HumanResourcesSettings::class)->hr_documents_logo;
+        $logoPath = $logoPathFromSettings ? \Illuminate\Support\Facades\Storage::disk('private')->path($logoPathFromSettings) : public_path('images/logo.png');
+        $drawing->setPath($logoPath);
+
         $drawing->setHeight(120);
         $drawing->setCoordinates('A2');
         $drawing->setOffsetX(20);
