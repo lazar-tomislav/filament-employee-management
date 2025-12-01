@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Amicus\FilamentEmployeeManagement\Services\LeaveRequestPdfService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
@@ -29,9 +30,13 @@ class LeaveRequestActions
                     'approved_by' => auth()->id(),
                 ]);
 
+                // Generate PDF
+                $pdfPath = LeaveRequestPdfService::generatePdf($record);
+                $record->update(['pdf_path' => $pdfPath]);
+
                 \Filament\Notifications\Notification::make()
                     ->title('Zahtjev odobren')
-                    ->body('Zaposlenik je obaviješten o promjeni statusa.')
+                    ->body('Zaposlenik je obaviješten o promjeni statusa. PDF je generiran.')
                     ->success()
                     ->send();
             });

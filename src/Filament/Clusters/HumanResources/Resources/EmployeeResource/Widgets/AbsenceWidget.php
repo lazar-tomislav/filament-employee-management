@@ -7,11 +7,15 @@ use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestType;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Actions\LeaveRequestActions;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Amicus\FilamentEmployeeManagement\Services\LeaveRequestPdfService;
+use Filament\Actions;
 use Filament\Actions\ActionGroup;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
 
 class AbsenceWidget extends TableWidget
 {
@@ -88,6 +92,24 @@ class AbsenceWidget extends TableWidget
                     LeaveRequestActions::approveAction(),
                     LeaveRequestActions::rejectAction(),
                     LeaveRequestActions::cancelRequestAction(),
+                    Actions\Action::make('download_pdf')
+                        ->label('Skini PDF')
+                        ->icon(Heroicon::OutlinedDocumentArrowDown)
+                        ->visible(fn($record) => $record->status === LeaveRequestStatus::APPROVED)
+                        ->action(function (LeaveRequest $record) {
+                            if (!$record->pdf_path) {
+                                // Generate PDF if not exists
+                                $pdfPath = LeaveRequestPdfService::generatePdf($record);
+                                $record->update(['pdf_path' => $pdfPath]);
+                            }
+                            if ($record->pdf_path && Storage::disk('private')->exists($record->pdf_path)) {
+                                $file = Storage::disk('private')->get($record->pdf_path);
+                                $filename = basename($record->pdf_path);
+                                return response()->streamDownload(function () use ($file) {
+                                    echo $file;
+                                }, $filename, ['Content-Type' => 'application/pdf']);
+                            }
+                        }),
                 ])
             );
     }
