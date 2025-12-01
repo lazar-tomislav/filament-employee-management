@@ -40,6 +40,8 @@ class HumanResourcesSettingsPage extends SettingsPage
                             ->label('Logo za HR dokumente')
                             ->helperText('Ovaj logo se prikazuje u PDF-ovima i službenim dokumentima za zaposlenike.')
                             ->image()
+                            ->disk('public')
+//                            ->preserveFilenames()
                             ->previewable()
                             ->downloadable()
                             ->directory('hr-documents')
