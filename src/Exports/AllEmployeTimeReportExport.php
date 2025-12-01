@@ -33,7 +33,7 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
         $drawing->setDescription('This is my logo');
 
         $logoPathFromSettings = app(HumanResourcesSettings::class)->hr_documents_logo;
-        $logoPath = $logoPathFromSettings ? \Illuminate\Support\Facades\Storage::disk('private')->path($logoPathFromSettings) : public_path('images/logo.png');
+        $logoPath = $logoPathFromSettings ? \Illuminate\Support\Facades\Storage::disk('local')->path($logoPathFromSettings) : public_path('images/logo.png');
         $drawing->setPath($logoPath);
 
         $drawing->setHeight(120);

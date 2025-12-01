@@ -14,7 +14,7 @@ class LeaveRequestPdfService
     {
         try {
             $logoPathFromSettings = app(HumanResourcesSettings::class)->hr_documents_logo;
-            $logoPath = $logoPathFromSettings ? 'file://' . Storage::disk('private')->path($logoPathFromSettings) : null;
+            $logoPath = $logoPathFromSettings ? 'file://' . Storage::disk('local')->path($logoPathFromSettings) : null;
             $companyName = app(HumanResourcesSettings::class)->company_name_for_hr_documents ?: '-';
 
             // Set locale for Croatian days

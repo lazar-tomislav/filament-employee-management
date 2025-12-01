@@ -43,7 +43,7 @@ class HumanResourcesSettingsPage extends SettingsPage
                             ->previewable()
                             ->downloadable()
                             ->directory('hr-documents')
-                            ->visibility('private'),
+                            ->visibility('local'),
                     ]),
             ]);
     }
