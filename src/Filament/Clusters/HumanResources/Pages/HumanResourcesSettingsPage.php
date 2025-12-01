@@ -6,6 +6,7 @@ use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use BackedEnum;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Pages\SettingsPage;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -34,6 +35,15 @@ class HumanResourcesSettingsPage extends SettingsPage
                             ->label('Naziv tvrtke za HR dokumente')
                             ->helperText('Ovaj naziv se prikazuje u PDF-ovima i službenim dokumentima za zaposlenike.')
                             ->required(),
+
+                        FileUpload::make('hr_documents_logo')
+                            ->label('Logo za HR dokumente')
+                            ->helperText('Ovaj logo se prikazuje u PDF-ovima i službenim dokumentima za zaposlenike.')
+                            ->image()
+                            ->previewable()
+                            ->downloadable()
+                            ->directory('hr-documents')
+                            ->visibility('private'),
                     ]),
             ]);
     }
