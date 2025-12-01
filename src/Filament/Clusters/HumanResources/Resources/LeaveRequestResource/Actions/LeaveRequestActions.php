@@ -53,7 +53,7 @@ class LeaveRequestActions
                     ->helperText("Zaposlenik će primiti obavijest o odbijanju zahtjeva s razlogom.")
                     ->required(),
             ])
-            ->slideOver()
+            ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
             ->action(function (LeaveRequest $record, array $data) {
                 $record->update([
                     'status' => LeaveRequestStatus::REJECTED->value,

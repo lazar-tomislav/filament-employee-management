@@ -12,7 +12,7 @@ class ProjectAction
     public static function createAction(): CreateAction
     {
         return CreateAction::make()
-            ->slideOver()
+            ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
             ->schema(fn ($schema) => ProjectForm::configure($schema))
             ->label('Kreiraj projekt')
             ->modalHeading('Kreiraj projekt')

@@ -38,8 +38,8 @@ class EmployeeTable
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
-                Actions\ViewAction::make()->slideOver(),
-                Actions\EditAction::make()->slideOver()->modalHeading("Uredi zaposlenika"),
+                Actions\ViewAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
+                Actions\EditAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)->modalHeading("Uredi zaposlenika"),
             ])
             ->headerActions([
                 EmployeeAction::allEmployeTimeReportExport(),

@@ -123,13 +123,13 @@ class TimeLogTable
             ->recordActions([
                 Actions\ViewAction::make()
                     ->schema(fn($schema) => TimeLogInfolist::configure($schema))
-                    ->slideOver()
+                    ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
                     ->modalHeading("Pregled unosa")
                     ->label('Prikaži'),
 
                 Actions\EditAction::make()
                     ->schema(fn($schema) => TimeLogForm::configure($schema))
-                    ->slideOver()
+                    ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
                     ->label('Uredi'),
 
                 Actions\DeleteAction::make()

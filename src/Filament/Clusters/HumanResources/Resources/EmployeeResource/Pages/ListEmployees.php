@@ -27,7 +27,7 @@ class ListEmployees extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-            ->slideOver(),
+            ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
         ];
     }
 }

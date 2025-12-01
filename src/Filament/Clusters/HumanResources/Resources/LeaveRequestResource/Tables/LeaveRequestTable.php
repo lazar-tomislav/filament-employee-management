@@ -52,7 +52,7 @@ class LeaveRequestTable
                 ActionGroup::make([
                     Actions\ViewAction::make()
                         ->schema(fn($schema) => LeaveRequestInfolist::configure($schema))
-                        ->slideOver(),
+                        ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
                     LeaveRequestActions::approveAction(),
                     LeaveRequestActions::rejectAction(),
 
