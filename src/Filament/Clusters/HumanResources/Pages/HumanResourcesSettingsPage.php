@@ -11,6 +11,7 @@ use Filament\Pages\SettingsPage;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use UnitEnum;
 
 class HumanResourcesSettingsPage extends SettingsPage
 {
@@ -23,8 +24,10 @@ class HumanResourcesSettingsPage extends SettingsPage
     protected static ?int $navigationSort = 1500;
 
     protected static ?string $navigationLabel = "Postavke";
+    protected static string|UnitEnum|null $navigationGroup = "Ostalo";
 
-    protected static ?string $title="Postavke";
+    protected static ?string $title = "Postavke";
+
     public function form(Schema $schema): Schema
     {
         return $schema
