@@ -21,7 +21,7 @@ class HolidayResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
-    protected static string | UnitEnum | null $navigationGroup="Odsustva";
+    protected static string | UnitEnum | null $navigationGroup= "Odsustva";
     protected static ?string $cluster = HumanResources::class;
 
     protected static ?string $modelLabel = 'Praznik';
