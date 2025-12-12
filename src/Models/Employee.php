@@ -22,11 +22,11 @@ use Spatie\Permission\Traits\HasRoles;
 #[ObservedBy([EmployeeObserver::class])]
 class Employee extends Model
 {
+    use HasEmployeeRole;
     use HasFactory;
+    use HasRoles;
     use Notifiable;
     use SoftDeletes;
-    use HasRoles;
-    use HasEmployeeRole;
 
     /**
      * Create a new factory instance for the model.
@@ -60,6 +60,7 @@ class Employee extends Model
         'oib',
         'note',
         'is_active',
+        'role',
     ];
 
     protected $casts = [
@@ -70,14 +71,14 @@ class Employee extends Model
     protected static function booted(): void
     {
         static::addGlobalScope('active', function (Builder $builder) {
-//            $builder->where('is_active', true);
+            //            $builder->where('is_active', true);
         });
     }
 
     protected function telegramChatId(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => $value,
+            get: fn ($value) => $value,
         );
     }
 
@@ -98,27 +99,28 @@ class Employee extends Model
 
     protected function fullName(): Attribute
     {
-        if($this->is_active && $this->deleted_at == null){
+        if ($this->is_active && $this->deleted_at == null) {
             return Attribute::make(
-                get: fn() => "{$this->first_name} {$this->last_name}",
+                get: fn () => "{$this->first_name} {$this->last_name}",
             );
         }
+
         return Attribute::make(
-            get: fn() => "{$this->first_name} {$this->last_name} (NEAKTIVAN / OBRISAN)",
+            get: fn () => "{$this->first_name} {$this->last_name} (NEAKTIVAN / OBRISAN)",
         );
     }
 
     protected function fullNameEmail(): Attribute
     {
         return Attribute::make(
-            get: fn() => "{$this->full_name} ({$this->email})",
+            get: fn () => "{$this->full_name} ({$this->email})",
         );
     }
 
     protected function initials(): Attribute
     {
         return Attribute::make(
-            get: fn() => strtoupper(substr($this->first_name, 0, 1) . substr($this->last_name, 0, 1)),
+            get: fn () => strtoupper(substr($this->first_name, 0, 1) . substr($this->last_name, 0, 1)),
         );
     }
 
@@ -132,7 +134,7 @@ class Employee extends Model
 
     private function getDailyWorkHours(Carbon $date): float
     {
-        return (float)TimeLog::where('employee_id', $this->id)
+        return (float) TimeLog::where('employee_id', $this->id)
             ->whereDate('date', $date->format('Y-m-d'))
             ->sum('hours');
     }
@@ -145,20 +147,20 @@ class Employee extends Model
             'other_hours' => 0,
         ];
 
-        if(!in_array($date->dayOfWeek, self::WORK_DAYS)){
+        if (! in_array($date->dayOfWeek, self::WORK_DAYS)) {
             return $leaveHours;
         }
 
         $leaveRequest = LeaveRequest::getLeaveRequestsForDate($this->id, $date)->first();
 
-        if($leaveRequest){
-            if($leaveRequest->type === LeaveRequestType::ANNUAL_LEAVE){
+        if ($leaveRequest) {
+            if ($leaveRequest->type === LeaveRequestType::ANNUAL_LEAVE) {
                 $leaveHours['vacation_hours'] = self::HOURS_PER_WORK_DAY;
-            }elseif($leaveRequest->type === LeaveRequestType::SICK_LEAVE){
+            } elseif ($leaveRequest->type === LeaveRequestType::SICK_LEAVE) {
                 $leaveHours['sick_leave_hours'] = self::HOURS_PER_WORK_DAY;
-            }elseif($leaveRequest->type === LeaveRequestType::PAID_LEAVE){
+            } elseif ($leaveRequest->type === LeaveRequestType::PAID_LEAVE) {
                 $leaveHours['other_hours'] = self::HOURS_PER_WORK_DAY;
-            }else{
+            } else {
                 report(new \Exception("Unknown leave request type: {$leaveRequest->type}"));
             }
         }
@@ -183,7 +185,7 @@ class Employee extends Model
         $daysInMonth = $month->daysInMonth;
         $holidays = Holiday::getHolidaysForMonth($month);
 
-        for($day = 1; $day <= $daysInMonth; $day++){
+        for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = $month->copy()->setDay($day);
 
             $totalDailyWorkHours = $this->getDailyWorkHours($date);
@@ -199,20 +201,20 @@ class Employee extends Model
             $isPublicHoliday = in_array($date->format('Y-m-d'), $holidays);
             $isOnLeave = $dailyVacationHours > 0 || $dailySickLeaveHours > 0 || $dailyOtherHours > 0;
 
-            $isStandardWorkDay = $isWorkDayOfWeek && !$isPublicHoliday && !$isOnLeave;
+            $isStandardWorkDay = $isWorkDayOfWeek && ! $isPublicHoliday && ! $isOnLeave;
 
             // Available hours are calculated based on potential work days (ignoring personal leave)
-            if($isWorkDayOfWeek && !$isPublicHoliday){
+            if ($isWorkDayOfWeek && ! $isPublicHoliday) {
                 $report['totals']['available_hours'] += self::HOURS_PER_WORK_DAY;
             }
 
-            if($isStandardWorkDay){
+            if ($isStandardWorkDay) {
                 $dailyWorkHours = $totalDailyWorkHours;
-                if($totalDailyWorkHours > self::HOURS_PER_WORK_DAY){
+                if ($totalDailyWorkHours > self::HOURS_PER_WORK_DAY) {
                     $dailyWorkHours = self::HOURS_PER_WORK_DAY;
                     $dailyOvertimeHours = $totalDailyWorkHours - self::HOURS_PER_WORK_DAY;
                 }
-            }else{ // It's a weekend, a holiday, or a personal leave day
+            } else { // It's a weekend, a holiday, or a personal leave day
                 $dailyOvertimeHours = $totalDailyWorkHours;
             }
 
@@ -253,9 +255,10 @@ class Employee extends Model
     public function assignedOffers(): ?HasMany
     {
         // if model_exists
-        if(class_exists(\App\Models\Offer::class)){
+        if (class_exists(\App\Models\Offer::class)) {
             return $this->hasMany(\App\Models\Offer::class, 'assigned_to');
         }
+
         return null;
     }
 
@@ -265,20 +268,20 @@ class Employee extends Model
      */
     public function notify($instance)
     {
-        try{
+        try {
             // Send notification to employee using Notifiable trait method
             parent::notify($instance);
 
             // Also send to associated user for Filament panel
             $user = $this->user; // Cachiramo referencu
-            if($user && method_exists($user, 'notify')) {
+            if ($user && method_exists($user, 'notify')) {
 
-                if($instance->id == null){
+                if ($instance->id == null) {
                     return;
                 }
                 $user->notify($instance);
             }
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             report($e);
             Log::error("Failed to notify employee {$this->id} ({$this->full_name}): {$e->getMessage()}");
         }
