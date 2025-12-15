@@ -9,9 +9,11 @@ use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Filament\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class AbsenceWidget extends TableWidget
 {
@@ -30,11 +32,12 @@ class AbsenceWidget extends TableWidget
         $query = LeaveRequest::query()
             ->where('employee_id', $this->record->id);
 
-        if($this->absenceType === 'current'){
-             $query->where('end_date', '>=', now()->toDateString());
-        }else{
+        if ($this->absenceType === 'current') {
+            $query->where('end_date', '>=', now()->toDateString());
+        } else {
             $query->where('end_date', '<', now()->toDateString());
         }
+
         return $query;
     }
 
@@ -45,24 +48,31 @@ class AbsenceWidget extends TableWidget
 
     public function table(Table $table): Table
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $isAdmin = $user && method_exists($user, 'isAdmin') && $user->isAdmin();
+
         return $table
             ->query($this->getTableQuery())
             ->paginated($this->isTablePaginationEnabled())
             ->striped()
-            ->emptyStateHeading("Nema zapisa.")
-            ->defaultSort("created_at", 'desc')
+            ->emptyStateHeading('Nema zapisa.')
+            ->defaultSort('created_at', 'desc')
             ->heading(null)
             ->columns([
                 TextColumn::make('type')
                     ->label('Razlog odsutnosti')
-                    ->formatStateUsing(fn(LeaveRequestType $state): string => ucfirst(str_replace('_', ' ', $state->value))),
+                    ->formatStateUsing(fn (LeaveRequestType $state): string => ucfirst(str_replace('_', ' ', $state->value))),
 
                 TextColumn::make('absence')
                     ->label('Odsutnost'),
 
-                TextColumn::make('notes')
-                    ->label('Napomena')
-                    ->placeholder('-'),
+                TextColumn::make('days_count')
+                    ->label('Broj dana'),
+
+                $isAdmin
+                    ? TextInputColumn::make('notes')->label('Napomena')
+                    : TextColumn::make('notes')->label('Napomena')->placeholder('-'),
 
                 TextColumn::make('status')
                     ->badge()
