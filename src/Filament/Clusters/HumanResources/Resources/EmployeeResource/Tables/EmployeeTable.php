@@ -17,9 +17,9 @@ class EmployeeTable
                 Tables\Columns\TextColumn::make('full_name_email')
                     ->label("Zaposlenik")
                     ->searchable(),
-                Tables\Columns\TextColumn::make('phone_number')
-                    ->label('Broj telefona')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('phone_numbers')
+                    ->label('Brojevi telefona')
+                    ->formatStateUsing(fn ($state) => collect($state)->map(fn($item) => $item['number'])->join(', ')),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Aktivan')
                     ->boolean(),

@@ -68,7 +68,7 @@ class MissingEmployeePage extends Page implements HasSchemas
                 'first_name' => $data['first_name'],
                 'last_name' => $data['last_name'],
                 'email' => $data['email'],
-                'phone_number' => $data['phone_number'],
+                'phone_numbers' => $data['phone_numbers'],
                 'address' => $data['address'],
                 'city' => $data['city'],
                 'oib' => $data['oib'],
