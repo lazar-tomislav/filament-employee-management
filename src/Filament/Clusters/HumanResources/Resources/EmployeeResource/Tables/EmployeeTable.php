@@ -20,6 +20,10 @@ class EmployeeTable
                 Tables\Columns\TextColumn::make('phone_number')
                     ->label('Broj telefona')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('employeeDepartment.name')
+                    ->label('Odjel')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Aktivan')
                     ->boolean(),

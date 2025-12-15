@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -60,6 +61,7 @@ class Employee extends Model
         'oib',
         'note',
         'is_active',
+        'employee_department_id',
     ];
 
     protected $casts = [
@@ -84,6 +86,11 @@ class Employee extends Model
     public function leaveAllowances()
     {
         return $this->hasMany(LeaveAllowance::class);
+    }
+
+    public function employeeDepartment(): BelongsTo
+    {
+        return $this->belongsTo(EmployeeDepartment::class);
     }
 
     public function user()
