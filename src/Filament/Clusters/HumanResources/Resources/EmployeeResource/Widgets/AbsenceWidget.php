@@ -9,7 +9,6 @@ use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Filament\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
@@ -32,9 +31,9 @@ class AbsenceWidget extends TableWidget
         $query = LeaveRequest::query()
             ->where('employee_id', $this->record->id);
 
-        if ($this->absenceType === 'current') {
+        if($this->absenceType === 'current'){
             $query->where('end_date', '>=', now()->toDateString());
-        } else {
+        }else{
             $query->where('end_date', '<', now()->toDateString());
         }
 
@@ -62,7 +61,7 @@ class AbsenceWidget extends TableWidget
             ->columns([
                 TextColumn::make('type')
                     ->label('Razlog odsutnosti')
-                    ->formatStateUsing(fn (LeaveRequestType $state): string => ucfirst(str_replace('_', ' ', $state->value))),
+                    ->formatStateUsing(fn(LeaveRequestType $state): string => ucfirst(str_replace('_', ' ', $state->value))),
 
                 TextColumn::make('absence')
                     ->label('Odsutnost'),
@@ -70,9 +69,11 @@ class AbsenceWidget extends TableWidget
                 TextColumn::make('days_count')
                     ->label('Broj radnih dana'),
 
-                $isAdmin
-                    ? TextInputColumn::make('notes')->label('Napomena')
-                    : TextColumn::make('notes')->label('Napomena')->placeholder('-'),
+                TextColumn::make('notes')
+                    ->label('Napomena')
+                    ->limit(20)
+                    ->tooltip(fn ($record)=>$record->notes)
+                    ->placeholder('-'),
 
                 TextColumn::make('status')
                     ->badge()
@@ -94,12 +95,13 @@ class AbsenceWidget extends TableWidget
                     }),
             ])
             ->recordActions(
-                ActionGroup::make([
-                    LeaveRequestActions::approveAction(),
-                    LeaveRequestActions::rejectAction(),
-                    LeaveRequestActions::cancelRequestAction(),
-                    LeaveRequestActions::downloadPdfAction(),
-                ])
-            );
+        ActionGroup::make([
+            LeaveRequestActions::approveAction(),
+            LeaveRequestActions::rejectAction(),
+            LeaveRequestActions::editNotesAction(),
+            LeaveRequestActions::cancelRequestAction(),
+            LeaveRequestActions::downloadPdfAction(),
+        ])
+    );
     }
 }

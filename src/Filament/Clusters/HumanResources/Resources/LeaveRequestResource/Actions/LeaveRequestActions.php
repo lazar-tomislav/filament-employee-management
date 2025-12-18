@@ -68,6 +68,32 @@ class LeaveRequestActions
             });
     }
 
+    public static function editNotesAction(): Action
+    {
+        return \Filament\Actions\Action::make('edit_notes')
+            ->label('Napomena')
+            ->icon(Heroicon::OutlinedPencil)
+            ->visible(fn ($record) => auth()->user()->isUredAdministrativnoOsoblje())
+            ->fillForm(fn (LeaveRequest $record): array => [
+                'notes' => $record->notes,
+            ])
+            ->schema([
+                Textarea::make('notes')
+                    ->label('Napomena')
+                    ->maxLength(255)
+                    ->rows(3),
+            ])
+            ->action(function (LeaveRequest $record, array $data) {
+                $record->update([
+                    'notes' => $data['notes'],
+                ]);
+                Notification::make()
+                    ->title('Napomena spremljena')
+                    ->success()
+                    ->send();
+            });
+    }
+
     public static function cancelRequestAction(): Action
     {
         return \Filament\Actions\Action::make('cancel_request')
