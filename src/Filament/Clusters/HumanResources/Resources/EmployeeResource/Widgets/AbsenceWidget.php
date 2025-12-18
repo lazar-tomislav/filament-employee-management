@@ -31,7 +31,7 @@ class AbsenceWidget extends TableWidget
             ->where('employee_id', $this->record->id);
 
         if($this->absenceType === 'current'){
-             $query->where('end_date', '>=', now()->toDateString());
+            $query->where('end_date', '>=', now()->toDateString());
         }else{
             $query->where('end_date', '<', now()->toDateString());
         }
@@ -88,6 +88,7 @@ class AbsenceWidget extends TableWidget
                     LeaveRequestActions::approveAction(),
                     LeaveRequestActions::rejectAction(),
                     LeaveRequestActions::cancelRequestAction(),
+                    LeaveRequestActions::downloadPdfAction(),
                 ])
             );
     }

@@ -3,7 +3,6 @@
 namespace Amicus\FilamentEmployeeManagement\Traits;
 trait HasEmployeeRole
 {
-
     const ROLE_SUPER_ADMIN = 'super_admin';
     const ROLE_UPRAVA_ADMIN = 'uprava_admin';
     const ROLE_EMPLOYEE = 'zaposlenik_employee';

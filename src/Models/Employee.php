@@ -60,6 +60,8 @@ class Employee extends Model
         'oib',
         'note',
         'is_active',
+        'role',
+        'department_id'
     ];
 
     protected $casts = [

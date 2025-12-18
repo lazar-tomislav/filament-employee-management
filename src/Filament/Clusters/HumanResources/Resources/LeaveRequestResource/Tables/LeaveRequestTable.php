@@ -15,6 +15,7 @@ class LeaveRequestTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('employee.full_name_email')
                     ->label('Zatražio')
@@ -51,9 +52,11 @@ class LeaveRequestTable
                 ActionGroup::make([
                     Actions\ViewAction::make()
                         ->schema(fn($schema) => LeaveRequestInfolist::configure($schema))
-                        ->slideOver(),
+                        ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
                     LeaveRequestActions::approveAction(),
                     LeaveRequestActions::rejectAction(),
+
+                    LeaveRequestActions::downloadPdfAction(),
                 ])
             ]);
     }

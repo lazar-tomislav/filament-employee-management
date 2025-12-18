@@ -16,7 +16,7 @@ class TaskAction
     public static function createAction(): Action
     {
         return Action::make("delete")
-            ->slideOver()
+            ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
             ->schema(function ($schema) {
                 return TaskForm::configure($schema);
             })
@@ -44,7 +44,7 @@ class TaskAction
             ->icon(Heroicon::OutlinedPlus)
             ->hiddenLabel()
             ->modalHeading("Novi zadatak")
-            ->slideOver()
+            ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
             ->fillForm(fn() => [
                 "assignee_id" => auth()->user()->employee?->id,
             ])

@@ -13,6 +13,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class HolidayResource extends Resource
 {
@@ -20,6 +21,7 @@ class HolidayResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
 
+    protected static string | UnitEnum | null $navigationGroup= "Odsustva";
     protected static ?string $cluster = HumanResources::class;
 
     protected static ?string $modelLabel = 'Praznik';
@@ -30,7 +32,7 @@ class HolidayResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?int $navigationSort=30;
+    protected static ?int $navigationSort = 30;
 
     public static function form(Schema $schema): Schema
     {

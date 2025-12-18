@@ -15,6 +15,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use UnitEnum;
 
 class LeaveRequestResource extends Resource
 {
@@ -22,6 +23,7 @@ class LeaveRequestResource extends Resource
 
     protected static ?string $navigationLabel = 'Zahtjevi za odsustvo';
 
+    protected static string | UnitEnum | null $navigationGroup="Odsustva";
     protected static ?string $modelLabel = 'Zahtjev';
 
     protected static ?string $pluralModelLabel = 'Zahtjevi';

@@ -22,10 +22,13 @@ class EmployeeObserver
                     'password' => Hash::make($strPassword),
                 ]);
 
-                $user->assignRole(Employee::ROLE_EMPLOYEE);
+                // Assign role from form data or default to employee
+                $role = $employee->role ?? Employee::ROLE_EMPLOYEE;
+                $user->assignRole($role);
 
                 $employee->user_id = $user->id;
                 unset($employee->password);
+                unset($employee->role); // Remove role from employee data as it's stored on user
 
                 // Send notification after user is created and role assigned
                 $user->notify(new UserCredentialNotification($strPassword));
@@ -56,7 +59,13 @@ class EmployeeObserver
      */
     public function updating(Employee $employee): void
     {
+        // Handle role changes
+        if ($employee->isDirty('role') && $employee->user) {
+            $employee->user->syncRoles([$employee->role]);
+        }
+
         unset($employee->password);
+        unset($employee->role); // Remove role from employee data as it's stored on user
     }
 
     public function updated(Employee $employee): void

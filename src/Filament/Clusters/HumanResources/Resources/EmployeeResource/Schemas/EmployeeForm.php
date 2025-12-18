@@ -3,13 +3,10 @@
 namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Schemas;
 
 use Amicus\FilamentEmployeeManagement\Filament\Pages\MissingEmployeePage;
-use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Components\Utilities\Set;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Support\Enums\Operation;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeForm
 {
@@ -76,12 +73,21 @@ class EmployeeForm
                     ->placeholder('Zagreb')
                     ->maxLength(255),
 
-
                 Forms\Components\Textarea::make('note')
                     ->label('Napomena')
                     ->visible(fn() => !$isCurrentRouteMissingEmployeePage && !$isUserEmployee)
                     ->placeholder('Dodatne napomene o zaposleniku.')
                     ->columnSpanFull(),
+
+                Forms\Components\CheckboxList::make('role')
+                    ->label('Uloga')
+                    ->options(DB::table("roles")->pluck("name", "id")->map(fn($record) => ucwords(str_replace('_', ' ', $record))))
+                    ->formatStateUsing(function ($record) {
+                        return $record?->user?->roles?->pluck('id')->toArray() ?? [];
+                    })
+                    ->required()
+                    ->visible(fn() => auth()->user()->isAdmin() && !$isCurrentRouteMissingEmployeePage)
+                    ->helperText('Odaberite ulogu za novog zaposlenika.'),
 
                 Forms\Components\Toggle::make('is_active')
                     ->required()
