@@ -21,6 +21,7 @@
     ],
     "require": {
         "php": "^8.1",
+        "barryvdh/laravel-dompdf": "^3.0",
         "bezhansalleh/filament-shield": "^4.0",
         "filament/filament": "^4.0",
         "laravel-notification-channels/telegram": "^6.0",

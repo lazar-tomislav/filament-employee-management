@@ -76,6 +76,8 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
         // Asset Registration
         FilamentAsset::register(
             $this->getAssets(),
@@ -126,11 +128,11 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
                 ->dailyAt('17:00')
                 ->when(function () {
                     $today = now();
-                    if (!$today->isWorkday()) {
+                    if (!$today->isWeekday()) {
                         return false;
                     }
                     // Check if the next workday is in the next month.
-                    $nextWorkday = $today->copy()->addWorkday();
+                    $nextWorkday = $today->copy()->addWeekday();
                     return $today->month !== $nextWorkday->month;
                 });
         });

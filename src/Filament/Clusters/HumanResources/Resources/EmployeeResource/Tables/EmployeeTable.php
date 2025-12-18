@@ -16,10 +16,14 @@ class EmployeeTable
             ->columns([
                 Tables\Columns\TextColumn::make('full_name_email')
                     ->label("Zaposlenik")
-                    ->searchable(),
+                    ->searchable(['first_name', 'last_name', 'email']),
                 Tables\Columns\TextColumn::make('phone_numbers')
                     ->label('Brojevi telefona')
                     ->formatStateUsing(fn ($state) => collect($state)->map(fn($item) => $item['number'])->join(', ')),
+                Tables\Columns\TextColumn::make('department.name')
+                    ->label('Odjel')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\IconColumn::make('is_active')
                     ->label('Aktivan')
                     ->boolean(),
@@ -38,8 +42,8 @@ class EmployeeTable
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
-                Actions\ViewAction::make()->slideOver(),
-                Actions\EditAction::make()->slideOver()->modalHeading("Uredi zaposlenika"),
+                Actions\ViewAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
+                Actions\EditAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)->modalHeading("Uredi zaposlenika"),
             ])
             ->headerActions([
                 EmployeeAction::allEmployeTimeReportExport(),

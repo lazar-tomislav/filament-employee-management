@@ -38,7 +38,7 @@
                     />
                 @else
                     <x-filament::icon
-                        icon="heroicon-o-check-circle"
+                        :icon="\Filament\Support\Icons\Heroicon::OutlinedCheckCircle"
                         class="w-5 h-5"
                     />
                 @endif

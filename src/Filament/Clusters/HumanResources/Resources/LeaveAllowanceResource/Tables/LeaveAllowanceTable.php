@@ -48,12 +48,12 @@ class LeaveAllowanceTable
                     ->placeholder('Sve godine'),
                 Tables\Filters\TrashedFilter::make(),
             ])
-            ->searchable()
+            ->searchable(['employee.first_name', 'employee.last_name', 'employee.email', 'year'])
             ->recordActions([
                 Actions\ViewAction::make()
                     ->modalHeading("Pregled godišnjeg odmora")
-                    ->slideOver(),
-                Actions\EditAction::make()->slideOver()->modalHeading("Uredi godišnji odmor"),
+                    ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
+                Actions\EditAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)->modalHeading("Uredi godišnji odmor"),
             ])
             ->toolbarActions([
                 Actions\BulkActionGroup::make([
@@ -95,7 +95,7 @@ class LeaveAllowanceTable
             ])->recordActions([
                 EditAction::make()
                     ->visible(fn() => auth()->user()->isUredAdministrativnoOsoblje())
-                    ->slideOver()
+                    ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
                     ->schema(fn($schema) => LeaveAllowanceForm::configure($schema)),
             ]);
     }
