@@ -27,6 +27,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
     protected ?int $totalSickLeaveHours = 0;
     protected ?int $totalOvertimeHours = 0;
     protected ?int $totalOtherHours = 0;
+    protected ?int $totalMaternityLeaveHours = 0;
 
     public function __construct(int $employeeId, int $month, int $year)
     {
@@ -72,6 +73,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
                 $daily['vacation_hours'] ?: '',
                 $daily['sick_leave_hours'] ?: '',
                 $daily['overtime_hours'] ?: '',
+                $daily['maternity_leave_hours'] ?: '',
                 $daily['other_hours'] ?: '',
             ];
         }
@@ -81,6 +83,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
         $this->totalSickLeaveHours = $report['totals']['sick_leave_hours'];
         $this->totalOvertimeHours = $report['totals']['overtime_hours'];
         $this->totalOtherHours = $report['totals']['other_hours'];
+        $this->totalMaternityLeaveHours = $report['totals']['maternity_leave_hours'];
 
         // Add empty rows
         $data[] = ['', '', '', '', '', '', ''];
@@ -135,6 +138,15 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             ''
         ];
         $data[] = [
+            'PORODILJNI',
+            $this->totalMaternityLeaveHours ?: 0,
+            '',
+            '',
+            '',
+            '',
+            ''
+        ];
+        $data[] = [
             'OSTALO (plaćeno odsustvo)',
             $this->totalOtherHours ?: 0,
             '',
@@ -156,6 +168,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             'GODIŠNJI ODMOR',
             'BOLOVANJE',
             'PREKOVREMENI SATI',
+            'PORODILJNI',
             'OSTALO (plaćeno odsustvo)'
         ];
     }
@@ -198,6 +211,11 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
                 ],
             ],
             "G1:G99" => [
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ],
+            "H1:H99" => [
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
@@ -260,8 +278,8 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
                 $event->sheet->getDelegate()->mergeCells('A3:B3');
                 $event->sheet->getDelegate()->mergeCells('C2:D2');
                 $event->sheet->getDelegate()->mergeCells('C3:D3');
-                $event->sheet->getDelegate()->mergeCells('E2:G2');
-                $event->sheet->getDelegate()->mergeCells('E3:G3');
+                $event->sheet->getDelegate()->mergeCells('E2:H2');
+                $event->sheet->getDelegate()->mergeCells('E3:H3');
 
                 $event->sheet->getDelegate()->setCellValue('C2', "RADNI SATI");
 
