@@ -153,6 +153,7 @@ class Employee extends Model
             'vacation_hours' => 0,
             'sick_leave_hours' => 0,
             'other_hours' => 0,
+            'maternity_leave_hours' => 0,
         ];
 
         if (! in_array($date->dayOfWeek, self::WORK_DAYS)) {
@@ -162,14 +163,18 @@ class Employee extends Model
         $leaveRequest = LeaveRequest::getLeaveRequestsForDate($this->id, $date)->first();
 
         if ($leaveRequest) {
-            if ($leaveRequest->type === LeaveRequestType::ANNUAL_LEAVE) {
-                $leaveHours['vacation_hours'] = self::HOURS_PER_WORK_DAY;
-            } elseif ($leaveRequest->type === LeaveRequestType::SICK_LEAVE) {
-                $leaveHours['sick_leave_hours'] = self::HOURS_PER_WORK_DAY;
-            } elseif ($leaveRequest->type === LeaveRequestType::PAID_LEAVE) {
-                $leaveHours['other_hours'] = self::HOURS_PER_WORK_DAY;
+            $hourType = match($leaveRequest->type) {
+                LeaveRequestType::ANNUAL_LEAVE => 'vacation_hours',
+                LeaveRequestType::SICK_LEAVE => 'sick_leave_hours',
+                LeaveRequestType::PAID_LEAVE => 'other_hours',
+                LeaveRequestType::MATERNITY_LEAVE => 'maternity_leave_hours',
+                default => null,
+            };
+
+            if ($hourType) {
+                $leaveHours[$hourType] = self::HOURS_PER_WORK_DAY;
             } else {
-                report(new \Exception("Unknown leave request type: {$leaveRequest->type}"));
+                 report(new \Exception("Unknown leave request type: {$leaveRequest->type->value}"));
             }
         }
 
@@ -186,6 +191,7 @@ class Employee extends Model
                 'vacation_hours' => 0.0,
                 'sick_leave_hours' => 0.0,
                 'other_hours' => 0.0,
+                'maternity_leave_hours' => 0.0,
                 'available_hours' => 0.0,
             ],
         ];
@@ -204,10 +210,19 @@ class Employee extends Model
             $dailyVacationHours = $leaveHours['vacation_hours'];
             $dailySickLeaveHours = $leaveHours['sick_leave_hours'];
             $dailyOtherHours = $leaveHours['other_hours'];
+            $dailyMaternityLeaveHours = $leaveHours['maternity_leave_hours'];
 
             $isWorkDayOfWeek = in_array($date->dayOfWeek, self::WORK_DAYS);
             $isPublicHoliday = in_array($date->format('Y-m-d'), $holidays);
-            $isOnLeave = $dailyVacationHours > 0 || $dailySickLeaveHours > 0 || $dailyOtherHours > 0;
+
+            if ($isPublicHoliday) {
+                $dailyVacationHours = 0;
+                $dailySickLeaveHours = 0;
+                $dailyOtherHours = 0;
+                $dailyMaternityLeaveHours = 0;
+            }
+
+            $isOnLeave = $dailyVacationHours > 0 || $dailySickLeaveHours > 0 || $dailyOtherHours > 0 || $dailyMaternityLeaveHours > 0;
 
             $isStandardWorkDay = $isWorkDayOfWeek && ! $isPublicHoliday && ! $isOnLeave;
 
@@ -237,6 +252,7 @@ class Employee extends Model
                 'vacation_hours' => $dailyVacationHours,
                 'sick_leave_hours' => $dailySickLeaveHours,
                 'other_hours' => $dailyOtherHours,
+                'maternity_leave_hours' => $dailyMaternityLeaveHours,
             ];
 
             $report['totals']['work_hours'] += $dailyWorkHours;
@@ -244,6 +260,7 @@ class Employee extends Model
             $report['totals']['vacation_hours'] += $dailyVacationHours;
             $report['totals']['sick_leave_hours'] += $dailySickLeaveHours;
             $report['totals']['other_hours'] += $dailyOtherHours;
+            $report['totals']['maternity_leave_hours'] += $dailyMaternityLeaveHours;
         }
 
         return $report;

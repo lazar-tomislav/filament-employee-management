@@ -66,6 +66,7 @@ class LeaveRequestForm
                         }
                         $options[LeaveRequestType::SICK_LEAVE->value] = 'Bolovanje';
                         $options[LeaveRequestType::PAID_LEAVE->value] = 'Plaćeni slobodan dan';
+                        $options[LeaveRequestType::MATERNITY_LEAVE->value] = 'Porodiljni';
 
                         return $options;
                     })
