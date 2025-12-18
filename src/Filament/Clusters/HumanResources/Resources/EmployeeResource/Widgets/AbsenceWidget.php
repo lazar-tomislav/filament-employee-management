@@ -12,7 +12,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Auth;
 
 class AbsenceWidget extends TableWidget
 {
@@ -47,9 +46,6 @@ class AbsenceWidget extends TableWidget
 
     public function table(Table $table): Table
     {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $isAdmin = $user && method_exists($user, 'isAdmin') && $user->isAdmin();
 
         return $table
             ->query($this->getTableQuery())
@@ -82,7 +78,7 @@ class AbsenceWidget extends TableWidget
                         'warning' => 'pending',
                         'success' => 'approved',
                         'danger' => 'rejected',
-                        'warning' => 'canceled',
+                        'gray' => 'canceled',
                     ])
                     ->formatStateUsing(function (LeaveRequestStatus $state): string {
                         return match ($state->value) {
