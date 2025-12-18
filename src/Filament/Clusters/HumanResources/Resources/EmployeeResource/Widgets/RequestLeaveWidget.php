@@ -85,7 +85,7 @@ class RequestLeaveWidget extends Widget implements HasForms
 
         LeaveRequest::create($requestData);
 
-        Notification::make()->title('Zahtjev poslan')->success()->send();
+        Notification::make()->title('Zahtjev poslan administratorima na email.')->success()->send();
 
         $this->form->fill();
 

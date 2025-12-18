@@ -12,7 +12,7 @@
                     {{-- Approved State --}}
                     <div class="bg-white dark:bg-gray-900/50 rounded-lg flex items-start p-4 shadow gap-4 border-l-4 border-green-500">
                         <div class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-md bg-green-500/20 text-green-500">
-                            <x-filament::icon icon="heroicon-o-check-circle" class="h-6 w-6" />
+                            <x-filament::icon :icon="\Filament\Support\Icons\Heroicon::OutlinedCheckCircle" class="h-6 w-6" />
                         </div>
                         <div class="flex-grow">
                             <p class="font-semibold text-md text-gray-900 dark:text-gray-100">Odobreno</p>

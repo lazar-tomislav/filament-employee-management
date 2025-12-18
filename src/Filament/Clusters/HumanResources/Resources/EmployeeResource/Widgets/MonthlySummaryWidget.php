@@ -105,43 +105,43 @@ class MonthlySummaryWidget extends Widget implements HasSchemas, HasActions
                     ->hiddenLabel()
                     ->keyLabel("Sažetak za {$selectedMonth->translatedFormat('F Y')}")
                     ->valueLabel('Broj sati')
-                    ->belowContent([
-                        Action::make('Odbij')
-                            ->icon(Heroicon::OutlinedXCircle)
-                            ->color('danger')
-                            ->button()
-                            ->requiresConfirmation()
-                            ->schema([
-                                Textarea::make('deny_reason')
-                                    ->label('Razlog odbijanja')
-                                    ->required(),
-                            ])
-                            ->action(function (array $data) use ($selectedMonth, $totals) {
-                                try{
-                                    MonthlyWorkReport::updateReportStatus($this->record, $selectedMonth, $totals, false, $data['deny_reason']);
-                                    Notification::make()->title('Izvještaj odbijen')->success()->send();
-                                    $this->loadWorkReport();
-                                }catch(\Exception $exception){
-                                    report($exception);
-                                    Notification::make()
-                                        ->title('Greška')
-                                        ->body('Došlo je do greške prilikom odbijanja izvještaja. Molimo pokušajte ponovno.')
-                                        ->danger()
-                                        ->send();
-                                }
-                            }),
-
-                        Action::make('Odobri')
-                            ->icon(Heroicon::OutlinedCheck)
-                            ->color('success')
-                            ->button()
-                            ->requiresConfirmation()
-                            ->action(function () use ($selectedMonth, $totals) {
-                                MonthlyWorkReport::updateReportStatus($this->record, $selectedMonth, $totals, true);
-                                Notification::make()->title('Izvještaj odobren')->success()->send();
-                                $this->loadWorkReport();
-                            }),
-                    ])
+//                    ->belowContent([
+//                        Action::make('Odbij')
+//                            ->icon(Heroicon::OutlinedXCircle)
+//                            ->color('danger')
+//                            ->button()
+//                            ->requiresConfirmation()
+//                            ->schema([
+//                                Textarea::make('deny_reason')
+//                                    ->label('Razlog odbijanja')
+//                                    ->required(),
+//                            ])
+//                            ->action(function (array $data) use ($selectedMonth, $totals) {
+//                                try{
+//                                    MonthlyWorkReport::updateReportStatus($this->record, $selectedMonth, $totals, false, $data['deny_reason']);
+//                                    Notification::make()->title('Izvještaj odbijen')->success()->send();
+//                                    $this->loadWorkReport();
+//                                }catch(\Exception $exception){
+//                                    report($exception);
+//                                    Notification::make()
+//                                        ->title('Greška')
+//                                        ->body('Došlo je do greške prilikom odbijanja izvještaja. Molimo pokušajte ponovno.')
+//                                        ->danger()
+//                                        ->send();
+//                                }
+//                            }),
+//
+//                        Action::make('Odobri')
+//                            ->icon(Heroicon::OutlinedCheck)
+//                            ->color('success')
+//                            ->button()
+//                            ->requiresConfirmation()
+//                            ->action(function () use ($selectedMonth, $totals) {
+//                                MonthlyWorkReport::updateReportStatus($this->record, $selectedMonth, $totals, true);
+//                                Notification::make()->title('Izvještaj odobren')->success()->send();
+//                                $this->loadWorkReport();
+//                            }),
+//                    ])
             ]);
     }
 }

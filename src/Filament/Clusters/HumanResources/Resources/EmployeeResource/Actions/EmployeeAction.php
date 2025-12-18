@@ -60,7 +60,7 @@ class EmployeeAction
     {
         return Action::make("edit")
             ->label("Uredi podatke zaposlenika")
-            ->slideOver()
+            ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
             ->modalHeading('Uredi zaposlenika')
             ->icon(Heroicon::OutlinedPencil)
             ->fillForm($record->toArray())

@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Filament\Resources\Projects;
 
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\ListProjects;
+use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Pages\EditProject;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Widgets\ProjectStatsWidget;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectForm;
 use Amicus\FilamentEmployeeManagement\Filament\Resources\Projects\Schemas\ProjectInfolist;
@@ -68,6 +69,7 @@ class ProjectResource extends Resource
     {
         return [
             'index' => ListProjects::route('/'),
+            'edit' => Pages\EditProject::route('/{record}/edit'),
         ];
     }
 

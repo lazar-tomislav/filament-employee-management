@@ -65,7 +65,7 @@ class ProjectsTable
             ->recordActions([
 
                 EditAction::make()
-                    ->slideOver()
+                    ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
                     ->schema(fn($schema) => ProjectForm::configure($schema))
                     ->modalHeading("Uredi projekt"),
 
