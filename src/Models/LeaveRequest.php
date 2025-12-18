@@ -28,6 +28,7 @@ class LeaveRequest extends Model
         'notes',
         'rejection_reason',
         'approved_by',
+        'pdf_path',
     ];
 
     protected $casts = [

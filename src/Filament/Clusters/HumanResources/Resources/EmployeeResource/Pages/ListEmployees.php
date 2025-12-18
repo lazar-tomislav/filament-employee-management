@@ -27,6 +27,7 @@ class ListEmployees extends ListRecords
     {
         return [
             Actions\CreateAction::make()
+            ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
             ->modalHeading("Dodaj zaposlenika"),
         ];
     }

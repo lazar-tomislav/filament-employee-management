@@ -6,6 +6,7 @@ use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestStatusChangeNotification;
 use Amicus\FilamentEmployeeManagement\Notifications\NewLeaveRequestNotification;
+use Amicus\FilamentEmployeeManagement\Services\LeaveRequestPdfService;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
@@ -38,6 +39,13 @@ class LeaveRequestObserver
                 Log::info("Leave request $leaveRequest->id has been canceled.");
                 return;
             }
+
+            // Generate PDF when leave request is approved
+            if($leaveRequest->status === LeaveRequestStatus::APPROVED->value){
+                $pdfPath = LeaveRequestPdfService::generatePdf($leaveRequest);
+                $leaveRequest->update(['pdf_path' => $pdfPath]);
+            }
+
             $leaveRequest->employee->notify(new LeaveRequestStatusChangeNotification($leaveRequest));
         }
     }
