@@ -20,7 +20,7 @@ class EmployeeTable
                 Tables\Columns\TextColumn::make('phone_number')
                     ->label('Broj telefona')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('employeeDepartment.name')
+                Tables\Columns\TextColumn::make('department.name')
                     ->label('Odjel')
                     ->searchable()
                     ->sortable(),

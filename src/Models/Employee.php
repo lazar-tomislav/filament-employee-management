@@ -89,9 +89,9 @@ class Employee extends Model
         return $this->hasMany(LeaveAllowance::class);
     }
 
-    public function employeeDepartment(): BelongsTo
+    public function department(): BelongsTo
     {
-        return $this->belongsTo(EmployeeDepartment::class);
+        return $this->belongsTo(Department::class);
     }
 
     public function user()

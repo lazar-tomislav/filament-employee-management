@@ -61,9 +61,10 @@ class EmployeeForm
                     ->numeric()
                     ->helperText('Osobni identifikacijski broj, 11 znamenki.'),
 
-                Forms\Components\Select::make('employee_department_id')
+                Forms\Components\Select::make('department_id')
                     ->label('Odjel')
-                    ->relationship('employeeDepartment', 'name')
+                    ->relationship('department', 'name')
+                    ->helperText("Odaberite odjel kojem zaposlenik pripada.")
                     ->createOptionForm([
                         Forms\Components\TextInput::make('name')
                             ->label('Naziv odjela')
@@ -71,8 +72,7 @@ class EmployeeForm
                             ->maxLength(255),
                     ])
                     ->searchable()
-                    ->preload()
-                    ->columnSpanFull(),
+                    ->preload(),
 
                 Forms\Components\TextInput::make('address')
                     ->required()
