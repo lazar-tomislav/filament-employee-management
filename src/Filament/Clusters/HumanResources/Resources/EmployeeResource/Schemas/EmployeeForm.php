@@ -39,11 +39,24 @@ class EmployeeForm
                     ->unique('employees', 'email', ignoreRecord: true)
                     ->maxLength(255),
 
-                Forms\Components\TextInput::make('phone_number')
-                    ->label('Broj telefona')
-                    ->required()
-                    ->placeholder('+385 91 123 4567')
-                    ->maxLength(255),
+                Forms\Components\Repeater::make('phone_numbers')
+                    ->label('Brojevi telefona')
+                    ->collapsed()
+                    ->collapsible()
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('number')
+                            ->label('Broj')
+                            ->required()
+                            ->placeholder('+385 91 123 4567'),
+                        Forms\Components\Radio::make('type')
+                            ->label('Tip')
+                            ->options(\Amicus\FilamentEmployeeManagement\Enums\PhoneNumberType::class)
+                            ->inline()
+                            ->default(\Amicus\FilamentEmployeeManagement\Enums\PhoneNumberType::PRIVATE)
+                            ->required(),
+                    ])
+                    ->columnSpanFull(),
 
                 Forms\Components\TextInput::make('password')
                     ->label('Lozinka')

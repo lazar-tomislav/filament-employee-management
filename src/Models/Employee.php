@@ -54,7 +54,7 @@ class Employee extends Model
         'first_name',
         'last_name',
         'email',
-        'phone_number',
+        'phone_numbers',
         'password',
         'address',
         'city',
@@ -68,6 +68,7 @@ class Employee extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'telegram_denied_at' => 'datetime',
+        'phone_numbers' => 'array',
     ];
 
     protected static function booted(): void

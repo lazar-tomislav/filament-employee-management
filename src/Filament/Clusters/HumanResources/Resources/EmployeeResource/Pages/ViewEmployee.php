@@ -49,7 +49,11 @@ class ViewEmployee extends Page implements HasSchemas
             "Odjel"=>$this->record->department?->name??"-",
             "OIB" => $this->record->oib ?? "-",
             'Email' => $this->record->email ?? "-",
-            "Broj telefona" => $this->record->phone_number ?? "-",
+            "Brojevi telefona" => !empty($this->record->phone_numbers)
+                ? collect($this->record->phone_numbers)
+                    ->map(fn($item) => $item['number'] . ' (' . (\Amicus\FilamentEmployeeManagement\Enums\PhoneNumberType::tryFrom($item['type'])?->getLabel() ?? $item['type']) . ')')
+                    ->join(', ')
+                : "-",
             'Adresa' => $this->record->address ?? "-",
             'Grad' => $this->record->city ?? "-",
             "Napomena" => $this->record->note ?? "-",

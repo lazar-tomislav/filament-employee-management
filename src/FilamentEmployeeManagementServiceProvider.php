@@ -210,7 +210,7 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             'alter_employees_table',
             'create_activities_table',
             'create_activity_mentions_table',
-            'create_employee_departments_table',
+            'replace_phone_number_with_phone_numbers_in_employees_table',
         ];
     }
 

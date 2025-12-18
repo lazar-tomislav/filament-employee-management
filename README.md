@@ -2,6 +2,7 @@
 
 ```bash
 php artisan migrate --path=packages/filament-employee-management/database/migrations
+php artisan migrate --path=vendor/amicus/filament-employee-management/database/migrations
 ```
 
 add to user.php
