@@ -98,6 +98,7 @@ class AbsenceWidget extends TableWidget
                     LeaveRequestActions::approveAction(),
                     LeaveRequestActions::rejectAction(),
                     LeaveRequestActions::cancelRequestAction(),
+                    LeaveRequestActions::downloadPdfAction(),
                 ])
             );
     }

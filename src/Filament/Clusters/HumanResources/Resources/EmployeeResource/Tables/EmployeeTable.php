@@ -16,7 +16,7 @@ class EmployeeTable
             ->columns([
                 Tables\Columns\TextColumn::make('full_name_email')
                     ->label("Zaposlenik")
-                    ->searchable(),
+                    ->searchable(['first_name', 'last_name', 'email']),
                 Tables\Columns\TextColumn::make('phone_number')
                     ->label('Broj telefona')
                     ->searchable(),
@@ -38,8 +38,8 @@ class EmployeeTable
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
-                Actions\ViewAction::make()->slideOver(),
-                Actions\EditAction::make()->slideOver()->modalHeading("Uredi zaposlenika"),
+                Actions\ViewAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
+                Actions\EditAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)->modalHeading("Uredi zaposlenika"),
             ])
             ->headerActions([
                 EmployeeAction::allEmployeTimeReportExport(),

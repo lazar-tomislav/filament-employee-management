@@ -61,6 +61,7 @@ class Employee extends Model
         'note',
         'is_active',
         'role',
+        'department_id'
     ];
 
     protected $casts = [

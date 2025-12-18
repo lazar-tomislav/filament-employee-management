@@ -4,10 +4,13 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Amicus\FilamentEmployeeManagement\Services\LeaveRequestPdfService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class LeaveRequestActions
 {
@@ -31,7 +34,7 @@ class LeaveRequestActions
 
                 \Filament\Notifications\Notification::make()
                     ->title('Zahtjev odobren')
-                    ->body('Zaposlenik je obaviješten o promjeni statusa.')
+                    ->body('Zaposlenik je obaviješten o promjeni statusa. PDF je generiran.')
                     ->success()
                     ->send();
             });
@@ -50,7 +53,7 @@ class LeaveRequestActions
                     ->helperText("Zaposlenik će primiti obavijest o odbijanju zahtjeva s razlogom.")
                     ->required(),
             ])
-            ->slideOver()
+            ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
             ->action(function (LeaveRequest $record, array $data) {
                 $record->update([
                     'status' => LeaveRequestStatus::REJECTED->value,
@@ -87,5 +90,51 @@ class LeaveRequestActions
                     ->send();
             });
 
+    }
+
+    public static function downloadPdfAction(): Action
+    {
+        return Action::make('download_pdf')
+            ->label('Skini PDF')
+            ->icon(Heroicon::OutlinedDocumentArrowDown)
+            ->visible(fn($record) => $record->status === LeaveRequestStatus::APPROVED)
+            ->action(function (LeaveRequest $record) {
+                try {
+                    // Generate PDF if not exists
+                    if (!$record->pdf_path || !Storage::disk('local')->exists($record->pdf_path)) {
+                        $pdfPath = LeaveRequestPdfService::generatePdf($record);
+                        if (!$pdfPath) {
+                            Notification::make()
+                                ->title('Greška')
+                                ->body('PDF se nije mogao generirati. Pokušajte ponovno.')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+                        $record->update(['pdf_path' => $pdfPath]);
+                    }
+
+                    if ($record->pdf_path && Storage::disk('local')->exists($record->pdf_path)) {
+                        $file = Storage::disk('local')->get($record->pdf_path);
+                        $filename = basename($record->pdf_path);
+                        return response()->streamDownload(function () use ($file) {
+                            echo $file;
+                        }, $filename, ['Content-Type' => 'application/pdf']);
+                    } else {
+                        Notification::make()
+                            ->title('Greška')
+                            ->body('PDF datoteka nije pronađena.')
+                            ->danger()
+                            ->send();
+                    }
+                } catch (\Exception $e) {
+                    Log::error('PDF download failed: ' . $e->getMessage());
+                    Notification::make()
+                        ->title('Greška')
+                        ->body('Došlo je do greške prilikom preuzimanja PDF-a.')
+                        ->danger()
+                        ->send();
+                }
+            });
     }
 }

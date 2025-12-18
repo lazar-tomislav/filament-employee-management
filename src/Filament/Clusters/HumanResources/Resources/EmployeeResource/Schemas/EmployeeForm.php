@@ -3,17 +3,17 @@
 namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Schemas;
 
 use Amicus\FilamentEmployeeManagement\Filament\Pages\MissingEmployeePage;
-use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeForm
 {
     public static function configure(Schema $schema): Schema
     {
         // if auth user is not employee then show this field
-        $isUserEmployee = ! auth()->user()->isEmployee();
+        $isUserEmployee = !auth()->user()->isEmployee();
         $isCurrentRouteMissingEmployeePage = request()->routeIs(MissingEmployeePage::getRouteName());
 
         return $schema
@@ -50,8 +50,8 @@ class EmployeeForm
                     ->password()
                     ->placeholder('*********')
                     ->columnSpanFull()
-                    ->required(fn (string $context, $get): bool => $context === 'create' && empty($get('user_id')))
-                    ->visible(fn ($get): bool => empty($get('user_id')))
+                    ->required(fn(string $context, $get): bool => $context === 'create' && empty($get('user_id')))
+                    ->visible(fn($get): bool => empty($get('user_id')))
                     ->helperText('Lozinka je obavezna kad nije odabran postojeći korisnik. Lozinka mora sadržavati najmanje 8 znakova.'),
 
                 Forms\Components\TextInput::make('oib')
@@ -75,19 +75,18 @@ class EmployeeForm
 
                 Forms\Components\Textarea::make('note')
                     ->label('Napomena')
-                    ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && ! $isUserEmployee)
+                    ->visible(fn() => !$isCurrentRouteMissingEmployeePage && !$isUserEmployee)
                     ->placeholder('Dodatne napomene o zaposleniku.')
                     ->columnSpanFull(),
 
-                Forms\Components\Select::make('role')
+                Forms\Components\CheckboxList::make('role')
                     ->label('Uloga')
-                    ->options([
-                        'uprava_admin' => 'Admin',
-                        'zaposlenik_employee' => 'Zaposlenik',
-                    ])
-                    ->default('zaposlenik_employee')
+                    ->options(DB::table("roles")->pluck("name", "id")->map(fn($record) => ucwords(str_replace('_', ' ', $record))))
+                    ->formatStateUsing(function ($record) {
+                        return $record?->user?->roles?->pluck('id')->toArray() ?? [];
+                    })
                     ->required()
-                    ->visible(fn () => auth()->user()->isAdmin() && ! $isCurrentRouteMissingEmployeePage)
+                    ->visible(fn() => auth()->user()->isAdmin() && !$isCurrentRouteMissingEmployeePage)
                     ->helperText('Odaberite ulogu za novog zaposlenika.'),
 
                 Forms\Components\Toggle::make('is_active')
@@ -95,7 +94,7 @@ class EmployeeForm
                     ->columnSpanFull()
                     ->label('Je li zaposlenik aktivan korisnik sustava?')
                     ->helperText('Ako je zaposlenik neaktivan, neće moći pristupiti sustavu, neće se prikazivati u popisu zaposlenika.')
-                    ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && ! $isUserEmployee)
+                    ->visible(fn() => !$isCurrentRouteMissingEmployeePage && !$isUserEmployee)
                     ->default(true),
             ]);
     }
@@ -123,7 +122,7 @@ class EmployeeForm
                 ->required(),
             Select::make('year')
                 ->label('Godina')
-                ->options(collect(range(now()->year - 2, now()->year + 1))->mapWithKeys(fn ($year) => [$year => $year]))
+                ->options(collect(range(now()->year - 2, now()->year + 1))->mapWithKeys(fn($year) => [$year => $year]))
                 ->default(now()->year)
                 ->required(),
         ]);
