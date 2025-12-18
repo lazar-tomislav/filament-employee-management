@@ -76,6 +76,8 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
         // Asset Registration
         FilamentAsset::register(
             $this->getAssets(),
@@ -208,6 +210,7 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             'alter_employees_table',
             'create_activities_table',
             'create_activity_mentions_table',
+            'create_employee_departments_table',
         ];
     }
 
