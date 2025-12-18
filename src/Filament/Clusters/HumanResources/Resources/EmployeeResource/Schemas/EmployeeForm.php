@@ -44,6 +44,8 @@ class EmployeeForm
 
                 Forms\Components\Repeater::make('phone_numbers')
                     ->label('Brojevi telefona')
+                    ->collapsed()
+                    ->collapsible()
                     ->schema([
                         Forms\Components\TextInput::make('number')
                             ->label('Broj')
