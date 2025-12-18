@@ -215,7 +215,11 @@ class Employee extends Model
                     $dailyWorkHours = self::HOURS_PER_WORK_DAY;
                     $dailyOvertimeHours = $totalDailyWorkHours - self::HOURS_PER_WORK_DAY;
                 }
-            } else { // It's a weekend, a holiday, or a personal leave day
+            } elseif ($isPublicHoliday) {
+                // For holidays, count as 8 work hours, plus any logged hours as overtime
+                $dailyWorkHours = self::HOURS_PER_WORK_DAY;
+                $dailyOvertimeHours = $totalDailyWorkHours;
+            } else { // It's a weekend or a personal leave day
                 $dailyOvertimeHours = $totalDailyWorkHours;
             }
 
