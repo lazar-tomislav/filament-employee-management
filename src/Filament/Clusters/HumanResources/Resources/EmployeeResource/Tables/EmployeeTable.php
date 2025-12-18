@@ -38,8 +38,8 @@ class EmployeeTable
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
-                Actions\ViewAction::make()->slideOver(),
-                Actions\EditAction::make()->slideOver()->modalHeading("Uredi zaposlenika"),
+                Actions\ViewAction::make(),
+                Actions\EditAction::make()->modalHeading("Uredi zaposlenika"),
             ])
             ->headerActions([
                 EmployeeAction::allEmployeTimeReportExport(),

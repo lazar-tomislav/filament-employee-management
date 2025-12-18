@@ -27,7 +27,7 @@ class ListEmployees extends ListRecords
     {
         return [
             Actions\CreateAction::make()
-            ->slideOver(),
+            ->modalHeading("Dodaj zaposlenika"),
         ];
     }
 }
