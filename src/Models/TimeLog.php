@@ -104,7 +104,7 @@ class TimeLog extends Model
         // Check if there's a holiday on this date and add 8 hours if so
         $holidays = Holiday::getHolidaysForDate(Carbon::parse($date));
         if ($holidays->count() > 0) {
-            $totalMinutes += 8 * 60; // 8 hours in minutes
+            $totalMinutes += Employee::HOURS_PER_WORK_DAY * 60; // 8 hours in minutes
         }
 
         return self::formatMinutesToTime($totalMinutes);
@@ -125,7 +125,7 @@ class TimeLog extends Model
 
         // Add 8 hours for each holiday in the week
         $holidays = Holiday::getHolidayDatesInRange(Carbon::parse($startDate), Carbon::parse($endDate));
-        $totalMinutes += count($holidays) * 8 * 60; // 8 hours in minutes per holiday
+        $totalMinutes += count($holidays) * Employee::HOURS_PER_WORK_DAY * 60; // 8 hours in minutes per holiday
 
         return self::formatMinutesToTime($totalMinutes);
     }
