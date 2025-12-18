@@ -2,19 +2,16 @@
 
 namespace Amicus\FilamentEmployeeManagement\Exports;
 
-use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestType;
-use Amicus\FilamentEmployeeManagement\Models\TimeLog;
-use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
-use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithDrawings;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
@@ -43,10 +40,14 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
     {
         $drawing = new Drawing();
         $drawing->setName('Logo');
-        $drawing->setDescription('This is my logo');
+        $drawing->setDescription('Logo');
 
         $logoPathFromSettings = app(HumanResourcesSettings::class)->hr_documents_logo;
-        $logoPath = $logoPathFromSettings ? \Illuminate\Support\Facades\Storage::disk('public')->path($logoPathFromSettings) : public_path('images/logo.png');
+        if($logoPathFromSettings && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPathFromSettings)){
+            $logoPath = \Illuminate\Support\Facades\Storage::disk('public')->path($logoPathFromSettings);
+        }else{
+            $logoPath = public_path('images/logo.png');
+        }
         $drawing->setPath($logoPath);
 
         $drawing->setHeight(120);
@@ -63,7 +64,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
         $report = $this->employee->getMonthlyWorkReport($month);
 
         $data = [];
-        foreach ($report['daily_data'] as $daily) {
+        foreach($report['daily_data'] as $daily){
             $data[] = [
                 $daily['date']->day,
                 strtoupper($this->getDayNameInCroatian($daily['date']->dayOfWeek)),
@@ -211,9 +212,9 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             ],
         ];
 
-        for ($day = 1; $day <= $daysInMonth; $day++) {
+        for($day = 1; $day <= $daysInMonth; $day++){
             $date = Carbon::create($this->year, $this->month, $day);
-            if ($date->isWeekend()) {
+            if($date->isWeekend()){
                 $rowNumber = $day + 6;
                 $styles[$rowNumber] = [
                     'fill' => [
@@ -254,7 +255,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $event->sheet->getDelegate()->mergeCells('A2:B2');
                 $event->sheet->getDelegate()->mergeCells('A3:B3');
                 $event->sheet->getDelegate()->mergeCells('C2:D2');
@@ -262,7 +263,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
                 $event->sheet->getDelegate()->mergeCells('E2:G2');
                 $event->sheet->getDelegate()->mergeCells('E3:G3');
 
-                $event->sheet->getDelegate()->setCellValue('C2',"RADNI SATI");
+                $event->sheet->getDelegate()->setCellValue('C2', "RADNI SATI");
 
                 $monthName = $this->getMonthNameInCroatian($this->month);
                 $event->sheet->getDelegate()->setCellValue('C3', "{$monthName} {$this->year}.");

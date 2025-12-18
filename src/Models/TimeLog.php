@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Models;
 
 use Amicus\FilamentEmployeeManagement\Enums\LogType;
 use Amicus\FilamentEmployeeManagement\Enums\TimeLogStatus;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -41,7 +42,7 @@ class TimeLog extends Model
     {
         return Attribute::make(
             get: function () {
-                if (!$this->hours) {
+                if (! $this->hours) {
                     return '00:00';
                 }
 
@@ -62,7 +63,7 @@ class TimeLog extends Model
 
     public static function convertTimeToMinutes($timeString): int
     {
-        if (!$timeString) {
+        if (! $timeString) {
             return 0;
         }
 
@@ -71,6 +72,7 @@ class TimeLog extends Model
             if (count($timeParts) >= 2) {
                 $hours = (int) $timeParts[0];
                 $minutes = (int) $timeParts[1];
+
                 return ($hours * 60) + $minutes;
             }
         }
@@ -99,6 +101,12 @@ class TimeLog extends Model
             $totalMinutes += self::convertTimeToMinutes($timeLog->hours);
         }
 
+        // Check if there's a holiday on this date and add 8 hours if so
+        $holidays = Holiday::getHolidaysForDate(Carbon::parse($date));
+        if ($holidays->count() > 0) {
+            $totalMinutes += Employee::HOURS_PER_WORK_DAY * 60; // 8 hours in minutes
+        }
+
         return self::formatMinutesToTime($totalMinutes);
     }
 
@@ -114,6 +122,10 @@ class TimeLog extends Model
         foreach ($timeLogs as $timeLog) {
             $totalMinutes += self::convertTimeToMinutes($timeLog->hours);
         }
+
+        // Add 8 hours for each holiday in the week
+        $holidays = Holiday::getHolidayDatesInRange(Carbon::parse($startDate), Carbon::parse($endDate));
+        $totalMinutes += count($holidays) * Employee::HOURS_PER_WORK_DAY * 60; // 8 hours in minutes per holiday
 
         return self::formatMinutesToTime($totalMinutes);
     }
