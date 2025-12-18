@@ -93,7 +93,7 @@
         <tr>
             <td class="logo-cell">
                 @if($logoPath)
-                    <img src="{{ $logoPath }}" alt="Logo" class="logo">
+                    <img src="{{ $logoPath }}" class="logo">
                 @endif
             </td>
             <td class="company-cell">
