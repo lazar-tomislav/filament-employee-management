@@ -68,7 +68,7 @@ class AbsenceWidget extends TableWidget
                     ->label('Odsutnost'),
 
                 TextColumn::make('days_count')
-                    ->label('Broj dana'),
+                    ->label('Broj radnih dana'),
 
                 $isAdmin
                     ? TextInputColumn::make('notes')->label('Napomena')
