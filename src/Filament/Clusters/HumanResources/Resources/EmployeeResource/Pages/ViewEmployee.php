@@ -5,7 +5,6 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Actions\EmployeeAction;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Schemas\EmployeeInfolist;
-use Filament\Actions\Action;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
@@ -53,6 +52,7 @@ class ViewEmployee extends Page implements HasSchemas
             'Adresa' => $this->record->address ?? "-",
             'Grad' => $this->record->city ?? "-",
             "Napomena" => $this->record->note ?? "-",
+            "Uloga" => ucwords(str_replace('_', ' ', $this->record->user->roles->pluck("name")->join(", "))),
         ];
     }
 
@@ -64,7 +64,7 @@ class ViewEmployee extends Page implements HasSchemas
     protected function getHeaderActions(): array
     {
         return [
-           EmployeeAction::editEmployee($this->record),
+            EmployeeAction::editEmployee($this->record),
         ];
     }
 }
