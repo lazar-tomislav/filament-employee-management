@@ -46,6 +46,7 @@ class EmployeeForm
                     ->label('Brojevi telefona')
                     ->collapsed()
                     ->collapsible()
+                    ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('number')
                             ->label('Broj')
