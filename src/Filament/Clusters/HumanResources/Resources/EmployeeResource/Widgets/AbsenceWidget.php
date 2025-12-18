@@ -12,6 +12,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class AbsenceWidget extends TableWidget
 {
@@ -35,6 +36,7 @@ class AbsenceWidget extends TableWidget
         }else{
             $query->where('end_date', '<', now()->toDateString());
         }
+
         return $query;
     }
 
@@ -45,12 +47,16 @@ class AbsenceWidget extends TableWidget
 
     public function table(Table $table): Table
     {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        $isAdmin = $user && method_exists($user, 'isAdmin') && $user->isAdmin();
+
         return $table
             ->query($this->getTableQuery())
             ->paginated($this->isTablePaginationEnabled())
             ->striped()
-            ->emptyStateHeading("Nema zapisa.")
-            ->defaultSort("created_at", 'desc')
+            ->emptyStateHeading('Nema zapisa.')
+            ->defaultSort('created_at', 'desc')
             ->heading(null)
             ->columns([
                 TextColumn::make('type')
@@ -60,8 +66,13 @@ class AbsenceWidget extends TableWidget
                 TextColumn::make('absence')
                     ->label('Odsutnost'),
 
+                TextColumn::make('days_count')
+                    ->label('Broj radnih dana'),
+
                 TextColumn::make('notes')
                     ->label('Napomena')
+                    ->limit(20)
+                    ->tooltip(fn ($record)=>$record->notes)
                     ->placeholder('-'),
 
                 TextColumn::make('status')
@@ -84,12 +95,13 @@ class AbsenceWidget extends TableWidget
                     }),
             ])
             ->recordActions(
-                ActionGroup::make([
-                    LeaveRequestActions::approveAction(),
-                    LeaveRequestActions::rejectAction(),
-                    LeaveRequestActions::cancelRequestAction(),
-                    LeaveRequestActions::downloadPdfAction(),
-                ])
-            );
+        ActionGroup::make([
+            LeaveRequestActions::approveAction(),
+            LeaveRequestActions::rejectAction(),
+            LeaveRequestActions::editNotesAction(),
+            LeaveRequestActions::cancelRequestAction(),
+            LeaveRequestActions::downloadPdfAction(),
+        ])
+    );
     }
 }
