@@ -1,7 +1,7 @@
 <div>
-    <div class="bg-white flex items-center flex-col md:flex-row w-full mb-4 shadow rounded-md  ">
+    <div class="bg-white dark:bg-gray-800 flex items-center flex-col md:flex-row w-full mb-4 shadow rounded-md  ">
         <!-- Datepicker za odabir tjedna -->
-        <div class=" p-4 rounded-lg w-full md:w-36">
+        <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg w-full md:w-36 dark">
             {{ $this->weekForm }}
         </div>
 
@@ -15,18 +15,18 @@
                 <!-- Radni dani -->
                 <div class="flex items-center gap-1 flex-1">
                     @foreach($this->getWeekDays() as $day)
-                        <div wire:click="selectDate('{{ $day['date'] }}')"
-                             class="flex flex-col items-center text-black justify-center flex-1 py-2 rounded-md cursor-pointer transition-colors
-                        @if($day['is_selected']) border-b-4 border-primary-600 dark:border-primary-500
-                        @else hover:bg-red-50 dark:hover:bg-gray-800 @endif">
+                         <div wire:click="selectDate('{{ $day['date'] }}')"
+                              class="flex flex-col items-center text-black dark:text-white justify-center flex-1 py-2 rounded-md cursor-pointer transition-colors
+                         @if($day['is_selected']) border-b-4 border-primary-600 dark:border-primary-500
+                         @else hover:bg-red-50 dark:hover:bg-gray-800 @endif">
                         <span
                             class="text-sm font-semibold @if($day['is_selected']) text-primary-600 dark:text-primary-400 @else dark:text-gray-100 @endif">
                             {{ $day['hours'] }}
                         </span>
-                            <span
-                                class="text-xs @if($day['is_selected']) text-primary-500 dark:text-primary-300 @else text-black dark:text-gray-500 @endif">
-                            {{ $day['day_name'] }} {{ $day['day_number'] }}
-                        </span>
+                             <span
+                                 class="text-xs @if($day['is_selected']) text-primary-500 dark:text-primary-300 @else text-black dark:text-white @endif">
+                             {{ $day['day_name'] }} {{ $day['day_number'] }}
+                             </span>
                         </div>
                     @endforeach
                 </div>
@@ -40,7 +40,7 @@
             <div class="flex flex-col items-center justify-center md:px-4 md:py-2 md:ml-2">
                 <span
                     class="text-base md:text-lg font-semibold text-black dark:text-white">{{ $this->getTotalWeekHours() }}</span>
-                <span class="text-xs text-gray-800">Ukupno</span>
+                <span class="text-xs text-gray-800 dark:text-white">Ukupno</span>
             </div>
 
         </div>
@@ -76,21 +76,21 @@
                 <div class="space-y-4">
                     @foreach($timeLogs as $timeLog)
                         <div
-                            class="bg-white rounded-lg flex items-start p-4 shadow gap-4 border-l-3 border-accent-green">
+                            class="bg-white dark:bg-gray-800 rounded-lg flex items-start p-4 shadow gap-4 border-l-3 border-accent-green">
                             <div
                                 class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-md {{$timeLog['color']}}">
                                 <span class="font-bold text-2xl text-accent-green -translate-y-0.5">/ /</span>
                             </div>
                             <div class="flex-grow">
-                                <p class="font-semibold text-md">{{$timeLog['name']}}</p>
-                                <div class="italic prose prose-sm prose-invert text-text-primary">
+                                <p class="font-semibold text-md text-gray-900 dark:text-white">{{$timeLog['name']}}</p>
+                                <div class="italic prose prose-sm prose-invert text-gray-600 dark:text-gray-300">
                                     {!! $timeLog['description'] !!}
                                 </div>
                             </div>
                             <div
                                 class="w-auto px-2 h-8 flex-shrink-0 flex items-center justify-center rounded bg-red-400/50">
-                                    <span
-                                        class="font-bold text-sm text-accent-green ">{{$timeLog['hours']}} h</span>
+                                     <span
+                                         class="font-bold text-sm text-accent-green dark:text-accent-green-light">{{$timeLog['hours']}} h</span>
                             </div>
 
                             <!-- Time Log Actions -->

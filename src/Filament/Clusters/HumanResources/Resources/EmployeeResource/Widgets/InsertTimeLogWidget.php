@@ -70,6 +70,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
                     ->displayFormat('d.m.Y')
                     ->default(now())
                     ->format("Y-m-d")
+                    ->extraAttributes(['class' => 'dark:text-white dark:bg-gray-900 dark:border-gray-600'])
                     ->afterStateUpdated(function ($state) {
                         $carbonDate = Carbon::parse($state);
                         $this->selectDate($carbonDate->format('Y-m-d'));
@@ -108,6 +109,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
                 'description' => $data['description'],
                 'status' => $data['status'] ?? TimeLogStatus::default(),
                 'log_type' => $data['log_type'] ?? LogType::RADNI_SATI,
+                'is_work_from_home' => $data['is_work_from_home'] ?? false,
             ]);
 
             Notification::make()
@@ -218,7 +220,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
             return [
                 'id' => $timeLog->id,
                 "color" => 'bg-green-700/50',
-                "name" => "Redovan unos sati",
+                "name" => $timeLog->is_work_from_home ? "Rad od kuće" : "Redovan unos sati",
                 'description' => $timeLog->description,
                 'hours' => $timeLog->formatted_hours,
                 "can_delete" => true,
@@ -261,7 +263,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
             ->color('warning')
             ->mountUsing(function (Schema $schema, array $arguments) {
                 if ($timeLog = TimeLog::find($arguments['timeLog'] ?? null)) {
-                    $schema->fill($timeLog->only(['hours', 'description']));
+                    $schema->fill($timeLog->only(['hours', 'description', 'is_work_from_home']));
                 }
             })
             ->schema(fn($schema) => TimeLogForm::configureForEmployeeView($schema)
@@ -278,6 +280,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
                     $timeLog->update([
                         'hours' => $data['hours'],
                         'description' => $data['description'],
+                        'is_work_from_home' => $data['is_work_from_home'] ?? false,
                     ]);
                     Notification::make()->title('Izmjene su uspješno spremljene.')->success()->send();
                 }catch(\Exception $e){

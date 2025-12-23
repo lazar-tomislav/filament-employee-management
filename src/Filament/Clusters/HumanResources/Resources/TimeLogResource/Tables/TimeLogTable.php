@@ -16,125 +16,137 @@ class TimeLogTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultGroup( Tables\Grouping\Group::make("date")
-                ->label("Datum")
+            ->defaultGroup(Tables\Grouping\Group::make('date')
+                ->label('Datum')
                 ->getTitleFromRecordUsing(function ($record) {
                     return $record->date ? $record->date->format('d.m.Y') : 'N/A';
-            }))
+                }))
             ->columns([
-                Tables\Columns\TextColumn::make('employee.first_name')
-                    ->label('Zaposlenik')
-                    ->formatStateUsing(fn($record): string => $record->employee->full_name_email)
-                    ->searchable(['first_name', 'last_name'])
-                    ->sortable(),
+                    Tables\Columns\TextColumn::make('employee.first_name')
+                        ->label('Zaposlenik')
+                        ->formatStateUsing(fn ($record): string => $record->employee->full_name_email)
+                        ->searchable(['first_name', 'last_name'])
+                        ->sortable(),
 
-                Tables\Columns\TextColumn::make('date')
-                    ->label('Unos za dan')
-                    ->date('d.m.Y')
-                    ->sortable(),
+                    Tables\Columns\TextColumn::make('date')
+                        ->label('Unos za dan')
+                        ->date('d.m.Y')
+                        ->sortable(),
 
-                Tables\Columns\TextColumn::make('hours')
-                    ->label('Broj sati')
+                    Tables\Columns\TextColumn::make('hours')
+                        ->label('Broj sati')
                     ->numeric(decimalPlaces: 2)
                     ->suffix(' h')
-                    ->alignEnd()
-                    ->sortable(),
+                        ->alignEnd()
+                        ->sortable(),
 
-                Tables\Columns\TextColumn::make('log_type')
-                    ->label('Tip unosa')
-                    ->formatStateUsing(fn(?LogType $state): string => $state?->getLabel() ?? '-')
-                    ->badge()
-                    ->color(fn(?LogType $state): string => match ($state) {
-                        LogType::RADNI_SATI => 'success',
-                        LogType::BOLOVANJE => 'warning',
-                        LogType::GODISNJI => 'info',
-                        LogType::PLACENI_SLOBODAN_DAN => 'gray',
-                        null => 'gray',
-                    }),
+                    Tables\Columns\TextColumn::make('log_type')
+                        ->label('Tip unosa')
+                        ->formatStateUsing(function ($state, $record) {
+                            if ($record->is_work_from_home && $state === LogType::RADNI_SATI) {
+                                return 'Rad od kuće';
+                            }
 
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Status')
-                    ->formatStateUsing(fn(?TimeLogStatus $state): string => $state?->getLabel() ?? '-')
-                    ->badge()
-                    ->color(fn(?TimeLogStatus $state): string => match ($state) {
-                        TimeLogStatus::CONFIRMED => 'success',
-                        TimeLogStatus::PLANNED => 'warning',
-                        null => 'gray',
-                    }),
+                            return $state?->getLabel() ?? '-';
+                        })
+                        ->badge()
+                        ->color(function ($state, $record) {
+                            if ($record->is_work_from_home && $state === LogType::RADNI_SATI) {
+                                return 'info';
+                            }
 
-                Tables\Columns\TextColumn::make('description')
-                    ->label('Opis')
-                    ->limit(50)
-                    ->tooltip(fn(?string $state): ?string => $state)
-                    ->toggleable(isToggledHiddenByDefault: true),
+                            return match ($state) {
+                                LogType::RADNI_SATI => 'success',
+                                LogType::BOLOVANJE => 'warning',
+                                LogType::GODISNJI => 'info',
+                                LogType::PLACENI_SLOBODAN_DAN => 'gray',
+                                null => 'gray',
+                            };
+                        }),
 
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Uneseno')
-                    ->dateTime('d.m.Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('status')
+                        ->label('Status')
+                        ->formatStateUsing(fn (?TimeLogStatus $state): string => $state?->getLabel() ?? '-')
+                        ->badge()
+                        ->color(fn (?TimeLogStatus $state): string => match ($state) {
+                            TimeLogStatus::CONFIRMED => 'success',
+                            TimeLogStatus::PLANNED => 'warning',
+                            null => 'gray',
+                        }),
 
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Ažurirano')
-                    ->dateTime('d.m.Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    Tables\Columns\TextColumn::make('description')
+                        ->label('Opis')
+                        ->limit(50)
+                        ->tooltip(fn (?string $state): ?string => $state)
+                        ->toggleable(isToggledHiddenByDefault: true),
 
-                Tables\Columns\TextColumn::make('deleted_at')
-                    ->label('Obrisano')
-                    ->dateTime('d.m.Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
+                    Tables\Columns\TextColumn::make('created_at')
+                        ->label('Uneseno')
+                        ->dateTime('d.m.Y H:i')
+                        ->sortable()
+                        ->toggleable(isToggledHiddenByDefault: true),
+
+                    Tables\Columns\TextColumn::make('updated_at')
+                        ->label('Ažurirano')
+                        ->dateTime('d.m.Y H:i')
+                        ->sortable()
+                        ->toggleable(isToggledHiddenByDefault: true),
+
+                    Tables\Columns\TextColumn::make('deleted_at')
+                        ->label('Obrisano')
+                        ->dateTime('d.m.Y H:i')
+                        ->sortable()
+                        ->toggleable(isToggledHiddenByDefault: true),
+                ])
             ->defaultSort('date', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('employee_id')
-                    ->label('Zaposlenik')
-                    ->relationship('employee', 'first_name')
-                    ->getOptionLabelFromRecordUsing(fn($record): string => $record->full_name_email)
-                    ->searchable()
-                    ->preload(),
+                        ->label('Zaposlenik')
+                        ->relationship('employee', 'first_name')
+                        ->getOptionLabelFromRecordUsing(fn ($record): string => $record->full_name_email)
+                        ->searchable()
+                        ->preload(),
 
                 Tables\Filters\SelectFilter::make('log_type')
-                    ->label('Tip')
-                    ->options(LogType::class),
+                        ->label('Tip')
+                        ->options(LogType::class),
 
                 Tables\Filters\SelectFilter::make('status')
-                    ->label('Status')
-                    ->options(TimeLogStatus::class),
+                        ->label('Status')
+                        ->options(TimeLogStatus::class),
 
                 Tables\Filters\Filter::make('date_range')
-                    ->label('Datum')
-                    ->schema([
-                        DatePicker::make('from')
-                            ->label('Od'),
-                        DatePicker::make('until')
-                            ->label('Do'),
-                    ])
-                    ->query(function ($query, array $data) {
-                        return $query
-                            ->when($data['from'], fn($q) => $q->whereDate('date', '>=', $data['from']))
-                            ->when($data['until'], fn($q) => $q->whereDate('date', '<=', $data['until']));
-                    }),
+                        ->label('Datum')
+                        ->schema([
+                            DatePicker::make('from')
+                                ->label('Od'),
+                            DatePicker::make('until')
+                                ->label('Do'),
+                        ])
+                        ->query(function ($query, array $data) {
+                            return $query
+                                ->when($data['from'], fn ($q) => $q->whereDate('date', '>=', $data['from']))
+                                ->when($data['until'], fn ($q) => $q->whereDate('date', '<=', $data['until']));
+                        }),
 
                 Tables\Filters\TrashedFilter::make()
-                    ->label('Obrisani zapisi'),
+                        ->label('Obrisani zapisi'),
             ])
             ->recordActions([
                 Actions\ViewAction::make()
-                    ->schema(fn($schema) => TimeLogInfolist::configure($schema))
-                    ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
-                    ->modalHeading("Pregled unosa")
-                    ->label('Prikaži'),
+                        ->schema(fn ($schema) => TimeLogInfolist::configure($schema))
+                        ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
+                        ->modalHeading('Pregled unosa')
+                        ->label('Prikaži'),
 
                 Actions\EditAction::make()
-                    ->schema(fn($schema) => TimeLogForm::configure($schema))
-                    ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
-                    ->label('Uredi'),
+                        ->schema(fn ($schema) => TimeLogForm::configure($schema))
+                        ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
+                        ->label('Uredi'),
 
                 Actions\DeleteAction::make()
-                    ->requiresConfirmation()
-                    ->label('Obriši'),
+                        ->requiresConfirmation()
+                        ->label('Obriši'),
             ]);
     }
 }

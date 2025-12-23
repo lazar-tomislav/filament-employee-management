@@ -22,6 +22,7 @@ class TimeLog extends Model
         'description',
         'status',
         'log_type',
+        'is_work_from_home',
     ];
 
     protected $casts = [
@@ -29,6 +30,7 @@ class TimeLog extends Model
         'hours' => 'decimal:2',
         'status' => TimeLogStatus::class,
         'log_type' => LogType::class,
+        'is_work_from_home' => 'boolean',
     ];
 
     public function employee()

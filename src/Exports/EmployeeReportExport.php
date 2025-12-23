@@ -15,18 +15,28 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, ShouldAutoSize, WithCustomStartCell, WithEvents, WithDrawings
+class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings, WithStyles
 {
     protected int $employeeId;
+
     protected int $month;
+
     protected int $year;
+
     protected Employee $employee;
 
     protected int $totalWorkHours = 0;
+
+    protected float $totalWorkFromHomeHours = 0;
+
     protected ?int $totalVacationHours = 0;
+
     protected ?int $totalSickLeaveHours = 0;
+
     protected ?int $totalOvertimeHours = 0;
+
     protected ?int $totalOtherHours = 0;
+
     protected ?int $totalMaternityLeaveHours = 0;
 
     public function __construct(int $employeeId, int $month, int $year)
@@ -39,14 +49,14 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
 
     public function drawings()
     {
-        $drawing = new Drawing();
+        $drawing = new Drawing;
         $drawing->setName('Logo');
         $drawing->setDescription('Logo');
 
         $logoPathFromSettings = app(HumanResourcesSettings::class)->hr_documents_logo;
-        if($logoPathFromSettings && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPathFromSettings)){
+        if ($logoPathFromSettings && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPathFromSettings)) {
             $logoPath = \Illuminate\Support\Facades\Storage::disk('public')->path($logoPathFromSettings);
-        }else{
+        } else {
             $logoPath = public_path('images/logo.png');
         }
         $drawing->setPath($logoPath);
@@ -66,10 +76,20 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
 
         $data = [];
         foreach($report['daily_data'] as $daily){
+            $workHours = $daily['work_hours'] ?: '';
+            $wfhHours = $daily['work_from_home_hours'] ?: '';
+
+            // If there are work-from-home hours, the 'RADNI SATI' column should be blank,
+            // as per the requirement to only log WFH hours under the WFH column in the export.
+            if (!empty($wfhHours)) {
+                $workHours = '';
+            }
+
             $data[] = [
                 $daily['date']->day,
                 strtoupper($this->getDayNameInCroatian($daily['date']->dayOfWeek)),
-                $daily['work_hours'] ?: '',
+                $workHours,
+                $wfhHours,
                 $daily['vacation_hours'] ?: '',
                 $daily['sick_leave_hours'] ?: '',
                 $daily['overtime_hours'] ?: '',
@@ -79,6 +99,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
         }
 
         $this->totalWorkHours = $report['totals']['work_hours'];
+        $this->totalWorkFromHomeHours = $report['totals']['work_from_home_hours'];
         $this->totalVacationHours = $report['totals']['vacation_hours'];
         $this->totalSickLeaveHours = $report['totals']['sick_leave_hours'];
         $this->totalOvertimeHours = $report['totals']['overtime_hours'];
@@ -86,9 +107,9 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
         $this->totalMaternityLeaveHours = $report['totals']['maternity_leave_hours'];
 
         // Add empty rows
-        $data[] = ['', '', '', '', '', '', ''];
-        $data[] = ['', '', '', '', '', '', ''];
-        $data[] = ['', '', '', '', '', '', ''];
+        $data[] = ['', '', '', '', '', '', '', '', ''];
+        $data[] = ['', '', '', '', '', '', '', '', ''];
+        $data[] = ['', '', '', '', '', '', '', '', ''];
 
         // Add totals row
         $monthName = $this->getMonthNameInCroatian($this->month);
@@ -99,7 +120,9 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             '',
             '',
             '',
-            ''
+            '',
+            '',
+            '',
         ];
         $data[] = [
             'RADNI SATI',
@@ -108,7 +131,20 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             '',
             '',
             '',
-            ''
+            '',
+            '',
+            '',
+        ];
+        $data[] = [
+            'RAD OD KUĆE',
+            $this->totalWorkFromHomeHours ?: 0,
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
         ];
         $data[] = [
             'GODIŠNJI ODMOR',
@@ -117,7 +153,9 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             '',
             '',
             '',
-            ''
+            '',
+            '',
+            '',
         ];
         $data[] = [
             'BOLOVANJE',
@@ -126,7 +164,9 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             '',
             '',
             '',
-            ''
+            '',
+            '',
+            '',
         ];
         $data[] = [
             'PREKOVREMENI SATI',
@@ -135,7 +175,9 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             '',
             '',
             '',
-            ''
+            '',
+            '',
+            '',
         ];
         $data[] = [
             'PORODILJNI',
@@ -144,7 +186,9 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             '',
             '',
             '',
-            ''
+            '',
+            '',
+            '',
         ];
         $data[] = [
             'OSTALO (plaćeno odsustvo)',
@@ -153,7 +197,9 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             '',
             '',
             '',
-            ''
+            '',
+            '',
+            '',
         ];
 
         return $data;
@@ -165,11 +211,12 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             'DATUM',
             'DAN',
             'RADNI SATI',
+            'RAD OD KUĆE',
             'GODIŠNJI ODMOR',
             'BOLOVANJE',
             'PREKOVREMENI SATI',
             'PORODILJNI',
-            'OSTALO (plaćeno odsustvo)'
+            'OSTALO (plaćeno odsustvo)',
         ];
     }
 
@@ -190,49 +237,24 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            "C1:C99" => [
+            'C1:I99' => [
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            "D1:D99" => [
+            'A2:A'.($daysInMonth + 6) => [
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            "E1:E99" => [
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                ],
-            ],
-            "F1:F99" => [
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                ],
-            ],
-            "G1:G99" => [
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                ],
-            ],
-            "H1:H99" => [
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                ],
-            ],
-            'A2:A' . ($daysInMonth + 6) => [
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                ],
-            ],
-            'A' . ($daysInMonth + 7) . ':A' . ($daysInMonth + 15) => [
+            'A'.($daysInMonth + 7).':A'.($daysInMonth + 15) => [
                 'font' => ['bold' => true],
             ],
         ];
 
-        for($day = 1; $day <= $daysInMonth; $day++){
+        for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = Carbon::create($this->year, $this->month, $day);
-            if($date->isWeekend()){
+            if ($date->isWeekend()) {
                 $rowNumber = $day + 6;
                 $styles[$rowNumber] = [
                     'fill' => [
@@ -276,17 +298,17 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             AfterSheet::class => function (AfterSheet $event) {
                 $event->sheet->getDelegate()->mergeCells('A2:B2');
                 $event->sheet->getDelegate()->mergeCells('A3:B3');
-                $event->sheet->getDelegate()->mergeCells('C2:D2');
-                $event->sheet->getDelegate()->mergeCells('C3:D3');
-                $event->sheet->getDelegate()->mergeCells('E2:H2');
-                $event->sheet->getDelegate()->mergeCells('E3:H3');
+                $event->sheet->getDelegate()->mergeCells('C2:E2');
+                $event->sheet->getDelegate()->mergeCells('C3:E3');
+                $event->sheet->getDelegate()->mergeCells('F2:I2');
+                $event->sheet->getDelegate()->mergeCells('F3:I3');
 
-                $event->sheet->getDelegate()->setCellValue('C2', "RADNI SATI");
+                $event->sheet->getDelegate()->setCellValue('C2', 'RADNI SATI');
 
                 $monthName = $this->getMonthNameInCroatian($this->month);
                 $event->sheet->getDelegate()->setCellValue('C3', "{$monthName} {$this->year}.");
 
-                $event->sheet->getDelegate()->setCellValue('E2', $this->employee->full_name);
+                $event->sheet->getDelegate()->setCellValue('F2', $this->employee->full_name);
 
                 $styleArray = [
                     'font' => ['bold' => true],
@@ -296,7 +318,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
                     ],
                 ];
 
-                $event->sheet->getDelegate()->getStyle('A2:G3')->applyFromArray($styleArray);
+                $event->sheet->getDelegate()->getStyle('A2:I3')->applyFromArray($styleArray);
                 $event->sheet->getDelegate()->getRowDimension(2)->setRowHeight(50);
                 $event->sheet->getDelegate()->getRowDimension(3)->setRowHeight(50);
             },
@@ -312,7 +334,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             3 => 'Srijeda',
             4 => 'Četvrtak',
             5 => 'Petak',
-            6 => 'Subota'
+            6 => 'Subota',
         ];
 
         return $days[$dayOfWeek];
@@ -332,7 +354,7 @@ class EmployeeReportExport implements FromArray, WithHeadings, WithStyles, Shoul
             9 => 'RUJAN',
             10 => 'LISTOPAD',
             11 => 'STUDENI',
-            12 => 'PROSINAC'
+            12 => 'PROSINAC',
         ];
 
         return $months[$month];
