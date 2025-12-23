@@ -61,6 +61,7 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
             $data[] = [
                 $employee->full_name,
                 $totals['work_hours'],
+                $totals['work_from_home_hours'],
                 $totals['vacation_hours'],
                 $totals['sick_leave_hours'],
                 $totals['overtime_hours'],
@@ -77,6 +78,7 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
         return [
             'IMENA ZAPOSLENIKA',
             'RADNI SATI',
+            'RAD OD KUĆE',
             'GODIŠNJI ODMOR',
             'BOLOVANJE',
             'PREKOVREMENI SATI',
@@ -100,7 +102,7 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            "B:G" => [
+            "B:H" => [
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
@@ -119,8 +121,8 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
             AfterSheet::class => function(AfterSheet $event) {
                 $event->sheet->getDelegate()->mergeCells('A2:B2');
                 $event->sheet->getDelegate()->mergeCells('A3:B3');
-                $event->sheet->getDelegate()->mergeCells('C2:G2');
-                $event->sheet->getDelegate()->mergeCells('C3:G3');
+                $event->sheet->getDelegate()->mergeCells('C2:H2');
+                $event->sheet->getDelegate()->mergeCells('C3:H3');
 
                 $event->sheet->getDelegate()->setCellValue('C2',"RADNI SATI");
 
@@ -135,7 +137,7 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
                     ],
                 ];
 
-                $event->sheet->getDelegate()->getStyle('A2:G3')->applyFromArray($styleArray);
+                $event->sheet->getDelegate()->getStyle('A2:H3')->applyFromArray($styleArray);
                 $event->sheet->getDelegate()->getRowDimension(2)->setRowHeight(50);
                 $event->sheet->getDelegate()->getRowDimension(3)->setRowHeight(50);
             },

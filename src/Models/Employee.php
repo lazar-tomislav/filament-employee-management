@@ -147,6 +147,14 @@ class Employee extends Model
             ->sum('hours');
     }
 
+    private function getDailyWorkFromHomeHours(Carbon $date): float
+    {
+        return (float) TimeLog::where('employee_id', $this->id)
+            ->whereDate('date', $date->format('Y-m-d'))
+            ->where('is_work_from_home', true)
+            ->sum('hours');
+    }
+
     private function getDailyLeaveHours(Carbon $date): array
     {
         $leaveHours = [
@@ -187,6 +195,7 @@ class Employee extends Model
             'daily_data' => [],
             'totals' => [
                 'work_hours' => 0.0,
+                'work_from_home_hours' => 0.0,
                 'overtime_hours' => 0.0,
                 'vacation_hours' => 0.0,
                 'sick_leave_hours' => 0.0,
@@ -203,7 +212,9 @@ class Employee extends Model
             $date = $month->copy()->setDay($day);
 
             $totalDailyWorkHours = $this->getDailyWorkHours($date);
+            $totalDailyWorkFromHomeHours = $this->getDailyWorkFromHomeHours($date);
             $dailyWorkHours = 0.0;
+            $dailyWorkFromHomeHours = 0.0;
             $dailyOvertimeHours = 0.0;
 
             $leaveHours = $this->getDailyLeaveHours($date);
@@ -233,6 +244,7 @@ class Employee extends Model
 
             if ($isStandardWorkDay) {
                 $dailyWorkHours = $totalDailyWorkHours;
+                $dailyWorkFromHomeHours = $totalDailyWorkFromHomeHours;
                 if ($totalDailyWorkHours > self::HOURS_PER_WORK_DAY) {
                     $dailyWorkHours = self::HOURS_PER_WORK_DAY;
                     $dailyOvertimeHours = $totalDailyWorkHours - self::HOURS_PER_WORK_DAY;
@@ -248,6 +260,7 @@ class Employee extends Model
             $report['daily_data'][] = [
                 'date' => $date,
                 'work_hours' => $dailyWorkHours,
+                'work_from_home_hours' => $dailyWorkFromHomeHours,
                 'overtime_hours' => $dailyOvertimeHours,
                 'vacation_hours' => $dailyVacationHours,
                 'sick_leave_hours' => $dailySickLeaveHours,
@@ -256,6 +269,7 @@ class Employee extends Model
             ];
 
             $report['totals']['work_hours'] += $dailyWorkHours;
+            $report['totals']['work_from_home_hours'] += $dailyWorkFromHomeHours;
             $report['totals']['overtime_hours'] += $dailyOvertimeHours;
             $report['totals']['vacation_hours'] += $dailyVacationHours;
             $report['totals']['sick_leave_hours'] += $dailySickLeaveHours;
