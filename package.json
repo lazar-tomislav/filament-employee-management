@@ -24,10 +24,8 @@
         "postcss-import": "^15.1.0",
         "prettier": "^2.7.1",
         "prettier-plugin-tailwindcss": "^0.1.13",
+        "puppeteer": "^24.35.0",
         "tailwindcss": "^4.1.13",
         "tippy.js": "^6.3.7"
-    },
-    "dependencies": {
-        "puppeteer": "^24.35.0"
     }
 }
