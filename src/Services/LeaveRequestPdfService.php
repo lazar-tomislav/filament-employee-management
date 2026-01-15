@@ -11,7 +11,7 @@ class LeaveRequestPdfService
 {
     public static function generatePdf(LeaveRequest $leaveRequest): string
     {
-        try {
+        try{
             $settings = app(HumanResourcesSettings::class);
 
             $logoPath = self::getFilePath($settings->hr_documents_logo);
@@ -23,13 +23,13 @@ class LeaveRequestPdfService
             // Set locale for Croatian days
             \Carbon\Carbon::setLocale('hr');
 
-            $fileName = 'zahtjev_za_godisnji_odmor_'.$leaveRequest->id.'.pdf';
-            $path = 'user/'.$leaveRequest->employee_id.'/odsustva/'.$fileName;
+            $fileName = 'zahtjev_za_godisnji_odmor_' . $leaveRequest->id . '.pdf';
+            $path = 'user/' . $leaveRequest->employee_id . '/odsustva/' . $fileName;
             $fullPath = Storage::disk('local')->path($path);
 
             // Ensure directory exists
             $directory = dirname($fullPath);
-            if (! is_dir($directory)) {
+            if(!is_dir($directory)){
                 mkdir($directory, 0755, true);
             }
 
@@ -42,8 +42,8 @@ class LeaveRequestPdfService
             ])->save($fullPath);
 
             return $path;
-        } catch (\Exception $e) {
-            \Log::error('PDF generation failed: '.$e->getMessage());
+        }catch(\Exception $e){
+            \Log::error('PDF generation failed: ' . $e->getMessage());
 
             return '';
         }
@@ -51,7 +51,7 @@ class LeaveRequestPdfService
 
     private static function getFilePath(?string $settingsPath): ?string
     {
-        if ($settingsPath && Storage::disk('public')->exists($settingsPath)) {
+        if($settingsPath && Storage::disk('public')->exists($settingsPath)){
             return Storage::disk('public')->url($settingsPath);
         }
 
