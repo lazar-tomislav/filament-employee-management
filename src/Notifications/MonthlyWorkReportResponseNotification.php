@@ -15,8 +15,7 @@ class MonthlyWorkReportResponseNotification extends Notification implements Shou
 
     public function __construct(
         public MonthlyWorkReport $monthlyWorkReport
-    ) {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {
@@ -25,23 +24,23 @@ class MonthlyWorkReportResponseNotification extends Notification implements Shou
 
     public function toTelegram(object $notifiable): ?TelegramMessage
     {
-        if (!config('employee-management.telegram-bot-api.is_active')) {
+        if (! config('employee-management.telegram-bot-api.is_active')) {
             return null;
         }
 
-        if(!$notifiable->telegram_chat_id){
+        $telegramChatId = $notifiable->employee?->telegram_chat_id;
+
+        if (! $telegramChatId) {
             return null;
         }
 
         $employee = $this->monthlyWorkReport->employee;
         $month = $this->monthlyWorkReport->for_month->format('m/Y');
 
-        $message = TelegramMessage::create()
-            ->to($notifiable->telegram_chat_id)
+        return TelegramMessage::create()
+            ->to($telegramChatId)
             ->content("Izvještaj o radnim satima za zaposlenika {$employee->full_name} za mjesec {$month} je odbijen.\n\n" .
-                "Razlog: " . ($this->monthlyWorkReport->deny_reason ?? 'Nije naveden'));
-
-        return $message;
+                'Razlog: ' . ($this->monthlyWorkReport->deny_reason ?? 'Nije naveden'));
     }
 
     public function toDatabase(object $notifiable): array

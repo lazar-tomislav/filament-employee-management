@@ -6,7 +6,6 @@ use Amicus\FilamentEmployeeManagement\Models\Activity;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Notifications\ActivityMentionNotification;
 use App\Classes\Str;
-use Illuminate\Support\Facades\Log;
 
 class ActivityObserver
 {
@@ -38,8 +37,9 @@ class ActivityObserver
 
             /** @var Employee $employee */
             foreach ($mentionedEmployees as $employee) {
-                Log::debug($employee);
-                $employee->notify(new ActivityMentionNotification($activity));
+                if ($employee->user) {
+                    $employee->user->notify(new ActivityMentionNotification($activity));
+                }
             }
         }
     }
