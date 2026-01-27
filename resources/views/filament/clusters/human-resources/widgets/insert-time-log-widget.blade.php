@@ -1,11 +1,47 @@
 <div>
-    <div class="bg-white dark:bg-gray-800 flex items-center flex-col md:flex-row w-full mb-4 shadow rounded-md  ">
+    <!-- Navigacija tjedna - iznad tablice -->
+    <div class="flex items-center justify-between mb-4">
+        <!-- Danas gumb - lijevi kut -->
+        <x-filament::button
+            wire:click="goToToday"
+            size="sm"
+            color="gray"
+        >
+            Danas
+        </x-filament::button>
+
+        <!-- Strelice i raspon datuma - centar -->
+        <div class="flex items-center gap-2">
+            <x-filament::button
+                wire:click="previousWeek"
+                icon="heroicon-o-chevron-left"
+                color="gray"
+                size="sm"
+            />
+
+            <span class="text-lg font-semibold text-gray-900 dark:text-white min-w-[180px] text-center px-4">
+                {{ $this->getWeekDateRange() }}
+            </span>
+
+            <x-filament::button
+                wire:click="nextWeek"
+                icon="heroicon-o-chevron-right"
+                color="gray"
+                size="sm"
+            />
+        </div>
+
+        <!-- Placeholder za balans - desni kut -->
+        <div class="w-[60px]"></div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 flex items-center flex-col md:flex-row w-full mb-4 shadow rounded-md">
         <!-- Datepicker za odabir tjedna -->
-        <div class="dark:bg-gray-800 p-4 rounded-lg w-full md:w-36 ">
+        <div class="dark:bg-gray-800 p-4 rounded-lg w-full md:w-36">
             {{ $this->weekForm }}
         </div>
 
-        <div class="border-l border-gray-200 dark:border-gray-700 h-12 mx-2 pr-4"></div>
+        <div class="border-l border-gray-200 dark:border-gray-700 h-12 mx-2 pr-4 hidden md:block"></div>
 
         <!-- Početak komponente: Tjedni pregled vremena -->
         <div class="w-full rounded-lg flex items-center justify-between overflow-x-auto">

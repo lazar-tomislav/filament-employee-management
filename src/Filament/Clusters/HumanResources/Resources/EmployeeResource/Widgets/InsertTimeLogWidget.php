@@ -204,6 +204,32 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
         ]);
     }
 
+    public function goToToday(): void
+    {
+        $this->selectDate(now()->format('Y-m-d'));
+    }
+
+    public function previousWeek(): void
+    {
+        $date = Carbon::parse($this->selectedDate)->subWeek();
+        $this->selectDate($date->format('Y-m-d'));
+    }
+
+    public function nextWeek(): void
+    {
+        $date = Carbon::parse($this->selectedDate)->addWeek();
+        $this->selectDate($date->format('Y-m-d'));
+    }
+
+    public function getWeekDateRange(): string
+    {
+        $date = Carbon::parse($this->selectedDate);
+        $startOfWeek = $date->copy()->startOfWeek();
+        $endOfWeek = $date->copy()->endOfWeek();
+
+        return $startOfWeek->format('d.m.Y') . ' - ' . $endOfWeek->format('d.m.Y');
+    }
+
     public function getTimeLogsForSelectedDate()
     {
         if (! $this->selectedDate) {
