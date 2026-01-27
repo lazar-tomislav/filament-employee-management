@@ -7,6 +7,7 @@ use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Filament\Actions;
 use Filament\Actions\ActionGroup;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -40,10 +41,23 @@ class LeaveRequestTable
                     ->badge()
                     ->label('Status'),
 
-                Tables\Columns\TextColumn::make('approver.full_name')
-                    ->label('Odobrio')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\IconColumn::make('approved_by_head_of_department_id')
+                    ->label('Voditelj')
+                    ->boolean()
+                    ->trueIcon(Heroicon::OutlinedCheckCircle)
+                    ->falseIcon(Heroicon::OutlinedXCircle)
+                    ->trueColor('success')
+                    ->falseColor('gray')
+                    ->tooltip(fn (LeaveRequest $record): ?string => $record->headOfDepartmentApprover?->full_name),
+
+                Tables\Columns\IconColumn::make('approved_by_director_id')
+                    ->label('Direktor')
+                    ->boolean()
+                    ->trueIcon(Heroicon::OutlinedCheckCircle)
+                    ->falseIcon(Heroicon::OutlinedXCircle)
+                    ->trueColor('success')
+                    ->falseColor('gray')
+                    ->tooltip(fn (LeaveRequest $record): ?string => $record->directorApprover?->full_name),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
@@ -51,13 +65,14 @@ class LeaveRequestTable
             ->recordActions([
                 ActionGroup::make([
                     Actions\ViewAction::make()
-                        ->schema(fn($schema) => LeaveRequestInfolist::configure($schema))
+                        ->schema(fn ($schema) => LeaveRequestInfolist::configure($schema))
                         ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
-                    LeaveRequestActions::approveAction(),
+                    LeaveRequestActions::approveAsHeadOfDepartmentAction(),
+                    LeaveRequestActions::approveAsDirectorAction(),
                     LeaveRequestActions::rejectAction(),
-
+                    LeaveRequestActions::sendReminderAction(),
                     LeaveRequestActions::downloadPdfAction(),
-                ])
+                ]),
             ]);
     }
 }

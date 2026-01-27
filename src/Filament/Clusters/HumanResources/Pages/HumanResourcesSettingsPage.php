@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Pages;
 
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources;
+use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use BackedEnum;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
@@ -48,11 +49,22 @@ class HumanResourcesSettingsPage extends SettingsPage
                             ->helperText('Ovaj logo se prikazuje u PDF-ovima i službenim dokumentima za zaposlenike.')
                             ->image()
                             ->disk('public')
-//                            ->preserveFilenames()
                             ->previewable()
                             ->downloadable()
                             ->directory('hr-documents')
                             ->visibility('public'),
+                    ]),
+
+                Section::make('Direktor')
+                    ->description('Direktor je osoba koja ima finalno odobrenje za zahtjeve za odsustvo.')
+                    ->components([
+                        Forms\Components\Select::make('employee_director_id')
+                            ->label('Direktor')
+                            ->options(Employee::options())
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->helperText('Odaberite zaposlenika koji će imati ulogu direktora za odobravanje zahtjeva.'),
                     ]),
 
                 Section::make('Potpisi djelatnika')
