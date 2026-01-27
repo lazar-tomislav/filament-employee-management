@@ -17,15 +17,22 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Carbon;
+use Livewire\Attributes\On;
 
-class MonthlySummaryWidget extends Widget implements HasSchemas, HasActions
+class MonthlySummaryWidget extends Widget implements HasActions, HasSchemas
 {
-    use InteractsWithSchemas;
     use InteractsWithActions;
+    use InteractsWithSchemas;
+
+    #[On('refresh-monthly-summary')]
+    public function refreshData(): void
+    {
+        $this->loadWorkReport();
+    }
 
     protected string $view = 'filament-employee-management::filament.clusters.human-resources.widgets.monthly-summary-widget';
 
-    protected int|string|array $columnSpan = 1;
+    protected int | string | array $columnSpan = 1;
 
     public ?Employee $record = null;
 
@@ -42,7 +49,7 @@ class MonthlySummaryWidget extends Widget implements HasSchemas, HasActions
 
     public function updatedData($value, $key): void
     {
-        if($key === 'showForMonth'){
+        if ($key === 'showForMonth') {
             $this->loadWorkReport();
         }
     }
@@ -75,10 +82,11 @@ class MonthlySummaryWidget extends Widget implements HasSchemas, HasActions
         $end = now()->startOfMonth();
 
         $current = $end->copy();
-        while($current->gte($start)){
+        while ($current->gte($start)) {
             $options[$current->toDateString()] = $current->format('m/Y');
             $current->subMonth();
         }
+
         return $options;
     }
 
@@ -88,14 +96,14 @@ class MonthlySummaryWidget extends Widget implements HasSchemas, HasActions
         $totals = $this->record->getMonthlyWorkReport($selectedMonth)['totals'];
 
         $details = [
-            "Radni sati" => $totals['work_hours'],
-            "Prekovremeno" => $totals['overtime_hours'],
-            "Godišnji odmor" => $totals['vacation_hours'],
-            "Bolovanje" => $totals['sick_leave_hours'],
-            "Plaćeno odsustvo" => $totals['other_hours'],
-            "Prevdiđeno vrijeme rada" => $totals['available_hours'],
+            'Radni sati' => $totals['work_hours'],
+            'Rad od kuće' => $totals['work_from_home_hours'],
+            'Prekovremeno' => $totals['overtime_hours'],
+            'Godišnji odmor' => $totals['vacation_hours'],
+            'Bolovanje' => $totals['sick_leave_hours'],
+            'Plaćeno odsustvo' => $totals['other_hours'],
+            'Predviđeno vrijeme rada' => $totals['available_hours'],
         ];
-
 
         return $schema
             ->record($this->record)
@@ -104,44 +112,44 @@ class MonthlySummaryWidget extends Widget implements HasSchemas, HasActions
                 KeyValueEntry::make('work_hours_details')
                     ->hiddenLabel()
                     ->keyLabel("Sažetak za {$selectedMonth->translatedFormat('F Y')}")
-                    ->valueLabel('Broj sati')
-//                    ->belowContent([
-//                        Action::make('Odbij')
-//                            ->icon(Heroicon::OutlinedXCircle)
-//                            ->color('danger')
-//                            ->button()
-//                            ->requiresConfirmation()
-//                            ->schema([
-//                                Textarea::make('deny_reason')
-//                                    ->label('Razlog odbijanja')
-//                                    ->required(),
-//                            ])
-//                            ->action(function (array $data) use ($selectedMonth, $totals) {
-//                                try{
-//                                    MonthlyWorkReport::updateReportStatus($this->record, $selectedMonth, $totals, false, $data['deny_reason']);
-//                                    Notification::make()->title('Izvještaj odbijen')->success()->send();
-//                                    $this->loadWorkReport();
-//                                }catch(\Exception $exception){
-//                                    report($exception);
-//                                    Notification::make()
-//                                        ->title('Greška')
-//                                        ->body('Došlo je do greške prilikom odbijanja izvještaja. Molimo pokušajte ponovno.')
-//                                        ->danger()
-//                                        ->send();
-//                                }
-//                            }),
-//
-//                        Action::make('Odobri')
-//                            ->icon(Heroicon::OutlinedCheck)
-//                            ->color('success')
-//                            ->button()
-//                            ->requiresConfirmation()
-//                            ->action(function () use ($selectedMonth, $totals) {
-//                                MonthlyWorkReport::updateReportStatus($this->record, $selectedMonth, $totals, true);
-//                                Notification::make()->title('Izvještaj odobren')->success()->send();
-//                                $this->loadWorkReport();
-//                            }),
-//                    ])
+                    ->valueLabel('Broj sati'),
+                //                    ->belowContent([
+                //                        Action::make('Odbij')
+                //                            ->icon(Heroicon::OutlinedXCircle)
+                //                            ->color('danger')
+                //                            ->button()
+                //                            ->requiresConfirmation()
+                //                            ->schema([
+                //                                Textarea::make('deny_reason')
+                //                                    ->label('Razlog odbijanja')
+                //                                    ->required(),
+                //                            ])
+                //                            ->action(function (array $data) use ($selectedMonth, $totals) {
+                //                                try{
+                //                                    MonthlyWorkReport::updateReportStatus($this->record, $selectedMonth, $totals, false, $data['deny_reason']);
+                //                                    Notification::make()->title('Izvještaj odbijen')->success()->send();
+                //                                    $this->loadWorkReport();
+                //                                }catch(\Exception $exception){
+                //                                    report($exception);
+                //                                    Notification::make()
+                //                                        ->title('Greška')
+                //                                        ->body('Došlo je do greške prilikom odbijanja izvještaja. Molimo pokušajte ponovno.')
+                //                                        ->danger()
+                //                                        ->send();
+                //                                }
+                //                            }),
+                //
+                //                        Action::make('Odobri')
+                //                            ->icon(Heroicon::OutlinedCheck)
+                //                            ->color('success')
+                //                            ->button()
+                //                            ->requiresConfirmation()
+                //                            ->action(function () use ($selectedMonth, $totals) {
+                //                                MonthlyWorkReport::updateReportStatus($this->record, $selectedMonth, $totals, true);
+                //                                Notification::make()->title('Izvještaj odobren')->success()->send();
+                //                                $this->loadWorkReport();
+                //                            }),
+                //                    ])
             ]);
     }
 }

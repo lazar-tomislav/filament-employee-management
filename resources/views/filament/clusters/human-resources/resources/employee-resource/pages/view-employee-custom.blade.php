@@ -115,7 +115,9 @@
                     </div>
                 </div>
             </div>
-            <div x-show="activeTab === 'monthly_report'" x-cloak>
+            <div x-show="activeTab === 'monthly_report'"
+                 x-cloak
+                 x-effect="if (activeTab === 'monthly_report') Livewire.dispatch('refresh-monthly-summary')">
                 @livewire(\Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Widgets\MonthlySummaryWidget::class, ["record" => $record])
             </div>
         </div>

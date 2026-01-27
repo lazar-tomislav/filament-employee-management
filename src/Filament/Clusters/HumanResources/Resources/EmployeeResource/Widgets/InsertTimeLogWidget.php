@@ -114,7 +114,7 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
                 'is_work_from_home' => $data['is_work_from_home'] ?? false,
             ]);
 
-            Notification::make()
+            Notification::make("radni_sati_uspjesno_dodani")
                 ->title('Uspješno dodano')
                 ->body('Radni sati su uspješno uneseni.')
                 ->success()
