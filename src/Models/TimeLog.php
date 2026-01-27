@@ -178,7 +178,7 @@ class TimeLog extends Model
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = Carbon::create($year, $month, $day);
 
-            if (! in_array($date->dayOfWeek, Employee::WORK_DAYS)) {
+            if (!in_array($date->dayOfWeek, Employee::WORK_DAYS, true)) {
                 $result['skipped']++;
 
                 continue;
