@@ -30,23 +30,23 @@ class LeaveRequestStatusChangeNotification extends Notification implements Shoul
 
     public function toTelegram(object $notifiable): ?TelegramMessage
     {
-        if (!config('employee-management.telegram-bot-api.is_active')) {
+        if (! config('employee-management.telegram-bot-api.is_active')) {
             return null;
         }
 
-        if(!$notifiable->telegram_chat_id){
+        $telegramChatId = $notifiable->employee?->telegram_chat_id;
+
+        if (! $telegramChatId) {
             return null;
         }
-        $employee = $this->leaveRequest->employee;
+
         $status = $this->leaveRequest->status->getLabel();
         $startDate = $this->leaveRequest->start_date->format('d.m.Y');
         $endDate = $this->leaveRequest->end_date->format('d.m.Y');
 
-        $message = TelegramMessage::create()
-            ->to($notifiable->telegram_chat_id)
-            ->content("Zahtjev za godišnji ({$startDate} - {$endDate}) ima novi status: {$status} \n\n Razlog: " . ($this->leaveRequest->rejection_reason ?? 'Nije naveden'));
-
-        return $message;
+        return TelegramMessage::create()
+            ->to($telegramChatId)
+            ->content("Zahtjev za godišnji ({$startDate} - {$endDate}) ima novi status: {$status}\n\nRazlog: " . ($this->leaveRequest->rejection_reason ?? 'Nije naveden'));
     }
 
     public function toDatabase(object $notifiable): array

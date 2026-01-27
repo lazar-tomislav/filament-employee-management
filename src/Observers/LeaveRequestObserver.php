@@ -62,8 +62,7 @@ class LeaveRequestObserver
             }
 
             if (in_array($leaveRequest->status, [LeaveRequestStatus::APPROVED->value, LeaveRequestStatus::REJECTED->value])) {
-                $leaveRequest->employee->notify(new LeaveRequestStatusChangeNotification($leaveRequest));
-
+                $this->notifyEmployeeAboutFinalDecision($leaveRequest);
                 $this->notifyHodAboutFinalDecision($leaveRequest);
             }
         }
@@ -119,6 +118,25 @@ class LeaveRequestObserver
         }
 
         $director->user->notify(new LeaveRequestPendingDirectorApprovalNotification($leaveRequest, $afterHodApproval));
+    }
+
+    private function notifyEmployeeAboutFinalDecision(LeaveRequest $leaveRequest): void
+    {
+        $employee = $leaveRequest->employee;
+
+        if (! $employee) {
+            Log::warning("Cannot notify employee about final decision for leave request {$leaveRequest->id}: employee not found.");
+
+            return;
+        }
+
+        if (! $employee->user) {
+            Log::warning("Cannot notify employee about final decision for leave request {$leaveRequest->id}: employee has no associated user.");
+
+            return;
+        }
+
+        $employee->user->notify(new LeaveRequestStatusChangeNotification($leaveRequest));
     }
 
     private function notifyHodAboutFinalDecision(LeaveRequest $leaveRequest): void
