@@ -20,7 +20,13 @@ class LeaveRequestStatusChangeNotification extends Notification implements Shoul
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'telegram', 'database'];
+        $channels = ['mail', 'database'];
+
+        if (config('employee-management.telegram-bot-api.is_active') && $notifiable->employee?->telegram_chat_id) {
+            $channels[] = 'telegram';
+        }
+
+        return $channels;
     }
 
     public function toMail(object $notifiable): LeaveRequestStatusNotification

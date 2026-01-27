@@ -50,18 +50,16 @@ class LeaveRequestObserver
         }
 
         if ($leaveRequest->isDirty('status')) {
-            if ($leaveRequest->status === LeaveRequestStatus::CANCELED->value) {
-                Log::info("Leave request $leaveRequest->id has been canceled.");
-
+            if ($leaveRequest->status === LeaveRequestStatus::CANCELED) {
                 return;
             }
 
-            if ($leaveRequest->status === LeaveRequestStatus::APPROVED->value) {
+            if ($leaveRequest->status === LeaveRequestStatus::APPROVED) {
                 $pdfPath = LeaveRequestPdfService::generatePdf($leaveRequest);
                 $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
             }
 
-            if (in_array($leaveRequest->status, [LeaveRequestStatus::APPROVED->value, LeaveRequestStatus::REJECTED->value])) {
+            if (in_array($leaveRequest->status, [LeaveRequestStatus::APPROVED, LeaveRequestStatus::REJECTED], true)) {
                 $this->notifyEmployeeAboutFinalDecision($leaveRequest);
                 $this->notifyHodAboutFinalDecision($leaveRequest);
             }
@@ -124,15 +122,7 @@ class LeaveRequestObserver
     {
         $employee = $leaveRequest->employee;
 
-        if (! $employee) {
-            Log::warning("Cannot notify employee about final decision for leave request {$leaveRequest->id}: employee not found.");
-
-            return;
-        }
-
-        if (! $employee->user) {
-            Log::warning("Cannot notify employee about final decision for leave request {$leaveRequest->id}: employee has no associated user.");
-
+        if (! $employee?->user) {
             return;
         }
 
@@ -147,15 +137,7 @@ class LeaveRequestObserver
 
         $headOfDepartment = $leaveRequest->headOfDepartmentApprover;
 
-        if (! $headOfDepartment) {
-            Log::warning("Cannot notify HOD about final decision for leave request {$leaveRequest->id}: HOD employee not found.");
-
-            return;
-        }
-
-        if (! $headOfDepartment->user) {
-            Log::warning("Cannot notify HOD about final decision for leave request {$leaveRequest->id}: HOD has no associated user.");
-
+        if (! $headOfDepartment?->user) {
             return;
         }
 

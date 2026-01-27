@@ -19,7 +19,13 @@ class MonthlyWorkReportResponseNotification extends Notification implements Shou
 
     public function via(object $notifiable): array
     {
-        return ['telegram', 'database'];
+        $channels = ['database'];
+
+        if (config('employee-management.telegram-bot-api.is_active') && $notifiable->employee?->telegram_chat_id) {
+            $channels[] = 'telegram';
+        }
+
+        return $channels;
     }
 
     public function toTelegram(object $notifiable): ?TelegramMessage

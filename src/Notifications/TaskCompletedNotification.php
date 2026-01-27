@@ -15,28 +15,34 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
 
     public function __construct(
         public Task $task
-    )
-    {
+    ) {
         logger("task completed notification created for task ID: {$task->id}");
     }
 
     public function via(object $notifiable): array
     {
-        // For GeneralNotificationTarget, only use telegram channel
+        $isTelegramActive = config('employee-management.telegram-bot-api.is_active') && $notifiable->telegram_chat_id;
+
         if ($notifiable instanceof \Amicus\FilamentEmployeeManagement\Services\GeneralNotificationTarget) {
-            return ['telegram'];
+            return $isTelegramActive ? ['telegram'] : [];
         }
 
-        return ['telegram', 'database'];
+        $channels = ['database'];
+
+        if ($isTelegramActive) {
+            $channels[] = 'telegram';
+        }
+
+        return $channels;
     }
 
     public function toTelegram(object $notifiable): ?TelegramMessage
     {
-        if (!config('employee-management.telegram-bot-api.is_active')) {
+        if (! config('employee-management.telegram-bot-api.is_active')) {
             return null;
         }
 
-        if (!$notifiable->telegram_chat_id) {
+        if (! $notifiable->telegram_chat_id) {
             return null;
         }
 
@@ -44,7 +50,7 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
             ->to($notifiable->telegram_chat_id)
             ->content("✅ <strong>Zadatak je završen!</strong>\n\n" .
                 "<strong>{$this->task->title}</strong>\n\n" .
-                ($this->task->project ? "Projekt: {$this->task->project->name}" : "Jednokratni zadatak") . "\n" .
+                ($this->task->project ? "Projekt: {$this->task->project->name}" : 'Jednokratni zadatak') . "\n" .
                 "Završio: {$this->task->assignee->full_name}")
             ->options(['parse_mode' => 'HTML']);
 
@@ -59,7 +65,7 @@ class TaskCompletedNotification extends Notification implements ShouldQueue
     {
         $taskInfo = $this->task->project
             ? "Projekt: {$this->task->project->name}"
-            : "Jednokratni zadatak";
+            : 'Jednokratni zadatak';
 
         return FilamentNotification::make()
             ->title('Zadatak je završen!')
