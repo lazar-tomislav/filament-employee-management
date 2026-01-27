@@ -5,6 +5,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Pag
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use BackedEnum;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Pages\SettingsPage;
@@ -15,6 +16,8 @@ use UnitEnum;
 
 class HumanResourcesSettingsPage extends SettingsPage
 {
+    use HasPageShield;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
     protected static string $settings = HumanResourcesSettings::class;
