@@ -5,6 +5,7 @@ namespace Amicus\FilamentEmployeeManagement\Observers;
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestFinalDecisionForHodNotification;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestPendingDirectorApprovalNotification;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestPendingHodApprovalNotification;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestStatusChangeNotification;
@@ -62,6 +63,8 @@ class LeaveRequestObserver
 
             if (in_array($leaveRequest->status, [LeaveRequestStatus::APPROVED->value, LeaveRequestStatus::REJECTED->value])) {
                 $leaveRequest->employee->notify(new LeaveRequestStatusChangeNotification($leaveRequest));
+
+                $this->notifyHodAboutFinalDecision($leaveRequest);
             }
         }
     }
@@ -116,5 +119,28 @@ class LeaveRequestObserver
         }
 
         $director->user->notify(new LeaveRequestPendingDirectorApprovalNotification($leaveRequest, $afterHodApproval));
+    }
+
+    private function notifyHodAboutFinalDecision(LeaveRequest $leaveRequest): void
+    {
+        if (! $leaveRequest->approved_by_head_of_department_id) {
+            return;
+        }
+
+        $headOfDepartment = $leaveRequest->headOfDepartmentApprover;
+
+        if (! $headOfDepartment) {
+            Log::warning("Cannot notify HOD about final decision for leave request {$leaveRequest->id}: HOD employee not found.");
+
+            return;
+        }
+
+        if (! $headOfDepartment->user) {
+            Log::warning("Cannot notify HOD about final decision for leave request {$leaveRequest->id}: HOD has no associated user.");
+
+            return;
+        }
+
+        $headOfDepartment->user->notify(new LeaveRequestFinalDecisionForHodNotification($leaveRequest));
     }
 }
