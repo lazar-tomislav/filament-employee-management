@@ -3,11 +3,12 @@
 namespace Amicus\FilamentEmployeeManagement\Models;
 
 use Amicus\FilamentEmployeeManagement\Observers\MonthlyWorkReportObserver;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 #[ObservedBy([MonthlyWorkReportObserver::class])]
 class MonthlyWorkReport extends Model
@@ -18,6 +19,8 @@ class MonthlyWorkReport extends Model
     protected $fillable = [
         'employee_id',
         'for_month',
+        'submitted_at',
+        'submitted_by_user_id',
         'approved_at',
         'denied_at',
         'deny_reason',
@@ -32,6 +35,7 @@ class MonthlyWorkReport extends Model
 
     protected $casts = [
         'for_month' => 'date',
+        'submitted_at' => 'datetime',
         'approved_at' => 'datetime',
         'denied_at' => 'datetime',
         'total_available_hours' => 'decimal:2',
@@ -43,38 +47,98 @@ class MonthlyWorkReport extends Model
         'holiday_hours' => 'decimal:2',
     ];
 
-    public function employee()
+    public function employee(): BelongsTo
     {
         return $this->belongsTo(Employee::class);
     }
 
-    public static function updateReportStatus(Employee $employee, Carbon $forMonth, array $totals, bool $isApproved, ?string $denyReason = null): void
+    public function submittedBy(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\User::class, 'submitted_by_user_id');
+    }
+
+    public function isSubmitted(): bool
+    {
+        return $this->submitted_at !== null;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->approved_at !== null;
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->isSubmitted() || $this->isApproved();
+    }
+
+    public static function isMonthLocked(int $employeeId, Carbon $month): bool
+    {
+        $report = self::where('employee_id', $employeeId)
+            ->where('for_month', $month->startOfMonth()->toDateString())
+            ->first();
+
+        return $report?->isLocked() ?? false;
+    }
+
+    /**
+     * @param  array{available_hours: float, work_hours: float, overtime_hours: float, vacation_hours: float, sick_leave_hours: float, other_hours: float, holiday_hours: float}  $totals
+     */
+    public static function submitForReview(Employee $employee, Carbon $forMonth, array $totals, int $submittedByUserId): self
     {
         $report = self::firstOrNew([
             'employee_id' => $employee->id,
             'for_month' => $forMonth->startOfMonth()->toDateString(),
         ]);
 
-        if (! $report->exists) {
-            $report->total_available_hours = $totals['available_hours'];
-            $report->work_hours = $totals['work_hours'];
-            $report->overtime_hours = $totals['overtime_hours'];
-            $report->vacation_hours = $totals['vacation_hours'];
-            $report->sick_leave_hours = $totals['sick_leave_hours'];
-            $report->other_hours = $totals['other_hours'];
-            $report->holiday_hours = $totals['holiday_hours'];
-        }
-
-        if ($isApproved) {
-            $report->approved_at = now();
-            $report->denied_at = null;
-            $report->deny_reason = null;
-        } else {
-            $report->approved_at = null;
-            $report->denied_at = now();
-            $report->deny_reason = $denyReason;
-        }
+        $report->fill([
+            'total_available_hours' => $totals['available_hours'],
+            'work_hours' => $totals['work_hours'],
+            'overtime_hours' => $totals['overtime_hours'],
+            'vacation_hours' => $totals['vacation_hours'],
+            'sick_leave_hours' => $totals['sick_leave_hours'],
+            'other_hours' => $totals['other_hours'],
+            'holiday_hours' => $totals['holiday_hours'],
+            'submitted_at' => now(),
+            'submitted_by_user_id' => $submittedByUserId,
+        ]);
 
         $report->save();
+
+        return $report;
+    }
+
+    /**
+     * @param  array{available_hours: float, work_hours: float, overtime_hours: float, vacation_hours: float, sick_leave_hours: float, other_hours: float, holiday_hours: float}  $totals
+     */
+    public static function approveAndLock(Employee $employee, Carbon $forMonth, array $totals): self
+    {
+        $report = self::firstOrNew([
+            'employee_id' => $employee->id,
+            'for_month' => $forMonth->startOfMonth()->toDateString(),
+        ]);
+
+        $report->fill([
+            'total_available_hours' => $totals['available_hours'],
+            'work_hours' => $totals['work_hours'],
+            'overtime_hours' => $totals['overtime_hours'],
+            'vacation_hours' => $totals['vacation_hours'],
+            'sick_leave_hours' => $totals['sick_leave_hours'],
+            'other_hours' => $totals['other_hours'],
+            'holiday_hours' => $totals['holiday_hours'],
+            'submitted_at' => $report->submitted_at ?? now(),
+            'approved_at' => now(),
+        ]);
+
+        $report->save();
+
+        return $report;
+    }
+
+    public function returnForCorrection(): void
+    {
+        $this->submitted_at = null;
+        $this->submitted_by_user_id = null;
+        $this->save();
     }
 }

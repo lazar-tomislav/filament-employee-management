@@ -88,23 +88,35 @@
 
     <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
         <div class="col-span-1 md:col-span-5">
-            <div class="bg-white dark:bg-gray-800 shadow rounded-md p-6">
-                <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {{ \Carbon\Carbon::parse($this->selectedDate)->format('d.m.Y') }}
-                    </h3>
+            @if($this->isMonthLocked)
+                <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 text-center shadow">
+                    <x-filament::icon icon="heroicon-o-lock-closed" class="h-12 w-12 mx-auto text-gray-400 mb-4"/>
+                    <p class="text-gray-600 dark:text-gray-400 font-medium">
+                        Unos radnih sati za ovaj mjesec je zaključan.
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                        Mjesečni izvještaj je poslan na pregled ili je već zaključan.
+                    </p>
                 </div>
-                <form wire:submit="create">
-                    {{ $this->form }}
-
-                    <div class="flex justify-end mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <button type="submit"
-                                class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
-                            Unesi sate
-                        </button>
+            @else
+                <div class="bg-white dark:bg-gray-800 shadow rounded-md p-6">
+                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            {{ \Carbon\Carbon::parse($this->selectedDate)->format('d.m.Y') }}
+                        </h3>
                     </div>
-                </form>
-            </div>
+                    <form wire:submit="create">
+                        {{ $this->form }}
+
+                        <div class="flex justify-end mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <button type="submit"
+                                    class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                                Unesi sate
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            @endif
         </div>
 
         <div class="col-span-1 md:col-span-7 flex flex-col gap-4">

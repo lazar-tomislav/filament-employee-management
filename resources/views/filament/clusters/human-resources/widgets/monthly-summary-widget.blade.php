@@ -3,8 +3,39 @@
     <div class="flex w-full justify-center">
         <div class="w-full md:w-8/12 space-y-4">
 
-            <div class="flex space-x-5 justify-between">
-                {{ $this->downloadMonthlyTimeReportAction }}
+            {{-- End of Month Alert --}}
+            @if($this->showEndOfMonthAlert)
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 rounded">
+                    <div class="flex">
+                        <div class="shrink-0">
+                            <x-filament::icon icon="heroicon-o-exclamation-triangle" class="h-5 w-5 text-yellow-400"/>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700 dark:text-yellow-200">
+                                <strong>Upozorenje:</strong> Približava se kraj mjeseca. Molimo potvrdite svoje radne
+                                sate.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            <div class="flex flex-wrap gap-2 justify-between">
+                <div class="flex flex-wrap gap-2">
+                    {{ $this->downloadMonthlyTimeReportAction }}
+
+                    @if($this->canSubmitForReview())
+                        {{ $this->submitForReviewAction }}
+                    @endif
+
+                    @if($this->canReturnForCorrection())
+                        {{ $this->returnForCorrectionAction }}
+                    @endif
+
+                    @if($this->canCloseMonth())
+                        {{ $this->closeMonthAction }}
+                    @endif
+                </div>
 
                 <x-filament::button
                     wire:click="goToCurrentMonth"
@@ -48,18 +79,39 @@
 
             @if ($this->workReport)
                 @if ($this->workReport->approved_at)
-                    {{-- Approved State --}}
+                    {{-- Approved/Locked State --}}
                     <div
                         class="bg-white dark:bg-gray-900/50 rounded-lg flex items-start p-4 shadow gap-4 border-l-4 border-green-500">
                         <div
                             class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-md bg-green-500/20 text-green-500">
-                            <x-filament::icon :icon="\Filament\Support\Icons\Heroicon::OutlinedCheckCircle"
+                            <x-filament::icon :icon="\Filament\Support\Icons\Heroicon::OutlinedLockClosed"
                                               class="h-6 w-6"/>
                         </div>
                         <div class="flex-grow">
-                            <p class="font-semibold text-md text-gray-900 dark:text-gray-100">Odobreno</p>
+                            <p class="font-semibold text-md text-gray-900 dark:text-gray-100">Zaključano</p>
                             <div class="text-sm text-gray-600 dark:text-gray-400">
-                                Izvještaj je odobren datuma {{ $this->workReport->approved_at->format('d.m.Y H:i') }}.
+                                Mjesec je zaključan {{ $this->workReport->approved_at->format('d.m.Y H:i') }}.
+                            </div>
+                        </div>
+                    </div>
+                @elseif ($this->workReport->submitted_at)
+                    {{-- Submitted/Pending Review State --}}
+                    <div
+                        class="bg-white dark:bg-gray-900/50 rounded-lg flex items-start p-4 shadow gap-4 border-l-4 border-blue-500">
+                        <div
+                            class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-md bg-blue-500/20 text-blue-500">
+                            <x-filament::icon icon="heroicon-o-paper-airplane" class="h-6 w-6"/>
+                        </div>
+                        <div class="flex-grow">
+                            <p class="font-semibold text-md text-gray-900 dark:text-gray-100">Poslano na pregled</p>
+                            <div class="text-sm text-gray-600 dark:text-gray-400">
+                                Izvještaj je poslan na
+                                pregled {{ $this->workReport->submitted_at->format('d.m.Y H:i') }}.
+                                @if($approverName = $this->getApproverName())
+                                    Čeka odobrenje od: <span class="font-medium">{{ $approverName }}</span>.
+                                @else
+                                    Čeka odobrenje.
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -81,7 +133,7 @@
                         </div>
                     </div>
                 @else
-                    {{-- Pending State --}}
+                    {{-- Old pending state (report exists but no status set) --}}
                     <div
                         class="bg-white dark:bg-gray-900/50 rounded-lg flex items-start p-4 shadow gap-4 border-l-4 border-yellow-500">
                         <div
@@ -89,27 +141,13 @@
                             <x-filament::icon icon="heroicon-o-clock" class="h-6 w-6"/>
                         </div>
                         <div class="flex-grow">
-                            <p class="font-semibold text-md text-gray-900 dark:text-gray-100">Na čekanju</p>
+                            <p class="font-semibold text-md text-gray-900 dark:text-gray-100">Nema izvještaja</p>
                             <div class="text-sm text-gray-600 dark:text-gray-400">
-                                Izvještaj čeka na odobrenje.
+                                Za odabrani mjesec još nije poslan izvještaj na pregled.
                             </div>
                         </div>
                     </div>
                 @endif
-            @else
-                {{-- No Report State --}}
-                <div
-                    class="bg-white dark:bg-gray-900/50 rounded-lg flex items-start p-4 shadow gap-4 border-l-4 border-gray-300 dark:border-gray-600">
-                    <div
-                        class="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-md bg-gray-500/20 text-gray-500">
-                        <x-filament::icon icon="heroicon-o-document" class="h-6 w-6"/>
-                    </div>
-                    <div class="flex-grow">
-                        <div class="text-sm text-gray-600 dark:text-gray-400">
-                            Za odabrani mjesec još nije prihvaćen ili odbijen izvještaj.
-                        </div>
-                    </div>
-                </div>
             @endif
         </div>
     </div>

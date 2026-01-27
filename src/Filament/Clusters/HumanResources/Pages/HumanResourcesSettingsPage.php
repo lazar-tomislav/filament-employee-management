@@ -67,6 +67,18 @@ class HumanResourcesSettingsPage extends SettingsPage
                             ->helperText('Odaberite zaposlenika koji će imati ulogu direktora za odobravanje zahtjeva.'),
                     ]),
 
+                Section::make('Voditelj za radne sate')
+                    ->description('Osoba odgovorna za pregled i odobravanje mjesečnih izvještaja radnih sati.')
+                    ->components([
+                        Forms\Components\Select::make('employee_work_hours_approver_id')
+                            ->label('Voditelj za radne sate')
+                            ->options(Employee::options())
+                            ->searchable()
+                            ->preload()
+                            ->nullable()
+                            ->helperText('Odaberite zaposlenika koji će pregledavati i odobravati mjesečne izvještaje.'),
+                    ]),
+
                 Section::make('Potpisi djelatnika')
                     ->components([
                         FileUpload::make('director_signature')

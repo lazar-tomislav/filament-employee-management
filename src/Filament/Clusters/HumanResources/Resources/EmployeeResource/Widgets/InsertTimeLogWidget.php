@@ -8,6 +8,7 @@ use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\Holiday;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Amicus\FilamentEmployeeManagement\Models\MonthlyWorkReport;
 use Amicus\FilamentEmployeeManagement\Models\TimeLog;
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -42,6 +43,8 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
 
     public ?Employee $record = null;
 
+    public bool $isMonthLocked = false;
+
     public function mount(): void
     {
         if (! $this->selectedDate) {
@@ -58,6 +61,23 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
         $this->weekForm->fill([
             'selected_date' => $this->selectedDate,
         ]);
+
+        $this->checkMonthLock();
+    }
+
+    private function checkMonthLock(): void
+    {
+        if (! $this->record?->id) {
+            $this->isMonthLocked = false;
+
+            return;
+        }
+
+        $selectedMonth = Carbon::parse($this->selectedDate);
+        $this->isMonthLocked = MonthlyWorkReport::isMonthLocked(
+            $this->record->id,
+            $selectedMonth
+        );
     }
 
     public function weekForm(Schema $schema): Schema
@@ -89,6 +109,16 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
 
     public function create(): void
     {
+        if ($this->isMonthLocked) {
+            Notification::make()
+                ->title('Mjesec zaključan')
+                ->body('Unos radnih sati za ovaj mjesec je zaključan.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
         $data = $this->form->getState();
 
         $employeeId = $this->record?->id ?? $data['employee_id'];
@@ -189,6 +219,8 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
     public function selectDate($date): void
     {
         $this->selectedDate = $date;
+
+        $this->checkMonthLock();
 
         // Ažuriraj i formu za unos sati da koristi odabrani datum
         $this->form->fill([
@@ -359,7 +391,7 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
             ->requiresConfirmation()
             ->link()
             ->modalHeading('Popuni mjesec')
-            ->tooltip("Autom. popuni radne sate za cijeli mjesec.")
+            ->tooltip('Autom. popuni radne sate za cijeli mjesec.')
             ->modalDescription(fn () => new \Illuminate\Support\HtmlString(
                 '<p>Ova akcija će automatski unijeti 8 sati za sve radne dane u odabranom mjesecu.</p>' .
                 '<p class="mt-2"><strong>Preskočit će se dani koji:</strong></p>' .
