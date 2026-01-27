@@ -1,7 +1,7 @@
 <x-filament-widgets::widget>
 
     <div class="flex w-full justify-center">
-        <div class="w-8/12 space-y-4">
+        <div class="w-full md:w-8/12 space-y-4">
 
             <div class="flex space-x-5 justify-between">
                 {{ $this->downloadMonthlyTimeReportAction }}

@@ -1,14 +1,17 @@
 <div>
     <!-- Navigacija tjedna - iznad tablice -->
     <div class="flex items-center justify-between mb-4">
-        <!-- Danas gumb - lijevi kut -->
-        <x-filament::button
-            wire:click="goToToday"
-            size="sm"
-            color="gray"
-        >
-            Danas
-        </x-filament::button>
+        <!-- Danas gumb - lijevi kut (skriven na mobitelu) -->
+        <div class="hidden md:block">
+            <x-filament::button
+                wire:click="goToToday"
+                size="sm"
+                color="gray"
+            >
+                Danas
+            </x-filament::button>
+        </div>
+        <div class="block md:hidden w-0"></div>
 
         <!-- Strelice i raspon datuma - centar -->
         <div class="flex items-center gap-2">
@@ -19,7 +22,7 @@
                 size="sm"
             />
 
-            <span class="text-lg font-semibold text-gray-900 dark:text-white min-w-[180px] text-center px-4">
+            <span class="text-xs md:text-lg font-semibold text-gray-900 dark:text-white w-full md:min-w-[180px] md:w-auto text-center px-4">
                 {{ $this->getWeekDateRange() }}
             </span>
 
@@ -47,12 +50,12 @@
         <div class="w-full rounded-lg flex items-center justify-between overflow-x-auto">
 
             <!-- Dani u tjednu -->
-            <div class="flex items-center gap-2 flex-1 ">
+            <div class="flex items-center gap-2 flex-1 overflow-x-auto">
                 <!-- Radni dani -->
-                <div class="flex items-center gap-1 flex-1">
+                <div class="flex items-center gap-1 flex-1 min-w-max md:min-w-0">
                     @foreach($this->getWeekDays() as $day)
                          <div wire:click="selectDate('{{ $day['date'] }}')"
-                              class="flex flex-col items-center text-black dark:text-white justify-center flex-1 py-2 rounded-md cursor-pointer transition-colors
+                              class="flex flex-col items-center text-black dark:text-white justify-center min-w-[50px] py-2 rounded-md cursor-pointer transition-colors
                          @if($day['is_selected']) border-b-4 border-primary-600 dark:border-primary-500
                          @else hover:bg-red-50 dark:hover:bg-gray-800 @endif">
                         <span
@@ -60,7 +63,7 @@
                             {{ $day['hours'] }}
                         </span>
                              <span
-                                 class="text-xs @if($day['is_selected']) text-primary-500 dark:text-primary-300 @else text-black dark:text-white @endif">
+                                 class="text-xs @if($day['is_selected']) text-primary-500 dark:text-primary-300 @else text-black dark:text-white @endif whitespace-nowrap">
                              {{ $day['day_name'] }} {{ $day['day_number'] }}
                              </span>
                         </div>
