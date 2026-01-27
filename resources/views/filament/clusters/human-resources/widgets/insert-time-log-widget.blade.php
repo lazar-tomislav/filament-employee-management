@@ -55,7 +55,7 @@
                 <div class="flex items-center gap-1 flex-1 min-w-max md:min-w-0">
                     @foreach($this->getWeekDays() as $day)
                          <div wire:click="selectDate('{{ $day['date'] }}')"
-                              class="flex flex-col items-center text-black dark:text-white justify-center min-w-[50px] py-2 rounded-md cursor-pointer transition-colors
+                              class="flex flex-col items-center text-black dark:text-white justify-center min-w-[70px] flex-1 py-2 rounded-md cursor-pointer transition-colors
                          @if($day['is_selected']) border-b-4 border-primary-600 dark:border-primary-500
                          @else hover:bg-red-50 dark:hover:bg-gray-800 @endif">
                         <span
