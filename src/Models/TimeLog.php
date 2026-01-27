@@ -85,49 +85,68 @@ class TimeLog extends Model
 
     public static function formatMinutesToTime(int $totalMinutes): string
     {
-        $hours = intval($totalMinutes / 60);
+        $hours = (int)($totalMinutes / 60);
         $minutes = $totalMinutes % 60;
 
         return sprintf('%02d:%02d', $hours, $minutes);
     }
 
-    public static function getTotalHoursForDate($employeeId, $date): string
+    /**
+     * Izračunaj ukupne minute za jedan dan (uključuje TimeLog, praznike i odsutnosti).
+     * NAPOMENA: Ako se dodaju nove kategorije sati, ažuriraj ovu metodu.
+     */
+    private static function calculateTotalMinutesForDate(int $employeeId, Carbon $date): int
     {
+        // 1. TimeLog sati (uneseno radno vrijeme)
         $timeLogs = self::where('employee_id', $employeeId)
             ->whereDate('date', $date)
             ->get();
 
         $totalMinutes = 0;
-
         foreach ($timeLogs as $timeLog) {
             $totalMinutes += self::convertTimeToMinutes($timeLog->hours);
         }
 
-        // Check if there's a holiday on this date and add 8 hours if so
-        $holidays = Holiday::getHolidaysForDate(Carbon::parse($date));
-        if ($holidays->count() > 0) {
-            $totalMinutes += Employee::HOURS_PER_WORK_DAY * 60; // 8 hours in minutes
+        // 2. Praznici (8h)
+        $holidays = Holiday::getHolidaysForDate($date);
+        $isPublicHoliday = $holidays->count() > 0;
+
+        if ($isPublicHoliday) {
+            $totalMinutes += Employee::HOURS_PER_WORK_DAY * 60;
         }
+
+        // 3. Odsutnosti - godišnji, bolovanje, plaćeni dopust, rodiljni, itd. (8h)
+        // Samo na radne dane koji nisu praznici
+        if (! $isPublicHoliday && in_array($date->dayOfWeek, Employee::WORK_DAYS)) {
+            $leaveRequest = LeaveRequest::getLeaveRequestsForDate($employeeId, $date)->first();
+            if ($leaveRequest) {
+                $totalMinutes += Employee::HOURS_PER_WORK_DAY * 60;
+            }
+        }
+
+        return $totalMinutes;
+    }
+
+    public static function getTotalHoursForDate($employeeId, $date): string
+    {
+        $parsedDate = Carbon::parse($date);
+        $totalMinutes = self::calculateTotalMinutesForDate($employeeId, $parsedDate);
 
         return self::formatMinutesToTime($totalMinutes);
     }
 
     public static function getTotalHoursForWeek($employeeId, $startDate, $endDate): string
     {
-        $timeLogs = self::where('employee_id', $employeeId)
-            ->whereDate('date', '>=', $startDate)
-            ->whereDate('date', '<=', $endDate)
-            ->get();
+        $parsedStartDate = Carbon::parse($startDate);
+        $parsedEndDate = Carbon::parse($endDate);
 
         $totalMinutes = 0;
+        $currentDate = $parsedStartDate->copy();
 
-        foreach ($timeLogs as $timeLog) {
-            $totalMinutes += self::convertTimeToMinutes($timeLog->hours);
+        while ($currentDate->lte($parsedEndDate)) {
+            $totalMinutes += self::calculateTotalMinutesForDate($employeeId, $currentDate->copy());
+            $currentDate->addDay();
         }
-
-        // Add 8 hours for each holiday in the week
-        $holidays = Holiday::getHolidayDatesInRange(Carbon::parse($startDate), Carbon::parse($endDate));
-        $totalMinutes += count($holidays) * Employee::HOURS_PER_WORK_DAY * 60; // 8 hours in minutes per holiday
 
         return self::formatMinutesToTime($totalMinutes);
     }
@@ -140,11 +159,4 @@ class TimeLog extends Model
             ->get();
     }
 
-    public static function getOvertimeHoursForDate($employeeId, $date): string
-    {
-        // Placeholder za prekovremene sate - za sada vraća '0'
-        // TODO: Implementirati logiku za računanje prekovremenih sati
-        // Možda provjeriti ako je ukupno sati > 8 sati dnevno ili > 40 sati tjedno
-        return '0';
-    }
 }

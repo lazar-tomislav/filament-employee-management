@@ -20,7 +20,7 @@
                          @if($day['is_selected']) border-b-4 border-primary-600 dark:border-primary-500
                          @else hover:bg-red-50 dark:hover:bg-gray-800 @endif">
                         <span
-                            class="text-sm font-semibold @if($day['is_selected']) text-primary-600 dark:text-primary-400 @else dark:text-gray-100 @endif">
+                                class="text-sm font-semibold @if($day['is_selected']) text-primary-600 dark:text-primary-400 @else dark:text-gray-100 @endif">
                             {{ $day['hours'] }}
                         </span>
                              <span
