@@ -22,7 +22,6 @@ class TimeLogForm
             ]);
     }
 
-
     public static function configure(Schema $schema): Schema
     {
         return $schema
@@ -32,7 +31,7 @@ class TimeLogForm
                     ->options(Employee::options())
                     ->searchable()
                     ->required()
-                    ->visible(fn() => !request()->routeIs(ViewEmployee::getRouteName()))
+                    ->visible(fn () => ! request()->routeIs(ViewEmployee::getRouteName()))
                     ->helperText('Odaberite zaposlenika za kojeg unosite sate'),
 
                 Forms\Components\DatePicker::make('date')
@@ -40,7 +39,7 @@ class TimeLogForm
                     ->displayFormat('d.m.Y')
                     ->required()
                     ->default(now())
-                    ->visible(fn() => !request()->routeIs(ViewEmployee::getRouteName()))
+                    ->visible(fn () => ! request()->routeIs(ViewEmployee::getRouteName()))
                     ->native()
                     ->helperText('Datum za koji se unose radni sati'),
 
@@ -50,23 +49,22 @@ class TimeLogForm
                     ->label('Tip unosa')
                     ->options(LogType::class)
                     ->default(LogType::RADNI_SATI)
-                    ->visible(fn() => !request()->routeIs(ViewEmployee::getRouteName()))
+                    ->visible(fn () => ! request()->routeIs(ViewEmployee::getRouteName()))
                     ->required()
                     ->helperText('Odaberite tip unosa sati'),
 
-
                 self::getWorkFromHomeComponent()
-                    ->visible(fn() => !request()->routeIs(ViewEmployee::getRouteName())),
+                    ->visible(fn () => ! request()->routeIs(ViewEmployee::getRouteName())),
 
                 Forms\Components\Select::make('status')
                     ->label('Status')
                     ->options(TimeLogStatus::class)
-                    ->visible(fn() => !request()->routeIs(ViewEmployee::getRouteName()))
+                    ->visible(fn () => ! request()->routeIs(ViewEmployee::getRouteName()))
                     ->default(TimeLogStatus::default())
                     ->required()
                     ->helperText('Planirano - za unaprijed unesene sate, Potvrđeno - za već odrađene sate'),
 
-                self::getNoteComponent()
+                self::getNoteComponent(),
             ]);
     }
 
@@ -75,11 +73,10 @@ class TimeLogForm
         return Forms\Components\ToggleButtons::make('is_work_from_home')
             ->label('Rad od kuće')
             ->boolean()
+            ->default(false)
             ->inline()
-            ->formatStateUsing(fn()=>false)
             ->helperText('Označite ako je rad obavljen od kuće');
     }
-
 
     protected static function getTimeComponent()
     {
@@ -93,12 +90,15 @@ class TimeLogForm
             ->live()
             ->required()
             ->suffix(function ($get) {
-                $hours = floatval($get('hours'));
-                Log::debug("hours: " . $hours);
-                if($hours <= 0) return "00:00";
+                $hours = (float)$get('hours');
+                Log::debug('hours: ' . $hours);
+                if ($hours <= 0) {
+                    return '00:00';
+                }
                 $wholeHours = floor($hours);
                 $minutes = ($hours - $wholeHours) * 60;
                 $suffix = sprintf('%02d:%02d', $wholeHours, $minutes);
+
                 return $suffix;
             })
             ->helperText('Unesite broj sati (npr. 8 ili 7.5)');

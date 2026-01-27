@@ -21,14 +21,14 @@ use Filament\Schemas\Schema;
 use Filament\Widgets\Widget;
 use Livewire\Attributes\Url;
 
-class InsertTimeLogWidget extends Widget implements HasForms, HasActions
+class InsertTimeLogWidget extends Widget implements HasActions, HasForms
 {
-    use InteractsWithForms, InteractsWithActions;
+    use InteractsWithActions;
+    use InteractsWithForms;
 
     protected string $view = 'filament-employee-management::filament.clusters.human-resources.widgets.insert-time-log-widget';
 
-
-    protected int|string|array $columnSpan = 'full';
+    protected int | string | array $columnSpan = 'full';
 
     protected static bool $isLazy = false;
 
@@ -43,14 +43,15 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
 
     public function mount(): void
     {
-        if(!$this->selectedDate){
+        if (! $this->selectedDate) {
             $this->selectedDate = now()->format('Y-m-d');
         }
 
         $this->form->fill([
             'employee_id' => $this->record?->id,
             'date' => now()->format('Y-m-d'),
-            "hours" => 8,
+            'hours' => 8,
+            'is_work_from_home' => false,
         ]);
 
         $this->weekForm->fill([
@@ -69,7 +70,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
                     ->closeOnDateSelection()
                     ->displayFormat('d.m.Y')
                     ->default(now())
-                    ->format("Y-m-d")
+                    ->format('Y-m-d')
                     ->extraAttributes(['class' => 'dark:text-white dark:bg-gray-900 dark:border-gray-600'])
                     ->afterStateUpdated(function ($state) {
                         $carbonDate = Carbon::parse($state);
@@ -92,16 +93,17 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
         $employeeId = $this->record?->id ?? $data['employee_id'];
         $employee = Employee::find($employeeId);
 
-        if(!$employee){
+        if (! $employee) {
             Notification::make()
                 ->title('Greška')
                 ->body('Zaposlenik nije pronađen.')
                 ->danger()
                 ->send();
+
             return;
         }
 
-        try{
+        try {
             TimeLog::create([
                 'employee_id' => $employee->id,
                 'date' => $data['date'] ?? $this->selectedDate,
@@ -123,10 +125,11 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
                 'date' => now()->format('Y-m-d'),
                 'hours' => 8,
                 'description' => '',
+                'is_work_from_home' => false,
             ]);
 
             $this->dispatch('time-log-created');
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             Notification::make()
                 ->title('Greška')
                 ->body('Dogodila se greška prilikom unosa: ' . $e->getMessage())
@@ -137,7 +140,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
 
     public function getWeekDays(): array
     {
-        if(!$this->selectedDate){
+        if (! $this->selectedDate) {
             $this->selectedDate = now()->format('Y-m-d');
         }
 
@@ -146,7 +149,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
 
         $days = [];
 
-        for($i = 0; $i < 7; $i++){
+        for ($i = 0; $i < 7; $i++) {
             $currentDay = $startOfWeek->copy()->addDays($i);
 
             $totalHours = TimeLog::getTotalHoursForDate($this->record?->id, $currentDay->format('Y-m-d'));
@@ -167,7 +170,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
 
     public function getTotalWeekHours(): string
     {
-        if(!$this->selectedDate){
+        if (! $this->selectedDate) {
             $this->selectedDate = now()->format('Y-m-d');
         }
 
@@ -192,6 +195,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
             'date' => $this->selectedDate,
             'hours' => 8,
             'description' => '',
+            'is_work_from_home' => false,
         ]);
 
         // Ažuriraj i weekForm
@@ -202,13 +206,13 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
 
     public function getTimeLogsForSelectedDate()
     {
-        if(!$this->selectedDate){
+        if (! $this->selectedDate) {
             $this->selectedDate = now()->format('Y-m-d');
         }
 
         $employeeId = $this->record?->id;
 
-        if(!$employeeId){
+        if (! $employeeId) {
             return collect();
         }
 
@@ -219,36 +223,37 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
         $mappedTimeLogs = $timeLogs->map(function ($timeLog) {
             return [
                 'id' => $timeLog->id,
-                "color" => 'bg-green-700/50',
-                "name" => $timeLog->is_work_from_home ? "Rad od kuće" : "Redovan unos sati",
+                'color' => $timeLog->is_work_from_home ? 'bg-blue-700/50' : 'bg-green-700/50',
+                'name' => $timeLog->is_work_from_home ? 'Rad od kuće' : 'Redovan unos sati',
                 'description' => $timeLog->description,
                 'hours' => $timeLog->formatted_hours,
-                "can_delete" => true,
-                "can_edit" => true,
+                'is_work_from_home' => $timeLog->is_work_from_home,
+                'can_delete' => true,
+                'can_edit' => true,
             ];
         });
 
         $mappedHolidays = $holidays->map(function ($holiday) {
             return [
                 'id' => 'holiday-' . $holiday->id,
-                "name" => "Praznik - Neradni dan",
-                "color" => 'bg-blue-700/50',
+                'name' => 'Praznik - Neradni dan',
+                'color' => 'bg-blue-700/50',
                 'description' => $holiday->name,
                 'hours' => 8,
-                "can_delete" => false,
-                "can_edit" => false,
+                'can_delete' => false,
+                'can_edit' => false,
             ];
         });
 
         $mappedLeaveRequests = $leaveRequests->map(function ($leaveRequest) {
             return [
                 'id' => 'leave-' . $leaveRequest->id,
-                "name" => "Odustnost",
-                "color" => 'bg-red-700/50',
+                'name' => 'Odustnost',
+                'color' => 'bg-red-700/50',
                 'description' => $leaveRequest->type->getLabel(),
                 'hours' => 8,
-                "can_delete" => false,
-                "can_edit" => false,
+                'can_delete' => false,
+                'can_edit' => false,
             ];
         });
 
@@ -266,15 +271,17 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
                     $schema->fill($timeLog->only(['hours', 'description', 'is_work_from_home']));
                 }
             })
-            ->schema(fn($schema) => TimeLogForm::configureForEmployeeView($schema)
-                ->columns(1)
+            ->schema(
+                fn ($schema) => TimeLogForm::configureForEmployeeView($schema)
+                    ->columns(1)
             )
             ->action(function (array $arguments, $data) {
-                try{
+                try {
                     $timeLog = $arguments['timeLog'] ?? null;
                     $timeLog = TimeLog::find($timeLog);
-                    if(!$data['hours'] && !$data['description']){
+                    if (! $data['hours'] && ! $data['description']) {
                         Notification::make()->title('Greška')->body('Morate unijeti barem jedan podatak za uređivanje.')->danger()->send();
+
                         return;
                     }
                     $timeLog->update([
@@ -283,7 +290,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
                         'is_work_from_home' => $data['is_work_from_home'] ?? false,
                     ]);
                     Notification::make()->title('Izmjene su uspješno spremljene.')->success()->send();
-                }catch(\Exception $e){
+                } catch (\Exception $e) {
                     report($e);
                     Notification::make()->title('Greška')->body('Dogodila se greška prilikom uređivanja')->danger()->send();
                 }
@@ -298,7 +305,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
             ->color('danger')
             ->requiresConfirmation()
             ->action(function (array $arguments) {
-                try{
+                try {
                     $timeLog = $arguments['timeLog'] ?? null;
                     $timeLog = TimeLog::find($timeLog);
                     $timeLog->delete();
@@ -307,7 +314,7 @@ class InsertTimeLogWidget extends Widget implements HasForms, HasActions
                         ->body('Radni sati su uspješno obrisani.')
                         ->success()
                         ->send();
-                }catch(\Exception $e){
+                } catch (\Exception $e) {
                     Notification::make()
                         ->title('Greška')
                         ->body('Dogodila se greška prilikom brisanja: ' . $e->getMessage())

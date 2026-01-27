@@ -86,6 +86,15 @@
                                 <div class="italic prose prose-sm prose-invert text-gray-600 dark:text-gray-300">
                                     {!! $timeLog['description'] !!}
                                 </div>
+                                @if($timeLog['is_work_from_home'] ?? false)
+                                    <div class="flex items-center gap-1.5 mt-2 text-blue-600 dark:text-blue-400">
+                                        <x-filament::icon
+                                            icon="heroicon-o-home"
+                                            class="h-4 w-4"
+                                        />
+                                        <span class="text-xs font-medium">Rad od kuće</span>
+                                    </div>
+                                @endif
                             </div>
                             <div
                                 class="w-auto px-2 h-8 flex-shrink-0 flex items-center justify-center rounded bg-red-400/50">
