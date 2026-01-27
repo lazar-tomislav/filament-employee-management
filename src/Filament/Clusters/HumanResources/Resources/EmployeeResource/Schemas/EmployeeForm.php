@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 
 use Amicus\FilamentEmployeeManagement\Filament\Pages\MissingEmployeePage;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +14,7 @@ class EmployeeForm
     public static function configure(Schema $schema): Schema
     {
         // if auth user is not employee then show this field
-        $isUserEmployee = !auth()->user()->isEmployee();
+        $isUserEmployee = ! auth()->user()->isEmployee();
         $isCurrentRouteMissingEmployeePage = request()->routeIs(MissingEmployeePage::getRouteName());
 
         return $schema
@@ -63,8 +64,8 @@ class EmployeeForm
                     ->password()
                     ->placeholder('*********')
                     ->columnSpanFull()
-                    ->required(fn(string $context, $get): bool => $context === 'create' && empty($get('user_id')))
-                    ->visible(fn($get): bool => empty($get('user_id')))
+                    ->required(fn (string $context, $get): bool => $context === 'create' && empty($get('user_id')))
+                    ->visible(fn ($get): bool => empty($get('user_id')))
                     ->helperText('Lozinka je obavezna kad nije odabran postojeći korisnik. Lozinka mora sadržavati najmanje 8 znakova.'),
 
                 Forms\Components\TextInput::make('oib')
@@ -77,7 +78,7 @@ class EmployeeForm
                 Forms\Components\Select::make('department_id')
                     ->label('Odjel')
                     ->relationship('department', 'name')
-                    ->helperText("Odaberite odjel kojem zaposlenik pripada.")
+                    ->helperText('Odaberite odjel kojem zaposlenik pripada.')
                     ->createOptionForm([
                         Forms\Components\TextInput::make('name')
                             ->label('Naziv odjela')
@@ -101,18 +102,30 @@ class EmployeeForm
 
                 Forms\Components\Textarea::make('note')
                     ->label('Napomena')
-                    ->visible(fn() => !$isCurrentRouteMissingEmployeePage && !$isUserEmployee)
+                    ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && auth()->user()->isAdmin())
                     ->placeholder('Dodatne napomene o zaposleniku.')
+                    ->columnSpanFull(),
+
+                FileUpload::make('signature_path')
+                    ->label('Potpis')
+                    ->helperText('Potpis zaposlenika koji će se koristiti na HR dokumentima (npr. zahtjevima za godišnji odmor).')
+                    ->image()
+                    ->disk('public')
+                    ->previewable()
+                    ->downloadable()
+                    ->directory('hr-documents/signatures')
+                    ->visibility('public')
+                    ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && auth()->user()->isAdmin())
                     ->columnSpanFull(),
 
                 Forms\Components\CheckboxList::make('role')
                     ->label('Uloga')
-                    ->options(DB::table("roles")->pluck("name", "id")->map(fn($record) => ucwords(str_replace('_', ' ', $record))))
+                    ->options(DB::table('roles')->pluck('name', 'id')->map(fn ($record) => ucwords(str_replace('_', ' ', $record))))
                     ->formatStateUsing(function ($record) {
                         return $record?->user?->roles?->pluck('id')->toArray() ?? [];
                     })
                     ->required()
-                    ->visible(fn() => auth()->user()->isAdmin() && !$isCurrentRouteMissingEmployeePage)
+                    ->visible(fn () => auth()->user()->isAdmin() && ! $isCurrentRouteMissingEmployeePage)
                     ->helperText('Odaberite ulogu za novog zaposlenika.'),
 
                 Forms\Components\Toggle::make('is_active')
@@ -120,7 +133,7 @@ class EmployeeForm
                     ->columnSpanFull()
                     ->label('Je li zaposlenik aktivan korisnik sustava?')
                     ->helperText('Ako je zaposlenik neaktivan, neće moći pristupiti sustavu, neće se prikazivati u popisu zaposlenika.')
-                    ->visible(fn() => !$isCurrentRouteMissingEmployeePage && !$isUserEmployee)
+                    ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && auth()->user()->isAdmin())
                     ->default(true),
             ]);
     }
@@ -148,7 +161,7 @@ class EmployeeForm
                 ->required(),
             Select::make('year')
                 ->label('Godina')
-                ->options(collect(range(now()->year - 2, now()->year + 1))->mapWithKeys(fn($year) => [$year => $year]))
+                ->options(collect(range(now()->year - 2, now()->year + 1))->mapWithKeys(fn ($year) => [$year => $year]))
                 ->default(now()->year)
                 ->required(),
         ]);

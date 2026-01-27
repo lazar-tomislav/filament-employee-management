@@ -141,6 +141,14 @@
             </td>
         </tr>
         <tr style="height: 50px;">
+            <td class="col-label">Potpis zaposlenika</td>
+            <td class="col-value" style="text-align: center; vertical-align: middle;">
+                @if($employeeSignature)
+                    <img src="{{ $employeeSignature }}" class="signature-img">
+                @endif
+            </td>
+        </tr>
+        <tr style="height: 50px;">
             <td class="col-label">Suglasnost voditelja/ice</td>
             <td class="col-value" style="text-align: center; vertical-align: middle;">
                 @if($headOfDepartmentSignature)

@@ -18,7 +18,7 @@ class HumanResourcesSettingsPage extends SettingsPage
 {
     use HasPageShield;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
+    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
     protected static string $settings = HumanResourcesSettings::class;
 
@@ -26,10 +26,11 @@ class HumanResourcesSettingsPage extends SettingsPage
 
     protected static ?int $navigationSort = 1500;
 
-    protected static ?string $navigationLabel = "Postavke";
-    protected static string|UnitEnum|null $navigationGroup = "Ostalo";
+    protected static ?string $navigationLabel = 'Postavke';
 
-    protected static ?string $title = "Postavke";
+    protected static string | UnitEnum | null $navigationGroup = 'Ostalo';
+
+    protected static ?string $title = 'Postavke';
 
     public function form(Schema $schema): Schema
     {
@@ -59,16 +60,6 @@ class HumanResourcesSettingsPage extends SettingsPage
                         FileUpload::make('director_signature')
                             ->label('Potpis direktora')
                             ->helperText('Potpis direktora koji se prikazuje na HR dokumentima poput zahtjeva za G.O nakon odobrenja.')
-                            ->image()
-                            ->disk('public')
-                            ->previewable()
-                            ->downloadable()
-                            ->directory('hr-documents/signatures')
-                            ->visibility('public'),
-
-                        FileUpload::make('head_of_department_signature')
-                            ->label('Potpis voditelja odjela')
-                            ->helperText('Potpis voditelja odjela koji se prikazuje na HR dokumentima poput zahtjeva za G.O nakon odobrenja.')
                             ->image()
                             ->disk('public')
                             ->previewable()
