@@ -4,24 +4,16 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\MonthlyWorkReport;
-use Filament\Actions\Action;
-use Filament\Actions\Concerns\InteractsWithActions;
-use Filament\Actions\Contracts\HasActions;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\KeyValueEntry;
-use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\On;
 
-class MonthlySummaryWidget extends Widget implements HasActions, HasSchemas
+class MonthlySummaryWidget extends Widget implements HasSchemas
 {
-    use InteractsWithActions;
     use InteractsWithSchemas;
 
     #[On('refresh-monthly-summary')]
@@ -38,61 +30,79 @@ class MonthlySummaryWidget extends Widget implements HasActions, HasSchemas
 
     public ?MonthlyWorkReport $workReport = null;
 
-    public ?array $data = [];
+    public ?string $selectedMonth = null;
 
     public function mount(): void
     {
-        $this->data['showForMonth'] = now()->startOfMonth()->toDateString();
-        $this->form->fill($this->data);
+        $this->selectedMonth = now()->startOfMonth()->toDateString();
         $this->loadWorkReport();
-    }
-
-    public function updatedData($value, $key): void
-    {
-        if ($key === 'showForMonth') {
-            $this->loadWorkReport();
-        }
     }
 
     protected function loadWorkReport(): void
     {
-        $selectedMonth = Carbon::parse($this->data['showForMonth']);
+        $selectedMonth = Carbon::parse($this->selectedMonth);
         $this->workReport = MonthlyWorkReport::where('employee_id', $this->record->id)
             ->where('for_month', $selectedMonth->startOfMonth()->toDateString())
             ->first();
     }
 
-    public function form(Schema $schema): Schema
+    public function previousMonth(): void
     {
-        return $schema
-            ->components([
-                Select::make('showForMonth')
-                    ->label('Odaberite mjesec')
-                    ->hiddenLabel()
-                    ->options($this->getMonthOptions())
-                    ->live(),
-            ])->statePath('data');
+        $current = Carbon::parse($this->selectedMonth);
+        $this->selectedMonth = $current->subMonth()->startOfMonth()->toDateString();
+        $this->loadWorkReport();
     }
 
-    // You can remove this method and use the 'updatedShowForMonth' method below.
-    private function getMonthOptions(): array
+    public function nextMonth(): void
     {
-        $options = [];
-        $start = $this->record->created_at->startOfMonth();
-        $end = now()->startOfMonth();
+        $current = Carbon::parse($this->selectedMonth);
+        $this->selectedMonth = $current->addMonth()->startOfMonth()->toDateString();
+        $this->loadWorkReport();
+    }
 
-        $current = $end->copy();
-        while ($current->gte($start)) {
-            $options[$current->toDateString()] = $current->format('m/Y');
-            $current->subMonth();
-        }
+    public function canGoNext(): bool
+    {
+        $current = Carbon::parse($this->selectedMonth);
+        $maxDate = now()->addYear()->startOfMonth();
 
-        return $options;
+        return $current->startOfMonth()->lt($maxDate);
+    }
+
+    public function canGoPrevious(): bool
+    {
+        $current = Carbon::parse($this->selectedMonth);
+        $minDate = now()->subYears(2)->startOfMonth();
+
+        return $current->startOfMonth()->gt($minDate);
+    }
+
+    public function goToCurrentMonth(): void
+    {
+        $this->selectedMonth = now()->startOfMonth()->toDateString();
+        $this->loadWorkReport();
+    }
+
+    public function isCurrentMonth(): bool
+    {
+        return Carbon::parse($this->selectedMonth)->startOfMonth()->eq(now()->startOfMonth());
+    }
+
+    public function getCurrentMonthLabel(): string
+    {
+        $monthNames = [
+            1 => 'Siječanj', 2 => 'Veljača', 3 => 'Ožujak', 4 => 'Travanj',
+            5 => 'Svibanj', 6 => 'Lipanj', 7 => 'Srpanj', 8 => 'Kolovoz',
+            9 => 'Rujan', 10 => 'Listopad', 11 => 'Studeni', 12 => 'Prosinac',
+        ];
+
+        $date = Carbon::parse($this->selectedMonth);
+
+        return $monthNames[$date->month] . ' ' . $date->year;
     }
 
     public function summaryInfoList(Schema $schema): Schema
     {
-        $selectedMonth = Carbon::parse($this->data['showForMonth']);
+        $selectedMonth = Carbon::parse($this->selectedMonth);
         $totals = $this->record->getMonthlyWorkReport($selectedMonth)['totals'];
 
         $details = [

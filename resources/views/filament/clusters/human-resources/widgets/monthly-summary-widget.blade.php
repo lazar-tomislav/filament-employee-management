@@ -1,10 +1,42 @@
 <x-filament-widgets::widget>
 
     <div class="flex w-full justify-center">
-        <div class="w-8/12 space-y-2">
-            <div class="w-fit flex justify-start space-x-4">
-                {{ $this->form }}
+        <div class="w-8/12 space-y-4">
+            {{-- Month Navigation --}}
+            <div class="relative flex items-center justify-center gap-2 py-2">
+                <x-filament::button
+                    wire:click="previousMonth"
+                    icon="heroicon-o-chevron-left"
+                    color="gray"
+                    size="sm"
+                    :disabled="!$this->canGoPrevious()"
+                />
+
+                <span class="text-lg font-semibold text-gray-900 dark:text-white min-w-[180px] text-center">
+                    {{ $this->getCurrentMonthLabel() }}
+                </span>
+
+                <x-filament::button
+                    wire:click="nextMonth"
+                    icon="heroicon-o-chevron-right"
+                    color="gray"
+                    size="sm"
+                    :disabled="!$this->canGoNext()"
+                />
+
+                <div class="absolute right-0">
+                    <x-filament::button
+                        wire:click="goToCurrentMonth"
+                        size="sm"
+                        :color="$this->isCurrentMonth() ? 'gray' : 'primary'"
+                        :outlined="!$this->isCurrentMonth()"
+                        :disabled="$this->isCurrentMonth()"
+                    >
+                        Danas
+                    </x-filament::button>
+                </div>
             </div>
+
             {{ $this->summaryInfoList }}
 
             @if ($this->workReport)
