@@ -18,6 +18,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 use Livewire\Attributes\Url;
 
@@ -114,7 +115,7 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
                 'is_work_from_home' => $data['is_work_from_home'] ?? false,
             ]);
 
-            Notification::make("radni_sati_uspjesno_dodani")
+            Notification::make('radni_sati_uspjesno_dodani')
                 ->title('Uspješno dodano')
                 ->body('Radni sati su uspješno uneseni.')
                 ->success()
@@ -344,6 +345,95 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
                     Notification::make()
                         ->title('Greška')
                         ->body('Dogodila se greška prilikom brisanja: ' . $e->getMessage())
+                        ->danger()
+                        ->send();
+                }
+            });
+    }
+
+    public function fillMonthAction(): Action
+    {
+        return Action::make('fillMonth')
+            ->label('Popuni cijeli mjesec')
+            ->icon(Heroicon::OutlinedCalendarDays)
+            ->requiresConfirmation()
+            ->link()
+            ->modalHeading('Popuni mjesec')
+            ->tooltip("Autom. popuni radne sate za cijeli mjesec.")
+            ->modalDescription(fn () => new \Illuminate\Support\HtmlString(
+                '<p>Ova akcija će automatski unijeti 8 sati za sve radne dane u odabranom mjesecu.</p>' .
+                '<p class="mt-2"><strong>Preskočit će se dani koji:</strong></p>' .
+                '<ul class="list-disc list-inside mt-1">' .
+                '<li>- Već imaju unesene radne sate</li>' .
+                '<li>- Padaju na praznik</li>' .
+                '<li>- Imaju odobrenu odsutnost (godišnji, bolovanje, itd.)</li>' .
+                '<li>- Nisu radni dani (subota i nedjelja)</li>' .
+                '</ul>' .
+                '<p class="mt-3 text-warning-600 dark:text-warning-400 font-medium">⚠️ UPOZORENJE: Ova akcija NIJE reverzibilna! Unesene sate morat ćete ručno obrisati ako želite promjene.</p>'
+            ))
+            ->modalSubmitActionLabel('Popuni mjesec')
+            ->schema([
+                Forms\Components\Select::make('month')
+                    ->label('Mjesec')
+                    ->options([
+                        1 => '1. Siječanj',
+                        2 => '2. Veljača',
+                        3 => '3. Ožujak',
+                        4 => '4. Travanj',
+                        5 => '5. Svibanj',
+                        6 => '6. Lipanj',
+                        7 => '7. Srpanj',
+                        8 => '8. Kolovoz',
+                        9 => '9. Rujan',
+                        10 => '10. Listopad',
+                        11 => '11. Studeni',
+                        12 => '12. Prosinac',
+                    ])
+                    ->searchable()
+                    ->selectablePlaceholder(false)
+                    ->preload()
+                    ->default(now()->month)
+                    ->required(),
+            ])
+            ->action(function (array $data) {
+                try {
+                    $employeeId = $this->record?->id;
+
+                    if (! $employeeId) {
+                        Notification::make()
+                            ->title('Greška')
+                            ->body('Zaposlenik nije pronađen.')
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
+                    $result = TimeLog::fillMonthWithDefaultHours(
+                        $employeeId,
+                        (int) $data['month'],
+                        now()->year
+                    );
+
+                    if ($result['created'] > 0) {
+                        Notification::make()
+                            ->title('Mjesec uspješno popunjen')
+                            ->body("Dodano {$result['created']} dana s 8 radnih sati. Preskočeno {$result['skipped']} dana.")
+                            ->success()
+                            ->send();
+
+                        $this->dispatch('time-log-created');
+                    } else {
+                        Notification::make()
+                            ->title('Nema dana za popuniti')
+                            ->body('Svi radni dani u odabranom mjesecu već imaju unesene sate, padaju na praznik ili imaju odobrenu odsutnost.')
+                            ->warning()
+                            ->send();
+                    }
+                } catch (\Exception $e) {
+                    Notification::make()
+                        ->title('Greška')
+                        ->body('Dogodila se greška: ' . $e->getMessage())
                         ->danger()
                         ->send();
                 }

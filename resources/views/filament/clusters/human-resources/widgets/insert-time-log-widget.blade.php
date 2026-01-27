@@ -1,8 +1,8 @@
 <div>
     <!-- Navigacija tjedna - iznad tablice -->
     <div class="flex items-center justify-between mb-4">
-        <!-- Danas gumb - lijevi kut (skriven na mobitelu) -->
-        <div class="hidden md:block">
+        <!-- Danas gumb i Popuni mjesec - lijevi kut (skriven na mobitelu) -->
+        <div class="hidden md:flex items-center gap-2">
             <x-filament::button
                 wire:click="goToToday"
                 size="sm"
@@ -10,6 +10,7 @@
             >
                 Danas
             </x-filament::button>
+            {{ $this->fillMonthAction }}
         </div>
         <div class="block md:hidden w-0"></div>
 
