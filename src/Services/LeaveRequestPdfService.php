@@ -24,7 +24,9 @@ class LeaveRequestPdfService
             }
 
             // Get employee's signature from their profile
-            $employeeSignature = self::getFileBase64($leaveRequest->employee->signature_path);
+            $employeeSignature = $leaveRequest->employee
+                ? self::getFileBase64($leaveRequest->employee->signature_path)
+                : null;
 
             $companyName = $settings->company_name_for_hr_documents ?: '-';
 

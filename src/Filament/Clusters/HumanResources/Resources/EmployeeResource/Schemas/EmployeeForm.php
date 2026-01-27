@@ -13,8 +13,6 @@ class EmployeeForm
 {
     public static function configure(Schema $schema): Schema
     {
-        // if auth user is not employee then show this field
-        $isUserEmployee = ! auth()->user()->isEmployee();
         $isCurrentRouteMissingEmployeePage = request()->routeIs(MissingEmployeePage::getRouteName());
 
         return $schema
