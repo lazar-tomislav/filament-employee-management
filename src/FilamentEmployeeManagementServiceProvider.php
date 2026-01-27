@@ -128,11 +128,12 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
                 ->dailyAt('17:00')
                 ->when(function () {
                     $today = now();
-                    if (!$today->isWeekday()) {
+                    if (! $today->isWeekday()) {
                         return false;
                     }
                     // Check if the next workday is in the next month.
                     $nextWorkday = $today->copy()->addWeekday();
+
                     return $today->month !== $nextWorkday->month;
                 });
         });
@@ -151,8 +152,8 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
     {
         return [
             // AlpineComponent::make('filament-employee-management', __DIR__ . '/../resources/dist/components/filament-employee-management.js'),
-             Css::make('filament-employee-management-styles', __DIR__ . '/../resources/dist/filament-employee-management.css'),
-//             Js::make('filament-employee-management-scripts', __DIR__ . '/../resources/dist/filament-employee-management.js'),
+            Css::make('filament-employee-management-styles', __DIR__ . '/../resources/dist/filament-employee-management.css'),
+            //             Js::make('filament-employee-management-scripts', __DIR__ . '/../resources/dist/filament-employee-management.js'),
         ];
     }
 
@@ -211,6 +212,7 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             'create_activities_table',
             'create_activity_mentions_table',
             'replace_phone_number_with_phone_numbers_in_employees_table',
+            'add_head_of_department_to_departments_table',
         ];
     }
 

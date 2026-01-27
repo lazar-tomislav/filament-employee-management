@@ -23,6 +23,10 @@ class DepartmentTable
                 TextColumn::make('name')
                     ->label('Naziv odjela')
                     ->searchable(),
+                TextColumn::make('headOfDepartment.full_name')
+                    ->label('Voditelj odjela')
+                    ->searchable(['first_name', 'last_name'])
+                    ->placeholder('Nije postavljen'),
                 TextColumn::make('staff_members_count')
                     ->label('Broj zaposlenika')
                     ->counts('employees'),
