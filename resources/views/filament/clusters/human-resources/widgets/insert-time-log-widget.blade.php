@@ -1,7 +1,7 @@
 <div>
     <div class="bg-white dark:bg-gray-800 flex items-center flex-col md:flex-row w-full mb-4 shadow rounded-md  ">
         <!-- Datepicker za odabir tjedna -->
-        <div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg w-full md:w-36 dark">
+        <div class="dark:bg-gray-800 p-4 rounded-lg w-full md:w-36 ">
             {{ $this->weekForm }}
         </div>
 

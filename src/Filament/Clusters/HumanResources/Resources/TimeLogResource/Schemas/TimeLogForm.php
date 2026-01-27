@@ -17,13 +17,11 @@ class TimeLogForm
         return $schema
             ->components([
                 self::getTimeComponent(),
-                Forms\Components\Checkbox::make('is_work_from_home')
-                    ->label('Rad od kuće')
-                    ->default(false)
-                    ->helperText('Označite ako je rad obavljen od kuće'),
+                self::getWorkFromHomeComponent(),
                 self::getNoteComponent(),
             ]);
     }
+
 
     public static function configure(Schema $schema): Schema
     {
@@ -56,11 +54,9 @@ class TimeLogForm
                     ->required()
                     ->helperText('Odaberite tip unosa sati'),
 
-                Forms\Components\Checkbox::make('is_work_from_home')
-                    ->label('Rad od kuće')
-                    ->visible(fn() => !request()->routeIs(ViewEmployee::getRouteName()))
-                    ->default(false)
-                    ->helperText('Označite ako je rad obavljen od kuće'),
+
+                self::getWorkFromHomeComponent()
+                    ->visible(fn() => !request()->routeIs(ViewEmployee::getRouteName())),
 
                 Forms\Components\Select::make('status')
                     ->label('Status')
@@ -73,6 +69,17 @@ class TimeLogForm
                 self::getNoteComponent()
             ]);
     }
+
+    protected static function getWorkFromHomeComponent()
+    {
+        return Forms\Components\ToggleButtons::make('is_work_from_home')
+            ->label('Rad od kuće')
+            ->boolean()
+            ->inline()
+            ->formatStateUsing(fn()=>false)
+            ->helperText('Označite ako je rad obavljen od kuće');
+    }
+
 
     protected static function getTimeComponent()
     {
