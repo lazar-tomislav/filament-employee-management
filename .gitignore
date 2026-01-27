@@ -12,3 +12,6 @@ phpunit.xml
 phpstan.neon
 testbench.yaml
 vendor
+.junie
+.mcp.json
+auth.json

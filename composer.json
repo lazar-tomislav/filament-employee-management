@@ -30,6 +30,7 @@
         "spatie/laravel-pdf": "^1.8"
     },
     "require-dev": {
+        "filament/blueprint": "^1.1",
         "laravel/pint": "^1.0",
         "nunomaduro/collision": "^8.0",
         "nunomaduro/larastan": "^2.0.1",
@@ -78,5 +79,11 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.filamentphp.com/composer"
+        }
+    ]
 }
