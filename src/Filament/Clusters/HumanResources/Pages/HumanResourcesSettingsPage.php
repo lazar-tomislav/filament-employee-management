@@ -5,6 +5,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Pag
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use BackedEnum;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Pages\SettingsPage;
@@ -15,6 +16,8 @@ use UnitEnum;
 
 class HumanResourcesSettingsPage extends SettingsPage
 {
+    use HasPageShield;
+
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCog6Tooth;
 
     protected static string $settings = HumanResourcesSettings::class;
@@ -48,6 +51,29 @@ class HumanResourcesSettingsPage extends SettingsPage
                             ->previewable()
                             ->downloadable()
                             ->directory('hr-documents')
+                            ->visibility('public'),
+                    ]),
+
+                Section::make('Potpisi djelatnika')
+                    ->components([
+                        FileUpload::make('director_signature')
+                            ->label('Potpis direktora')
+                            ->helperText('Potpis direktora koji se prikazuje na HR dokumentima poput zahtjeva za G.O nakon odobrenja.')
+                            ->image()
+                            ->disk('public')
+                            ->previewable()
+                            ->downloadable()
+                            ->directory('hr-documents/signatures')
+                            ->visibility('public'),
+
+                        FileUpload::make('head_of_department_signature')
+                            ->label('Potpis voditelja odjela')
+                            ->helperText('Potpis voditelja odjela koji se prikazuje na HR dokumentima poput zahtjeva za G.O nakon odobrenja.')
+                            ->image()
+                            ->disk('public')
+                            ->previewable()
+                            ->downloadable()
+                            ->directory('hr-documents/signatures')
                             ->visibility('public'),
                     ]),
             ]);

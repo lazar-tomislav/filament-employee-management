@@ -84,6 +84,9 @@
         .signature-line { border-bottom: 1px solid #000; width: 80%; display: inline-block; }
         .signature-cell-right { text-align: right; }
         .signature-cell-right .signature-line { text-align: right; }
+
+        /* Signature images in form table */
+        .signature-img { max-height: 70px; max-width: 220px; }
     </style>
 </head>
 <body>
@@ -150,11 +153,19 @@
         </tr>
         <tr style="height: 50px;">
             <td class="col-label">Suglasnost voditelja/ice</td>
-            <td class="col-value"></td>
+            <td class="col-value" style="text-align: center; vertical-align: middle;">
+                @if($headOfDepartmentSignature)
+                    <img src="{{ $headOfDepartmentSignature }}" class="signature-img">
+                @endif
+            </td>
         </tr>
         <tr style="height: 50px;">
             <td class="col-label">Suglasnost direktora/ice</td>
-            <td class="col-value"></td>
+            <td class="col-value" style="text-align: center; vertical-align: middle;">
+                @if($directorSignature)
+                    <img src="{{ $directorSignature }}" class="signature-img">
+                @endif
+            </td>
         </tr>
     </table>
 

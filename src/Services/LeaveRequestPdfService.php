@@ -5,7 +5,6 @@ namespace Amicus\FilamentEmployeeManagement\Services;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class LeaveRequestPdfService
@@ -13,35 +12,54 @@ class LeaveRequestPdfService
     public static function generatePdf(LeaveRequest $leaveRequest): string
     {
         try {
-            $logoPathFromSettings = app(HumanResourcesSettings::class)->hr_documents_logo;
-            if($logoPathFromSettings && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPathFromSettings)){
-                $logoPath = 'file://' .\Illuminate\Support\Facades\Storage::disk('public')->path($logoPathFromSettings);
-            }else{
-                $logoPath = null;
-            }
-            $companyName = app(HumanResourcesSettings::class)->company_name_for_hr_documents ?: '-';
+            $settings = app(HumanResourcesSettings::class);
+
+            $logoPath = self::getFileBase64($settings->hr_documents_logo);
+            $directorSignature = self::getFileBase64($settings->director_signature);
+            $headOfDepartmentSignature = self::getFileBase64($settings->head_of_department_signature);
+
+            $companyName = $settings->company_name_for_hr_documents ?: '-';
 
             // Set locale for Croatian days
             \Carbon\Carbon::setLocale('hr');
 
-            $html = view('filament-employee-management::leave_request_pdf', [
+            $fileName = 'zahtjev_za_godisnji_odmor_' . $leaveRequest->id . '.pdf';
+            $path = 'user/' . $leaveRequest->employee_id . '/odsustva/' . $fileName;
+            $fullPath = Storage::disk('local')->path($path);
+
+            // Ensure directory exists
+            $directory = dirname($fullPath);
+            if (! is_dir($directory)) {
+                mkdir($directory, 0755, true);
+            }
+
+            $pdf = Pdf::loadView('filament-employee-management::leave_request_pdf', [
                 'leaveRequest' => $leaveRequest,
                 'logoPath' => $logoPath,
                 'companyName' => $companyName,
-            ])->render();
+                'directorSignature' => $directorSignature,
+                'headOfDepartmentSignature' => $headOfDepartmentSignature,
+            ]);
 
-            $pdf = Pdf::loadHTML($html);
-
-            $fileName = 'zahtjev_za_godisnji_odmor_' . $leaveRequest->id . '.pdf';
-            $path = 'user/' . $leaveRequest->employee_id . '/odsustva/' . $fileName;
-
-            Storage::disk('local')->put($path, $pdf->output());
+            $pdf->save($fullPath);
 
             return $path;
         } catch (\Exception $e) {
-            // Log error and return empty path if PDF generation fails
             \Log::error('PDF generation failed: ' . $e->getMessage());
+
             return '';
         }
+    }
+
+    private static function getFileBase64(?string $settingsPath): ?string
+    {
+        if ($settingsPath && Storage::disk('public')->exists($settingsPath)) {
+            $content = Storage::disk('public')->get($settingsPath);
+            $mimeType = Storage::disk('public')->mimeType($settingsPath);
+
+            return 'data:' . $mimeType . ';base64,' . base64_encode($content);
+        }
+
+        return null;
     }
 }

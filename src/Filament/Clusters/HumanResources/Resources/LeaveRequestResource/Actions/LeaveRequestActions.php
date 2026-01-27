@@ -123,26 +123,28 @@ class LeaveRequestActions
         return Action::make('download_pdf')
             ->label('Skini PDF')
             ->icon(Heroicon::OutlinedDocumentArrowDown)
-            ->visible(fn($record) => $record->status === LeaveRequestStatus::APPROVED)
+            ->visible(fn ($record) => $record->status === LeaveRequestStatus::APPROVED)
             ->action(function (LeaveRequest $record) {
                 try {
                     // Generate PDF if not exists
-                    if (!$record->pdf_path || !Storage::disk('local')->exists($record->pdf_path)) {
+                    if (! $record->pdf_path || ! Storage::disk('local')->exists($record->pdf_path)) {
                         $pdfPath = LeaveRequestPdfService::generatePdf($record);
-                        if (!$pdfPath) {
+                        if (! $pdfPath) {
                             Notification::make()
                                 ->title('Greška')
                                 ->body('PDF se nije mogao generirati. Pokušajte ponovno.')
                                 ->danger()
                                 ->send();
+
                             return;
                         }
-                        $record->update(['pdf_path' => $pdfPath]);
+                        $record->updateQuietly(['pdf_path' => $pdfPath]);
                     }
 
                     if ($record->pdf_path && Storage::disk('local')->exists($record->pdf_path)) {
                         $file = Storage::disk('local')->get($record->pdf_path);
                         $filename = basename($record->pdf_path);
+
                         return response()->streamDownload(function () use ($file) {
                             echo $file;
                         }, $filename, ['Content-Type' => 'application/pdf']);
@@ -154,7 +156,7 @@ class LeaveRequestActions
                             ->send();
                     }
                 } catch (\Exception $e) {
-                    Log::error('PDF download failed: ' . $e->getMessage());
+                    Log::error('PDF download failed: '.$e->getMessage());
                     Notification::make()
                         ->title('Greška')
                         ->body('Došlo je do greške prilikom preuzimanja PDF-a.')
