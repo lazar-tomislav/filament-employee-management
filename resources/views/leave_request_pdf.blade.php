@@ -140,15 +140,12 @@
                 ({{ $leaveRequest->end_date->locale('hr')->translatedFormat('l') }})
             </td>
         </tr>
-        <tr>
-            <td class="col-label">Sukladno Odluci o korištenju godišnjeg odmora</td>
-            <td class="col-value decision-box">
-                @php
-                    // TODO done: circle the correct option automatically; default to true ("DA") if not provided
-                    $according = $leaveRequest->according_to_decision ?? true;
-                @endphp
-                <span class="{{ $according ? 'selected' : '' }}">DA</span>
-                <span class="{{ $according ? '' : 'selected' }}">NE</span>
+        <tr style="height: 50px;">
+            <td class="col-label">Potpis zaposlenika</td>
+            <td class="col-value" style="text-align: center; vertical-align: middle;">
+                @if($employeeSignature)
+                    <img src="{{ $employeeSignature }}" class="signature-img">
+                @endif
             </td>
         </tr>
         <tr style="height: 50px;">
@@ -169,12 +166,6 @@
         </tr>
     </table>
 
-    <!-- Footer Instructions -->
-    <div class="footer-text">
-        Zahtjev se predaje u dva primjerka. Jedan primjerak ostaje u evidenciji u Administrativnom uredu a drugi zadržava zaposlenik.<br>
-        Zahtjev je potrebno predati najmanje 3 radna dana prije početka korištenja godišnjeg odmora.
-    </div>
-
     <!-- Signature Section -->
     <table class="signature-table">
         <tr>
@@ -182,12 +173,6 @@
                 <span class="signature-label">DATUM PODNOŠENJA</span>
                 <div style="border-bottom: 1px solid #000; width: 150px; padding-bottom: 5px;">
                     {{ now()->format('d.m.Y') }}
-                </div>
-            </td>
-            <td class="signature-cell-right">
-                <span class="signature-label">POTPIS</span>
-                <div style="border-bottom: 1px solid #000; width: 200px; display: inline-block;">
-                    &nbsp;
                 </div>
             </td>
         </tr>

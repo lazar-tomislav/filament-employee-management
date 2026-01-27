@@ -29,6 +29,7 @@ class EmployeeFactory extends Factory
             'oib' => $this->faker->numerify('###########'),
             'note' => $this->faker->optional()->sentence(),
             'is_active' => true,
+            'signature_path' => null,
         ];
     }
 

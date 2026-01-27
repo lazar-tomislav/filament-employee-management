@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 
 use Amicus\FilamentEmployeeManagement\Filament\Pages\MissingEmployeePage;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\DB;
@@ -12,8 +13,6 @@ class EmployeeForm
 {
     public static function configure(Schema $schema): Schema
     {
-        // if auth user is not employee then show this field
-        $isUserEmployee = ! auth()->user()->isEmployee();
         $isCurrentRouteMissingEmployeePage = request()->routeIs(MissingEmployeePage::getRouteName());
 
         return $schema
@@ -101,8 +100,20 @@ class EmployeeForm
 
                 Forms\Components\Textarea::make('note')
                     ->label('Napomena')
-                    ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && ! $isUserEmployee)
+                    ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && auth()->user()->isAdmin())
                     ->placeholder('Dodatne napomene o zaposleniku.')
+                    ->columnSpanFull(),
+
+                FileUpload::make('signature_path')
+                    ->label('Potpis')
+                    ->helperText('Potpis zaposlenika koji će se koristiti na HR dokumentima (npr. zahtjevima za godišnji odmor).')
+                    ->image()
+                    ->disk('public')
+                    ->previewable()
+                    ->downloadable()
+                    ->directory('hr-documents/signatures')
+                    ->visibility('public')
+                    ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && auth()->user()->isAdmin())
                     ->columnSpanFull(),
 
                 Forms\Components\CheckboxList::make('role')
@@ -120,7 +131,7 @@ class EmployeeForm
                     ->columnSpanFull()
                     ->label('Je li zaposlenik aktivan korisnik sustava?')
                     ->helperText('Ako je zaposlenik neaktivan, neće moći pristupiti sustavu, neće se prikazivati u popisu zaposlenika.')
-                    ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && ! $isUserEmployee)
+                    ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && auth()->user()->isAdmin())
                     ->default(true),
             ]);
     }

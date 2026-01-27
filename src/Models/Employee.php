@@ -62,7 +62,8 @@ class Employee extends Model
         'note',
         'is_active',
         'role',
-        'department_id'
+        'department_id',
+        'signature_path',
     ];
 
     protected $casts = [
@@ -171,7 +172,7 @@ class Employee extends Model
         $leaveRequest = LeaveRequest::getLeaveRequestsForDate($this->id, $date)->first();
 
         if ($leaveRequest) {
-            $hourType = match($leaveRequest->type) {
+            $hourType = match ($leaveRequest->type) {
                 LeaveRequestType::ANNUAL_LEAVE => 'vacation_hours',
                 LeaveRequestType::SICK_LEAVE => 'sick_leave_hours',
                 LeaveRequestType::PAID_LEAVE => 'other_hours',
@@ -182,7 +183,7 @@ class Employee extends Model
             if ($hourType) {
                 $leaveHours[$hourType] = self::HOURS_PER_WORK_DAY;
             } else {
-                 report(new \Exception("Unknown leave request type: {$leaveRequest->type->value}"));
+                report(new \Exception("Unknown leave request type: {$leaveRequest->type->value}"));
             }
         }
 

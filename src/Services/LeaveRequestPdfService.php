@@ -16,7 +16,17 @@ class LeaveRequestPdfService
 
             $logoPath = self::getFileBase64($settings->hr_documents_logo);
             $directorSignature = self::getFileBase64($settings->director_signature);
-            $headOfDepartmentSignature = self::getFileBase64($settings->head_of_department_signature);
+
+            // Get approver's signature from their employee profile
+            $headOfDepartmentSignature = null;
+            if ($leaveRequest->approver && $leaveRequest->approver->employee) {
+                $headOfDepartmentSignature = self::getFileBase64($leaveRequest->approver->employee->signature_path);
+            }
+
+            // Get employee's signature from their profile
+            $employeeSignature = $leaveRequest->employee
+                ? self::getFileBase64($leaveRequest->employee->signature_path)
+                : null;
 
             $companyName = $settings->company_name_for_hr_documents ?: '-';
 
@@ -39,6 +49,7 @@ class LeaveRequestPdfService
                 'companyName' => $companyName,
                 'directorSignature' => $directorSignature,
                 'headOfDepartmentSignature' => $headOfDepartmentSignature,
+                'employeeSignature' => $employeeSignature,
             ]);
 
             $pdf->save($fullPath);
