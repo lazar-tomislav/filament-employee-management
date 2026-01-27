@@ -202,6 +202,7 @@ class Employee extends Model
                 'sick_leave_hours' => 0.0,
                 'other_hours' => 0.0,
                 'maternity_leave_hours' => 0.0,
+                'holiday_hours' => 0.0,
                 'available_hours' => 0.0,
             ],
         ];
@@ -217,6 +218,7 @@ class Employee extends Model
             $dailyWorkHours = 0.0;
             $dailyWorkFromHomeHours = 0.0;
             $dailyOvertimeHours = 0.0;
+            $dailyHolidayHours = 0.0;
 
             $leaveHours = $this->getDailyLeaveHours($date);
             $dailyVacationHours = $leaveHours['vacation_hours'];
@@ -251,8 +253,8 @@ class Employee extends Model
                     $dailyOvertimeHours = $totalDailyWorkHours - self::HOURS_PER_WORK_DAY;
                 }
             } elseif ($isPublicHoliday) {
-                // For holidays, count as 8 work hours, plus any logged hours as overtime
-                $dailyWorkHours = self::HOURS_PER_WORK_DAY;
+                // For holidays, count as 8 holiday hours, plus any logged hours as overtime
+                $dailyHolidayHours = self::HOURS_PER_WORK_DAY;
                 $dailyOvertimeHours = $totalDailyWorkHours;
             } else { // It's a weekend or a personal leave day
                 $dailyOvertimeHours = $totalDailyWorkHours;
@@ -267,6 +269,7 @@ class Employee extends Model
                 'sick_leave_hours' => $dailySickLeaveHours,
                 'other_hours' => $dailyOtherHours,
                 'maternity_leave_hours' => $dailyMaternityLeaveHours,
+                'holiday_hours' => $dailyHolidayHours,
             ];
 
             $report['totals']['work_hours'] += $dailyWorkHours;
@@ -276,6 +279,7 @@ class Employee extends Model
             $report['totals']['sick_leave_hours'] += $dailySickLeaveHours;
             $report['totals']['other_hours'] += $dailyOtherHours;
             $report['totals']['maternity_leave_hours'] += $dailyMaternityLeaveHours;
+            $report['totals']['holiday_hours'] += $dailyHolidayHours;
         }
 
         return $report;

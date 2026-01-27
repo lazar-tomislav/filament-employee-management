@@ -7,10 +7,8 @@ use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Pages\Dashboard;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
-use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 
 class EmployeeDocumentsWidget extends Widget implements HasActions, HasSchemas
@@ -21,11 +19,6 @@ class EmployeeDocumentsWidget extends Widget implements HasActions, HasSchemas
     protected string $view = 'filament-employee-management::filament.clusters.human-resources.resources.employee-resource.widgets.employee-documents-widget';
 
     public ?Employee $record = null;
-
-    public function downloadMonthlyTimeReportAction(): Action
-    {
-        return EmployeeAction::downloadMonthlyTimeReportAction($this->record);
-    }
 
     public function connectToTelegramAction(): Action
     {

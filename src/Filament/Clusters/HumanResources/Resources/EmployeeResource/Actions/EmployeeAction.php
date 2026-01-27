@@ -8,10 +8,8 @@ use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Schemas\EmployeeForm;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Filament\Actions\Action;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use Filament\Actions\EditAction;
 use Filament\Pages\Dashboard;
-use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -30,31 +28,12 @@ class EmployeeAction
             });
     }
 
-    public static function editEmployee(Employee $record): Action
+    public static function editEmployee(Employee $record): EditAction
     {
-        return Action::make('edit')
+        return EditAction::make('edit')
             ->label('Uredi podatke zaposlenika')
-            ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
-            ->modalHeading('Uredi zaposlenika')
             ->icon(Heroicon::OutlinedPencil)
-            ->fillForm($record->toArray())
-            ->schema(fn (Schema $schema) => EmployeeResource\Schemas\EmployeeForm::configure($schema)->record($record))
-            ->action(function (array $data) use ($record) {
-                try {
-                    $record->update($data);
-                    \Filament\Notifications\Notification::make()
-                        ->body('Podaci zaposlenika su uspješno ažurirani.')
-                        ->success()
-                        ->send();
-                } catch (\Exception $e) {
-                    report($e);
-                    \Filament\Notifications\Notification::make()
-                        ->title('Greška prilikom ažuriranja zaposlenika')
-                        ->body($e->getMessage())
-                        ->danger()
-                        ->send();
-                }
-            });
+            ->url(fn () => EmployeeResource::getUrl('edit', ['record' => $record]));
     }
 
     public static function requestLeave(Employee $record): Action

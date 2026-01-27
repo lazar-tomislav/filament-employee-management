@@ -2,18 +2,27 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Widgets;
 
+use Amicus\FilamentEmployeeManagement\Exports\EmployeeReportExport;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Actions\EmployeeAction;
+use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Schemas\EmployeeForm;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\MonthlyWorkReport;
+use Filament\Actions\Action;
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
 use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\On;
+use Maatwebsite\Excel\Facades\Excel;
 
-class MonthlySummaryWidget extends Widget implements HasSchemas
+class MonthlySummaryWidget extends Widget implements HasActions, HasSchemas
 {
+    use InteractsWithActions;
     use InteractsWithSchemas;
 
     #[On('refresh-monthly-summary')]
@@ -104,7 +113,6 @@ class MonthlySummaryWidget extends Widget implements HasSchemas
     {
         $selectedMonth = Carbon::parse($this->selectedMonth);
         $totals = $this->record->getMonthlyWorkReport($selectedMonth)['totals'];
-
         $details = [
             'Radni sati' => $totals['work_hours'],
             'Rad od kuće' => $totals['work_from_home_hours'],
@@ -112,6 +120,7 @@ class MonthlySummaryWidget extends Widget implements HasSchemas
             'Godišnji odmor' => $totals['vacation_hours'],
             'Bolovanje' => $totals['sick_leave_hours'],
             'Plaćeno odsustvo' => $totals['other_hours'],
+            'Plaćeni neradni dani i blagdani' => $totals['holiday_hours'],
             'Predviđeno vrijeme rada' => $totals['available_hours'],
         ];
 
@@ -161,5 +170,10 @@ class MonthlySummaryWidget extends Widget implements HasSchemas
                 //                            }),
                 //                    ])
             ]);
+    }
+
+    public function downloadMonthlyTimeReportAction(): Action
+    {
+        return EmployeeAction::downloadMonthlyTimeReportAction($this->record);
     }
 }

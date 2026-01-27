@@ -39,6 +39,8 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
 
     protected ?int $totalMaternityLeaveHours = 0;
 
+    protected ?int $totalHolidayHours = 0;
+
     public function __construct(int $employeeId, int $month, int $year)
     {
         $this->employeeId = $employeeId;
@@ -75,13 +77,13 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
         $report = $this->employee->getMonthlyWorkReport($month);
 
         $data = [];
-        foreach($report['daily_data'] as $daily){
+        foreach ($report['daily_data'] as $daily) {
             $workHours = $daily['work_hours'] ?: '';
             $wfhHours = $daily['work_from_home_hours'] ?: '';
 
             // If there are work-from-home hours, the 'RADNI SATI' column should be blank,
             // as per the requirement to only log WFH hours under the WFH column in the export.
-            if (!empty($wfhHours)) {
+            if (! empty($wfhHours)) {
                 $workHours = '';
             }
 
@@ -95,6 +97,7 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
                 $daily['overtime_hours'] ?: '',
                 $daily['maternity_leave_hours'] ?: '',
                 $daily['other_hours'] ?: '',
+                $daily['holiday_hours'] ?: '',
             ];
         }
 
@@ -105,16 +108,18 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
         $this->totalOvertimeHours = $report['totals']['overtime_hours'];
         $this->totalOtherHours = $report['totals']['other_hours'];
         $this->totalMaternityLeaveHours = $report['totals']['maternity_leave_hours'];
+        $this->totalHolidayHours = $report['totals']['holiday_hours'];
 
         // Add empty rows
-        $data[] = ['', '', '', '', '', '', '', '', ''];
-        $data[] = ['', '', '', '', '', '', '', '', ''];
-        $data[] = ['', '', '', '', '', '', '', '', ''];
+        $data[] = ['', '', '', '', '', '', '', '', '', ''];
+        $data[] = ['', '', '', '', '', '', '', '', '', ''];
+        $data[] = ['', '', '', '', '', '', '', '', '', ''];
 
         // Add totals row
         $monthName = $this->getMonthNameInCroatian($this->month);
         $data[] = [
             "UKUPNO {$monthName} {$this->year}.",
+            '',
             '',
             '',
             '',
@@ -134,10 +139,12 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
             '',
             '',
             '',
+            '',
         ];
         $data[] = [
             'RAD OD KUĆE',
             $this->totalWorkFromHomeHours ?: 0,
+            '',
             '',
             '',
             '',
@@ -156,10 +163,12 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
             '',
             '',
             '',
+            '',
         ];
         $data[] = [
             'BOLOVANJE',
             $this->totalSickLeaveHours ?: 0,
+            '',
             '',
             '',
             '',
@@ -178,6 +187,7 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
             '',
             '',
             '',
+            '',
         ];
         $data[] = [
             'PORODILJNI',
@@ -189,10 +199,24 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
             '',
             '',
             '',
+            '',
         ];
         $data[] = [
             'OSTALO (plaćeno odsustvo)',
             $this->totalOtherHours ?: 0,
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+        ];
+        $data[] = [
+            'PLAĆENI NERADNI DANI I BLAGDANI',
+            $this->totalHolidayHours ?: 0,
+            '',
             '',
             '',
             '',
@@ -217,6 +241,7 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
             'PREKOVREMENI SATI',
             'PORODILJNI',
             'OSTALO (plaćeno odsustvo)',
+            'PLAĆENI NERADNI DANI I BLAGDANI',
         ];
     }
 
@@ -237,17 +262,17 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            'C1:I99' => [
+            'C1:J99' => [
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            'A2:A'.($daysInMonth + 6) => [
+            'A2:A' . ($daysInMonth + 6) => [
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            'A'.($daysInMonth + 7).':A'.($daysInMonth + 15) => [
+            'A' . ($daysInMonth + 7) . ':A' . ($daysInMonth + 16) => [
                 'font' => ['bold' => true],
             ],
         ];
@@ -300,8 +325,8 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
                 $event->sheet->getDelegate()->mergeCells('A3:B3');
                 $event->sheet->getDelegate()->mergeCells('C2:E2');
                 $event->sheet->getDelegate()->mergeCells('C3:E3');
-                $event->sheet->getDelegate()->mergeCells('F2:I2');
-                $event->sheet->getDelegate()->mergeCells('F3:I3');
+                $event->sheet->getDelegate()->mergeCells('F2:J2');
+                $event->sheet->getDelegate()->mergeCells('F3:J3');
 
                 $event->sheet->getDelegate()->setCellValue('C2', 'RADNI SATI');
 
@@ -318,7 +343,7 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
                     ],
                 ];
 
-                $event->sheet->getDelegate()->getStyle('A2:I3')->applyFromArray($styleArray);
+                $event->sheet->getDelegate()->getStyle('A2:J3')->applyFromArray($styleArray);
                 $event->sheet->getDelegate()->getRowDimension(2)->setRowHeight(50);
                 $event->sheet->getDelegate()->getRowDimension(3)->setRowHeight(50);
             },

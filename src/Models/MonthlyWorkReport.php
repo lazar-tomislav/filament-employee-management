@@ -27,6 +27,7 @@ class MonthlyWorkReport extends Model
         'vacation_hours',
         'sick_leave_hours',
         'other_hours',
+        'holiday_hours',
     ];
 
     protected $casts = [
@@ -39,6 +40,7 @@ class MonthlyWorkReport extends Model
         'vacation_hours' => 'decimal:2',
         'sick_leave_hours' => 'decimal:2',
         'other_hours' => 'decimal:2',
+        'holiday_hours' => 'decimal:2',
     ];
 
     public function employee()
@@ -53,13 +55,14 @@ class MonthlyWorkReport extends Model
             'for_month' => $forMonth->startOfMonth()->toDateString(),
         ]);
 
-        if (!$report->exists) {
+        if (! $report->exists) {
             $report->total_available_hours = $totals['available_hours'];
             $report->work_hours = $totals['work_hours'];
             $report->overtime_hours = $totals['overtime_hours'];
             $report->vacation_hours = $totals['vacation_hours'];
             $report->sick_leave_hours = $totals['sick_leave_hours'];
             $report->other_hours = $totals['other_hours'];
+            $report->holiday_hours = $totals['holiday_hours'];
         }
 
         if ($isApproved) {
