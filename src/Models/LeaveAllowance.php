@@ -41,14 +41,11 @@ class LeaveAllowance extends Model
 
     protected function usedDays(): Attribute
     {
-        // calculate in leave_requests where status is approved
         return Attribute::make(
             get: fn () => $this->leaveRequests()
                 ->where('status', 'approved')
-                ->whereYear('start_date', $this->year)
                 ->sum('days_count'),
         );
-
     }
 
     protected function availableDays(): Attribute
