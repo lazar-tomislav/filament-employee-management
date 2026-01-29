@@ -94,7 +94,7 @@ class LeaveAllowanceTable
                     ->sortable(),
             ])->recordActions([
                 EditAction::make()
-                    ->visible(fn() => auth()->user()->isUredAdministrativnoOsoblje())
+                    ->visible(fn() => auth()->user()->isAdmin())
                     ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
                     ->schema(fn($schema) => LeaveAllowanceForm::configure($schema)),
             ]);

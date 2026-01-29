@@ -147,7 +147,7 @@ class LeaveRequestActions
         return \Filament\Actions\Action::make('edit_notes')
             ->label('Napomena')
             ->icon(Heroicon::OutlinedPencil)
-            ->visible(fn ($record) => auth()->user()->isUredAdministrativnoOsoblje())
+            ->visible(fn ($record) => auth()->user()->isAdmin())
             ->fillForm(fn (LeaveRequest $record): array => [
                 'notes' => $record->notes,
             ])

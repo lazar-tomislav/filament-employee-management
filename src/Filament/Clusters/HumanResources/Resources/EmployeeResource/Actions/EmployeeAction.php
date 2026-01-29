@@ -20,7 +20,7 @@ class EmployeeAction
         return Action::make('export')
             ->label('Izvještaj radnih sati svih zaposlenika')
             ->icon(Heroicon::OutlinedDocumentArrowDown)
-            ->visible(fn () => auth()->user()->isUredAdministrativnoOsoblje())
+            ->visible(fn () => auth()->user()->isAdmin())
             ->color('primary')
             ->schema(fn ($schema) => EmployeeForm::monthlyTimeReport($schema))
             ->action(function (array $data) {
