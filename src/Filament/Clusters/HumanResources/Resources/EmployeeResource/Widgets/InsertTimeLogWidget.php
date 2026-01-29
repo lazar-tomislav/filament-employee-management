@@ -191,7 +191,7 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
                 'day_name' => $currentDay->locale('hr')->format('D'),
                 'day_number' => $currentDay->format('j'),
                 'hours' => $totalHours,
-                'has_hours' => $totalHours > 0,
+                'has_hours' => $totalHours !== '00:00',
                 'is_today' => $currentDay->isToday(),
                 'is_weekend' => $currentDay->isWeekend(),
                 'is_holiday' => $isHoliday,
