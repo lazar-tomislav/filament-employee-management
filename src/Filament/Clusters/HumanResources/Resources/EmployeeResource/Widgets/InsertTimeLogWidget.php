@@ -185,6 +185,7 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
 
             $totalHours = TimeLog::getTotalHoursForDate($this->record?->id, $currentDay->format('Y-m-d'));
             $isHoliday = Holiday::getHolidaysForDate($currentDay)->isNotEmpty();
+            $hasLeaveRequest = LeaveRequest::getLeaveRequestsForDate($this->record?->id, $currentDay->format('Y-m-d'))->isNotEmpty();
 
             $days[] = [
                 'date' => $currentDay->format('Y-m-d'),
@@ -195,6 +196,7 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
                 'is_today' => $currentDay->isToday(),
                 'is_weekend' => $currentDay->isWeekend(),
                 'is_holiday' => $isHoliday,
+                'has_leave' => $hasLeaveRequest,
                 'is_selected' => $currentDay->format('Y-m-d') === $this->selectedDate,
             ];
         }
