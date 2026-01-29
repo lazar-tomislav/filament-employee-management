@@ -39,8 +39,8 @@ class EmployeeTable
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
-                Actions\ViewAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
-                Actions\EditAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)->modalHeading("Uredi zaposlenika"),
+                Actions\ViewAction::make()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
+                Actions\EditAction::make()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
             ])
             ->headerActions([
                 EmployeeAction::allEmployeTimeReportExport(),
