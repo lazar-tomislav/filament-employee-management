@@ -60,7 +60,7 @@
                          @if($day['is_selected']) border-b-4 border-primary-600 dark:border-primary-500
                          @elseif($day['is_holiday']) bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50
                          @elseif($day['is_weekend']) bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-700
-                         @elseif($day['has_hours']) bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40
+                         @elseif($day['has_hours']) hover:bg-gray-50 dark:hover:bg-gray-800
                          @else hover:bg-red-50 dark:hover:bg-gray-800 @endif"
                          @if($day['is_holiday'])
                              style="background-image: repeating-linear-gradient(
@@ -87,6 +87,9 @@
                                  class="text-xs @if($day['is_selected']) text-primary-500 dark:text-primary-300 @else text-black dark:text-white @endif whitespace-nowrap">
                              {{ $day['day_name'] }} {{ $day['day_number'] }}
                              </span>
+                             @if($day['has_hours'])
+                                 <span class="block w-1.5 h-1.5 rounded-full bg-green-500 dark:bg-green-400 mt-0.5"></span>
+                             @endif
                         </div>
                     @endforeach
                 </div>
