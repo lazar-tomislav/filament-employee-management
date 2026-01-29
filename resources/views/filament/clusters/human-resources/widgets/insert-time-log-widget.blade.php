@@ -58,7 +58,27 @@
                          <div wire:click="selectDate('{{ $day['date'] }}')"
                               class="flex flex-col items-center text-black dark:text-white justify-center min-w-[70px] flex-1 py-2 rounded-md cursor-pointer transition-colors
                          @if($day['is_selected']) border-b-4 border-primary-600 dark:border-primary-500
-                         @else hover:bg-red-50 dark:hover:bg-gray-800 @endif">
+                         @elseif($day['is_holiday']) bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50
+                         @elseif($day['is_weekend']) bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-700
+                         @elseif($day['has_hours']) bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40
+                         @else hover:bg-red-50 dark:hover:bg-gray-800 @endif"
+                         @if($day['is_holiday'])
+                             style="background-image: repeating-linear-gradient(
+                                 -45deg,
+                                 transparent,
+                                 transparent 4px,
+                                 rgba(245, 158, 11, 0.15) 4px,
+                                 rgba(245, 158, 11, 0.15) 8px
+                             );"
+                         @elseif($day['is_weekend'])
+                             style="background-image: repeating-linear-gradient(
+                                 -45deg,
+                                 transparent,
+                                 transparent 4px,
+                                 rgba(156, 163, 175, 0.2) 4px,
+                                 rgba(156, 163, 175, 0.2) 8px
+                             );"
+                         @endif>
                         <span
                                 class="text-sm font-semibold @if($day['is_selected']) text-primary-600 dark:text-primary-400 @else dark:text-gray-100 @endif">
                             {{ $day['hours'] }}
