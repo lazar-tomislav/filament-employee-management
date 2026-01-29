@@ -16,8 +16,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Traits\HasRoles;
 
 #[ObservedBy([EmployeeObserver::class])]
@@ -26,7 +24,6 @@ class Employee extends Model
     use HasEmployeeRole;
     use HasFactory;
     use HasRoles;
-    use Notifiable;
     use SoftDeletes;
 
     /**
@@ -129,7 +126,7 @@ class Employee extends Model
     protected function initials(): Attribute
     {
         return Attribute::make(
-            get: fn () => strtoupper(substr($this->first_name, 0, 1) . substr($this->last_name, 0, 1)),
+            get: fn () => strtoupper(substr($this->first_name, 0, 1).substr($this->last_name, 0, 1)),
         );
     }
 
@@ -285,53 +282,4 @@ class Employee extends Model
         return $report;
     }
 
-    public function taskUpdates(): HasMany
-    {
-        return $this->hasMany(\Amicus\FilamentEmployeeManagement\Models\TaskUpdate::class, 'employee_id');
-    }
-
-    public function mentionsInTaskUpdates(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            \Amicus\FilamentEmployeeManagement\Models\TaskUpdate::class,
-            'task_update_mentions',
-            'mentioned_employee_id',
-            'task_update_id'
-        );
-    }
-
-    public function assignedOffers(): ?HasMany
-    {
-        // if model_exists
-        if (class_exists(\App\Models\Offer::class)) {
-            return $this->hasMany(\App\Models\Offer::class, 'assigned_to');
-        }
-
-        return null;
-    }
-
-    /**
-     * Override notify method to also send notification to associated user
-     * for Filament panel notifications
-     */
-    public function notify($instance)
-    {
-        try {
-            // Send notification to employee using Notifiable trait method
-            parent::notify($instance);
-
-            // Also send to associated user for Filament panel
-            $user = $this->user; // Cachiramo referencu
-            if ($user && method_exists($user, 'notify')) {
-
-                if ($instance->id == null) {
-                    return;
-                }
-                $user->notify($instance);
-            }
-        } catch (\Exception $e) {
-            report($e);
-            Log::error("Failed to notify employee {$this->id} ({$this->full_name}): {$e->getMessage()}");
-        }
-    }
 }

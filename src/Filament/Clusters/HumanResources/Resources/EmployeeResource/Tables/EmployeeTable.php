@@ -45,6 +45,7 @@ class EmployeeTable
             ->headerActions([
                 EmployeeAction::allEmployeTimeReportExport(),
             ])
+            ->deferLoading()
             ->headerActionsPosition(HeaderActionsPosition::Bottom)
             ->toolbarActions([
                 Actions\BulkActionGroup::make([
