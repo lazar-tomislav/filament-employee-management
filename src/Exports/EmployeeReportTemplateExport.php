@@ -34,6 +34,7 @@ class EmployeeReportTemplateExport
      */
     protected array $hourTypeRows = [
         'vacation_hours' => 16,          // Godišnji odmor
+        'holiday_hours' => 17,           // Plaćeni neradni dani i blagradi
         'sick_leave_hours' => 18,        // Bolovanje
         'maternity_leave_hours' => 20,   // Rodiljni dopust
         'other_hours' => 22,             // Plaćeni dopust
@@ -103,12 +104,12 @@ class EmployeeReportTemplateExport
         $month = Carbon::create($this->year, $this->month);
         $report = $this->employee->getMonthlyWorkReport($month);
 
-        // Fill employee name (row 3, after the label)
-        $sheet->setCellValue('C3', $this->employee->full_name);
+        // Fill employee name (D3:K3 merged cell)
+        $sheet->setCellValue('D3', $this->employee->full_name);
 
-        // Fill department if available
+        // Fill department if available (D4:N4 merged cell)
         if ($this->employee->department) {
-            $sheet->setCellValue('C4', $this->employee->department->name);
+            $sheet->setCellValue('D4', $this->employee->department->name);
         }
 
         // Fill daily data
@@ -154,6 +155,11 @@ class EmployeeReportTemplateExport
             // Fill other hours (paid leave)
             if (! empty($daily['other_hours'])) {
                 $sheet->setCellValue($col . $this->hourTypeRows['other_hours'], $daily['other_hours']);
+            }
+
+            // Fill holiday hours (public holidays)
+            if (! empty($daily['holiday_hours'])) {
+                $sheet->setCellValue($col . $this->hourTypeRows['holiday_hours'], $daily['holiday_hours']);
             }
         }
 
