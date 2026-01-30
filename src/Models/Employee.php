@@ -6,6 +6,7 @@ use Amicus\FilamentEmployeeManagement\Database\Factories\EmployeeFactory;
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestType;
 use Amicus\FilamentEmployeeManagement\Observers\EmployeeObserver;
 use Amicus\FilamentEmployeeManagement\Traits\HasEmployeeRole;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
@@ -98,7 +99,17 @@ class Employee extends Model
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class);
+        return $this->belongsTo(User::class);
+    }
+
+    public function timeLogs(): HasMany
+    {
+        return $this->hasMany(TimeLog::class);
+    }
+
+    public function leaveRequests(): HasMany
+    {
+        return $this->hasMany(LeaveRequest::class);
     }
 
     public function routeNotificationForTelegram()
@@ -143,15 +154,15 @@ class Employee extends Model
 
     private function getDailyWorkHours(Carbon $date): float
     {
-        return (float) TimeLog::where('employee_id', $this->id)
-            ->whereDate('date', $date->format('Y-m-d'))
+        return (float) $this->timeLogs
+            ->where('date', $date->format('Y-m-d'))
             ->sum('hours');
     }
 
     private function getDailyWorkFromHomeHours(Carbon $date): float
     {
-        return (float) TimeLog::where('employee_id', $this->id)
-            ->whereDate('date', $date->format('Y-m-d'))
+        return (float) $this->timeLogs
+            ->where('date', $date->format('Y-m-d'))
             ->where('is_work_from_home', true)
             ->sum('hours');
     }
@@ -169,7 +180,10 @@ class Employee extends Model
             return $leaveHours;
         }
 
-        $leaveRequest = LeaveRequest::getLeaveRequestsForDate($this->id, $date)->first();
+        $leaveRequest = $this->leaveRequests
+            ->where('start_date', '<=', $date->format('Y-m-d'))
+            ->where('end_date', '>=', $date->format('Y-m-d'))
+            ->first();
 
         if ($leaveRequest) {
             $hourType = match ($leaveRequest->type) {
@@ -203,58 +217,100 @@ class Employee extends Model
                 'other_hours' => 0.0,
                 'maternity_leave_hours' => 0.0,
                 'available_hours' => 0.0,
+                'holiday_hours' => 0.0,
             ],
         ];
 
         $daysInMonth = $month->daysInMonth;
         $holidays = Holiday::getHolidaysForMonth($month);
 
+        $timeLogsByDate = $this->timeLogs()
+            ->whereYear('date', $month->year)
+            ->whereMonth('date', $month->month)
+            ->selectRaw('date, SUM(hours) as total_hours, SUM(CASE WHEN is_work_from_home = 1 THEN hours ELSE 0 END) as wfh_hours')
+            ->groupBy('date')
+            ->get()
+            ->keyBy(fn ($log) => Carbon::parse($log->date)->format('Y-m-d'));
+
+        $leaveRequestsCursor = $this->leaveRequests()
+            ->where(function ($query) use ($month) {
+                $query->where(function ($q) use ($month) {
+                    $q->whereYear('start_date', $month->year)->whereMonth('start_date', $month->month);
+                })->orWhere(function ($q) use ($month) {
+                    $q->whereYear('end_date', $month->year)->whereMonth('end_date', $month->month);
+                });
+            })
+            ->cursor();
+
+        $leaveRequestsByDate = [];
+        foreach ($leaveRequestsCursor as $leaveRequest) {
+            $currentDate = Carbon::parse($leaveRequest->start_date);
+            $endDate = Carbon::parse($leaveRequest->end_date);
+            while ($currentDate->lte($endDate)) {
+                if ($currentDate->month == $month->month && $currentDate->year == $month->year) {
+                    $leaveRequestsByDate[$currentDate->format('Y-m-d')] = $leaveRequest;
+                }
+                $currentDate->addDay();
+            }
+        }
+
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = $month->copy()->setDay($day);
+            $dateString = $date->format('Y-m-d');
 
-            $totalDailyWorkHours = $this->getDailyWorkHours($date);
-            $totalDailyWorkFromHomeHours = $this->getDailyWorkFromHomeHours($date);
+            $dailyLog = $timeLogsByDate->get($dateString);
+            $totalDailyWorkHours = $dailyLog->total_hours ?? 0;
+            $totalDailyWorkFromHomeHours = $dailyLog->wfh_hours ?? 0;
+
             $dailyWorkHours = 0.0;
             $dailyWorkFromHomeHours = 0.0;
             $dailyOvertimeHours = 0.0;
+            $dailyVacationHours = 0.0;
+            $dailySickLeaveHours = 0.0;
+            $dailyOtherHours = 0.0;
+            $dailyMaternityLeaveHours = 0.0;
+            $dailyHolidayHours = 0.0;
 
-            $leaveHours = $this->getDailyLeaveHours($date);
-            $dailyVacationHours = $leaveHours['vacation_hours'];
-            $dailySickLeaveHours = $leaveHours['sick_leave_hours'];
-            $dailyOtherHours = $leaveHours['other_hours'];
-            $dailyMaternityLeaveHours = $leaveHours['maternity_leave_hours'];
+            $leaveRequest = $leaveRequestsByDate[$dateString] ?? null;
+            if ($leaveRequest && in_array($date->dayOfWeek, self::WORK_DAYS)) {
+                $hourType = match ($leaveRequest->type) {
+                    LeaveRequestType::ANNUAL_LEAVE => 'dailyVacationHours',
+                    LeaveRequestType::SICK_LEAVE => 'dailySickLeaveHours',
+                    LeaveRequestType::PAID_LEAVE => 'dailyOtherHours',
+                    LeaveRequestType::MATERNITY_LEAVE => 'dailyMaternityLeaveHours',
+                    default => null,
+                };
+                if ($hourType) {
+                    $$hourType = self::HOURS_PER_WORK_DAY;
+                }
+            }
 
             $isWorkDayOfWeek = in_array($date->dayOfWeek, self::WORK_DAYS);
-            $isPublicHoliday = in_array($date->format('Y-m-d'), $holidays);
+            $isPublicHoliday = in_array($dateString, $holidays);
 
             if ($isPublicHoliday) {
                 $dailyVacationHours = 0;
                 $dailySickLeaveHours = 0;
                 $dailyOtherHours = 0;
                 $dailyMaternityLeaveHours = 0;
+                $dailyHolidayHours = self::HOURS_PER_WORK_DAY;
             }
 
             $isOnLeave = $dailyVacationHours > 0 || $dailySickLeaveHours > 0 || $dailyOtherHours > 0 || $dailyMaternityLeaveHours > 0;
 
-            $isStandardWorkDay = $isWorkDayOfWeek && ! $isPublicHoliday && ! $isOnLeave;
-
-            // Available hours are calculated based on potential work days (ignoring personal leave)
             if ($isWorkDayOfWeek && ! $isPublicHoliday) {
                 $report['totals']['available_hours'] += self::HOURS_PER_WORK_DAY;
             }
 
-            if ($isStandardWorkDay) {
-                $dailyWorkHours = $totalDailyWorkHours;
-                $dailyWorkFromHomeHours = $totalDailyWorkFromHomeHours;
+            if ($isWorkDayOfWeek && ! $isPublicHoliday && ! $isOnLeave) {
                 if ($totalDailyWorkHours > self::HOURS_PER_WORK_DAY) {
                     $dailyWorkHours = self::HOURS_PER_WORK_DAY;
                     $dailyOvertimeHours = $totalDailyWorkHours - self::HOURS_PER_WORK_DAY;
+                } else {
+                    $dailyWorkHours = $totalDailyWorkHours;
                 }
-            } elseif ($isPublicHoliday) {
-                // For holidays, count as 8 work hours, plus any logged hours as overtime
-                $dailyWorkHours = self::HOURS_PER_WORK_DAY;
-                $dailyOvertimeHours = $totalDailyWorkHours;
-            } else { // It's a weekend or a personal leave day
+                $dailyWorkFromHomeHours = $totalDailyWorkFromHomeHours;
+            } else {
                 $dailyOvertimeHours = $totalDailyWorkHours;
             }
 
@@ -267,6 +323,7 @@ class Employee extends Model
                 'sick_leave_hours' => $dailySickLeaveHours,
                 'other_hours' => $dailyOtherHours,
                 'maternity_leave_hours' => $dailyMaternityLeaveHours,
+                'holiday_hours' => $dailyHolidayHours,
             ];
 
             $report['totals']['work_hours'] += $dailyWorkHours;
@@ -276,6 +333,7 @@ class Employee extends Model
             $report['totals']['sick_leave_hours'] += $dailySickLeaveHours;
             $report['totals']['other_hours'] += $dailyOtherHours;
             $report['totals']['maternity_leave_hours'] += $dailyMaternityLeaveHours;
+            $report['totals']['holiday_hours'] += $dailyHolidayHours;
         }
 
         return $report;
@@ -283,13 +341,13 @@ class Employee extends Model
 
     public function taskUpdates(): HasMany
     {
-        return $this->hasMany(\Amicus\FilamentEmployeeManagement\Models\TaskUpdate::class, 'employee_id');
+        return $this->hasMany(TaskUpdate::class, 'employee_id');
     }
 
     public function mentionsInTaskUpdates(): BelongsToMany
     {
         return $this->belongsToMany(
-            \Amicus\FilamentEmployeeManagement\Models\TaskUpdate::class,
+            TaskUpdate::class,
             'task_update_mentions',
             'mentioned_employee_id',
             'task_update_id'
@@ -299,8 +357,8 @@ class Employee extends Model
     public function assignedOffers(): ?HasMany
     {
         // if model_exists
-        if (class_exists(\App\Models\Offer::class)) {
-            return $this->hasMany(\App\Models\Offer::class, 'assigned_to');
+        if (class_exists(Offer::class)) {
+            return $this->hasMany(Offer::class, 'assigned_to');
         }
 
         return null;

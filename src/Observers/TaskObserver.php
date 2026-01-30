@@ -15,13 +15,13 @@ class TaskObserver
     public function creating(Task $task): void
     {
         // Set default status if not already set
-        if(empty($task->status)){
+        if (empty($task->status)) {
             $task->status = TaskStatus::TODO;
         }
 
         // Set creator_id only if not already set
-        if(empty($task->creator_id)) {
-            if(!auth()->check() || !auth()->user()->employee) {
+        if (empty($task->creator_id)) {
+            if (! auth()->check() || ! auth()->user()->employee) {
                 throw new \Exception('Korisnik mora imati povezan Employee zapis za kreiranje zadatka.');
             }
             $task->creator_id = auth()->user()->employee->id;
@@ -56,7 +56,7 @@ class TaskObserver
         $statusChanged = $task->wasChanged('status');
         logger('Status was changed: ' . ($statusChanged ? 'true' : 'false'));
 
-        if($statusChanged){
+        if ($statusChanged) {
             $originalStatus = $task->getOriginal('status');
             logger('Original status: ' . ($originalStatus ? $originalStatus->value : 'null'));
             logger('New status: ' . $task->status->value);
@@ -69,15 +69,15 @@ class TaskObserver
         logger('Has project: ' . ($hasProject ? 'true' : 'false'));
 
         // Check if status was changed to DONE and task has a project (projektni zadatak)
-        if($task->wasChanged('status') &&
+        if ($task->wasChanged('status') &&
             $task->status === TaskStatus::DONE &&
-            $task->project_id !== null){
+            $task->project_id !== null) {
 
             logger('All conditions met - sending notification');
             (new GeneralNotificationTarget)->notify(new TaskCompletedNotification($task));
 
             logger("Task completed notification sent for task ID: {$task->id}");
-        }else{
+        } else {
             logger('Conditions not met - notification not sent');
         }
     }

@@ -11,11 +11,12 @@ use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithDrawings;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings, WithStyles
+class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings
 {
     protected int $employeeId;
 
@@ -75,13 +76,13 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
         $report = $this->employee->getMonthlyWorkReport($month);
 
         $data = [];
-        foreach($report['daily_data'] as $daily){
+        foreach ($report['daily_data'] as $daily) {
             $workHours = $daily['work_hours'] ?: '';
             $wfhHours = $daily['work_from_home_hours'] ?: '';
 
             // If there are work-from-home hours, the 'RADNI SATI' column should be blank,
             // as per the requirement to only log WFH hours under the WFH column in the export.
-            if (!empty($wfhHours)) {
+            if (! empty($wfhHours)) {
                 $workHours = '';
             }
 
@@ -220,73 +221,6 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
         ];
     }
 
-    public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet): array
-    {
-        $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
-
-        $styles = [
-            6 => [
-                'font' => ['bold' => true],
-                'fill' => [
-                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                    'startColor' => [
-                        'argb' => 'FFD3D3D3',
-                    ],
-                ],
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                ],
-            ],
-            'C1:I99' => [
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                ],
-            ],
-            'A2:A'.($daysInMonth + 6) => [
-                'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
-                ],
-            ],
-            'A'.($daysInMonth + 7).':A'.($daysInMonth + 15) => [
-                'font' => ['bold' => true],
-            ],
-        ];
-
-        for ($day = 1; $day <= $daysInMonth; $day++) {
-            $date = Carbon::create($this->year, $this->month, $day);
-            if ($date->isWeekend()) {
-                $rowNumber = $day + 6;
-                $styles[$rowNumber] = [
-                    'fill' => [
-                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'startColor' => [
-                            'argb' => 'FFD3D3D3',
-                        ],
-                    ],
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
-                            'color' => ['argb' => '06A04F'],
-                        ],
-                    ],
-                ];
-            }
-        }
-
-        $totalRow = 6 + $daysInMonth + 3 + 1;
-        $styles[$totalRow] = [
-            'font' => ['bold' => true],
-            'fill' => [
-                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                'startColor' => [
-                    'argb' => 'FFD3D3D3',
-                ],
-            ],
-        ];
-
-        return $styles;
-    }
-
     public function startCell(): string
     {
         return 'A6';
@@ -310,17 +244,44 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
 
                 $event->sheet->getDelegate()->setCellValue('F2', $this->employee->full_name);
 
+                // Style header rows
                 $styleArray = [
                     'font' => ['bold' => true],
                     'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
-                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                        'horizontal' => Alignment::HORIZONTAL_LEFT,
+                        'vertical' => Alignment::VERTICAL_CENTER,
                     ],
                 ];
 
                 $event->sheet->getDelegate()->getStyle('A2:I3')->applyFromArray($styleArray);
                 $event->sheet->getDelegate()->getRowDimension(2)->setRowHeight(50);
                 $event->sheet->getDelegate()->getRowDimension(3)->setRowHeight(50);
+
+                // Style headings row (row 6)
+                $event->sheet->getDelegate()->getStyle('A6:I6')->applyFromArray([
+                    'font' => ['bold' => true],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'argb' => 'FFD3D3D3',
+                        ],
+                    ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    ],
+                ]);
+
+                // Style data columns for centering
+                $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
+                $dataStartRow = 7;
+                $dataEndRow = $dataStartRow + $daysInMonth + 2; // +2 to include the empty rows after daily data
+
+                // Apply center alignment to data and total rows
+                $event->sheet->getDelegate()->getStyle("C{$dataStartRow}:I{$dataEndRow}")->applyFromArray([
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    ],
+                ]);
             },
         ];
     }

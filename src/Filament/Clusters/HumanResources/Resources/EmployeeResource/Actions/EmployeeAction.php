@@ -4,12 +4,12 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 
 use Amicus\FilamentEmployeeManagement\Exports\AllEmployeTimeReportExport;
 use Amicus\FilamentEmployeeManagement\Exports\EmployeeReportExport;
+use Amicus\FilamentEmployeeManagement\Exports\EmployeeReportTemplateExport;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Schemas\EmployeeForm;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Pages\Dashboard;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
@@ -74,27 +74,101 @@ class EmployeeAction
             ->label('Mjesečni izvještaj radnih sati')
             ->icon(Heroicon::OutlinedDocumentArrowDown)
             ->color('')
-            ->schema(fn ($schema) => EmployeeForm::monthlyTimeReport($schema))
+            ->schema([
+                Select::make('template_type')
+                    ->label('Tip predloška')
+                    ->options([
+                        'generated' => 'Generirani Excel izvještaj',
+                        'ods_template' => 'Službeni predložak (evidencija radnog vremena)',
+                    ])
+                    ->default('generated')
+                    ->required()
+                    ->helperText('Odaberite format izvještaja koji želite preuzeti.'),
+
+                Select::make('month')
+                    ->label('Mjesec')
+                    ->options([
+                        1 => '1. Siječanj',
+                        2 => '2. Veljača',
+                        3 => '3. Ožujak',
+                        4 => '4. Travanj',
+                        5 => '5. Svibanj',
+                        6 => '6. Lipanj',
+                        7 => '7. Srpanj',
+                        8 => '8. Kolovoz',
+                        9 => '9. Rujan',
+                        10 => '10. Listopad',
+                        11 => '11. Studeni',
+                        12 => '12. Prosinac',
+                    ])
+                    ->searchable()
+                    ->selectablePlaceholder(false)
+                    ->preload()
+                    ->default(now()->month)
+                    ->required(),
+
+                Select::make('year')
+                    ->label('Godina')
+                    ->options(collect(range(now()->year - 2, now()->year + 1))
+                        ->mapWithKeys(fn ($year) => [$year => $year]))
+                    ->searchable()
+                    ->selectablePlaceholder(false)
+                    ->preload()
+                    ->default(now()->year)
+                    ->required(),
+            ])
             ->action(function (array $data) use ($record) {
-                $export = new EmployeeReportExport(
-                    $record->id,
-                    $data['month'],
-                    $data['year']
-                );
-                $monthNames = [
-                    1 => 'Siječanj', 2 => 'Veljača', 3 => 'Ožujak', 4 => 'Travanj',
-                    5 => 'Svibanj', 6 => 'Lipanj', 7 => 'Srpanj', 8 => 'Kolovoz',
-                    9 => 'Rujan', 10 => 'Listopad', 11 => 'Studeni', 12 => 'Prosinac',
-                ];
+                try {
+                    $templateType = $data['template_type'];
+                    $month = $data['month'];
+                    $year = $data['year'];
 
-                $fileName = sprintf(
-                    'izvjestaj-radnih-sati-%s-%s-%s.xlsx',
-                    strtolower(str_replace(' ', '-', $record->full_name)),
-                    strtolower($monthNames[$data['month']]),
-                    $data['year']
-                );
+                    $monthNames = [
+                        1 => 'Siječanj', 2 => 'Veljača', 3 => 'Ožujak', 4 => 'Travanj',
+                        5 => 'Svibanj', 6 => 'Lipanj', 7 => 'Srpanj', 8 => 'Kolovoz',
+                        9 => 'Rujan', 10 => 'Listopad', 11 => 'Studeni', 12 => 'Prosinac',
+                    ];
 
-                return Excel::download($export, $fileName);
+                    // Choose export class based on template type
+                    if ($templateType === 'ods_template') {
+                        $export = new EmployeeReportTemplateExport(
+                            $record->id,
+                            $month,
+                            $year
+                        );
+
+                        $fileName = sprintf(
+                            'izvjestaj-radnih-sati-%s-%s-%s.xlsx',
+                            strtolower(str_replace(' ', '-', $record->full_name)),
+                            strtolower($monthNames[$month]),
+                            $year
+                        );
+
+                        return $export->download($fileName);
+                    }
+
+                    $export = new EmployeeReportExport(
+                        $record->id,
+                        $month,
+                        $year
+                    );
+
+                    $fileName = sprintf(
+                        'izvjestaj-radnih-sati-%s-%s-%s.xlsx',
+                        strtolower(str_replace(' ', '-', $record->full_name)),
+                        strtolower($monthNames[$month]),
+                        $year
+                    );
+
+                    return Excel::download($export, $fileName);
+                } catch (\Exception $e) {
+                    report($e);
+                    \Filament\Notifications\Notification::make()
+                        ->title('Greška prilikom generiranja izvještaja')
+                        ->body($e->getMessage())
+                        ->danger()
+                        ->send();
+                }
             })
             ->modalSubmitActionLabel('Preuzmi izvještaj')
             ->modalCancelActionLabel('Odustani');
