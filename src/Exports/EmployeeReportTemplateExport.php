@@ -124,9 +124,18 @@ class EmployeeReportTemplateExport
         $month = Carbon::create($this->year, $this->month);
         $report = $this->employee->getMonthlyWorkReport($month);
 
-        // Fill title with correct month and year
-        $monthName = mb_strtoupper($this->monthSheets[$this->month]);
-        $sheet->setCellValue('L3', "EVIDENCIJA O RADNOM VREMENU RADNIKA ZA MJESEC {$monthName} {$this->year}. GODINA");
+        // Update the year in the title (only for November and December which have different layout)
+        if (in_array($this->month, [11, 12])) {
+            $existingTitle = $sheet->getCell('L3')->getValue();
+            if ($existingTitle) {
+                // Replace any 4-digit year (e.g., 2025) with the correct year
+                $updatedTitle = preg_replace('/\b\d{4}\b/', $this->year, $existingTitle);
+                // Also replace month name if needed
+                $monthName = mb_strtoupper($this->monthSheets[$this->month]);
+                $updatedTitle = preg_replace('/MJESEC\s+\w+\s+/', "MJESEC {$monthName} ", $updatedTitle);
+                $sheet->setCellValue('L3', $updatedTitle);
+            }
+        }
 
         // Fill employee name (D3:K3 merged cell)
         $sheet->setCellValue('D3', $this->employee->full_name);
@@ -183,8 +192,8 @@ class EmployeeReportTemplateExport
             // 2. Workday + WFH: first 8h → row 32 (Rad na daljinu), rest → row 33 (Prekovremeni)
             // 3. Weekend + any work: all hours → row 33/34 (Prekovremeni) - regardless of WFH or office
 
-            $totalHours = $daily['total_hours'] ?? 0;
-            $totalWfhHours = $daily['total_wfh_hours'] ?? 0;
+            $totalHours = (float) ($daily['total_hours'] ?? 0);
+            $totalWfhHours = (float) ($daily['total_wfh_hours'] ?? 0);
             $isWeekend = $daily['is_weekend'] ?? false;
 
             if ($totalHours > 0) {
@@ -209,6 +218,19 @@ class EmployeeReportTemplateExport
                         }
                     }
                 }
+            }
+        }
+
+        // Set number format for all data cells to show decimals only when needed
+        // Format: show whole numbers without decimal, decimals with up to 2 decimal places
+        $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
+        foreach ($this->dayColumns as $day => $col) {
+            if ($day > $daysInMonth) {
+                break;
+            }
+            foreach ($this->hourTypeRows as $row) {
+                // Use General format which automatically handles decimals
+                $sheet->getStyle($col . $row)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_GENERAL);
             }
         }
 
