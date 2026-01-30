@@ -288,7 +288,7 @@ class Employee extends Model
             $isWorkDayOfWeek = in_array($date->dayOfWeek, self::WORK_DAYS);
             $isPublicHoliday = in_array($dateString, $holidays);
 
-            if ($isPublicHoliday) {
+            if ($isPublicHoliday && $isWorkDayOfWeek) {
                 $dailyVacationHours = 0;
                 $dailySickLeaveHours = 0;
                 $dailyOtherHours = 0;
@@ -303,11 +303,15 @@ class Employee extends Model
             }
 
             if ($isWorkDayOfWeek && ! $isPublicHoliday && ! $isOnLeave) {
+                // Separate regular work hours from WFH hours
+                $totalRegularHours = $totalDailyWorkHours - $totalDailyWorkFromHomeHours;
+
                 if ($totalDailyWorkHours > self::HOURS_PER_WORK_DAY) {
-                    $dailyWorkHours = self::HOURS_PER_WORK_DAY;
+                    // Cap regular work at remaining capacity after WFH
+                    $dailyWorkHours = max(0, self::HOURS_PER_WORK_DAY - $totalDailyWorkFromHomeHours);
                     $dailyOvertimeHours = $totalDailyWorkHours - self::HOURS_PER_WORK_DAY;
                 } else {
-                    $dailyWorkHours = $totalDailyWorkHours;
+                    $dailyWorkHours = $totalRegularHours;
                 }
                 $dailyWorkFromHomeHours = $totalDailyWorkFromHomeHours;
             } else {
@@ -324,6 +328,10 @@ class Employee extends Model
                 'other_hours' => $dailyOtherHours,
                 'maternity_leave_hours' => $dailyMaternityLeaveHours,
                 'holiday_hours' => $dailyHolidayHours,
+                'is_holiday' => $isPublicHoliday,
+                'total_hours' => $totalDailyWorkHours,
+                'total_wfh_hours' => $totalDailyWorkFromHomeHours,
+                'is_weekend' => ! in_array($date->dayOfWeek, self::WORK_DAYS),
             ];
 
             $report['totals']['work_hours'] += $dailyWorkHours;

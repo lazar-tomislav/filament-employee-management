@@ -5,6 +5,7 @@ namespace Amicus\FilamentEmployeeManagement\Exports;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class EmployeeReportTemplateExport
@@ -39,8 +40,22 @@ class EmployeeReportTemplateExport
         'maternity_leave_hours' => 20,   // Rodiljni dopust
         'other_hours' => 22,             // Plaćeni dopust
         'work_hours' => 30,              // Redovan rad
+        'weekend_work_hours' => 31,      // Rad blagdanom i neradnim danima
         'work_from_home_hours' => 32,    // Rad na daljinu
         'overtime_hours' => 33,          // Prekovremeni sati
+    ];
+
+    // For months 11 and 12, rows shift down by 1 after row 20 due to "Mirovanje radnog odnosa" at row 21
+    protected array $hourTypeRowsNovemberDecember = [
+        'vacation_hours' => 16,          // Godišnji odmor
+        'holiday_hours' => 17,           // Plaćeni neradni dani i blagradi
+        'sick_leave_hours' => 18,        // Bolovanje
+        'maternity_leave_hours' => 20,   // Rodiljni dopust
+        'other_hours' => 23,             // Plaćeni dopust (shifted down by 1)
+        'work_hours' => 31,              // Redovan rad (shifted down by 1)
+        'weekend_work_hours' => 32,      // Rad blagdanom i neradnim danima (shifted down by 1)
+        'work_from_home_hours' => 33,    // Rad na daljinu (shifted down by 1)
+        'overtime_hours' => 34,          // Prekovremeni sati (shifted down by 1)
     ];
 
     /**
@@ -67,6 +82,11 @@ class EmployeeReportTemplateExport
         $this->month = $month;
         $this->year = $year;
         $this->employee = Employee::find($employeeId);
+
+        // Use adjusted row mapping for November and December
+        if (in_array($month, [11, 12])) {
+            $this->hourTypeRows = $this->hourTypeRowsNovemberDecember;
+        }
     }
 
     public function download(string $fileName): BinaryFileResponse
@@ -104,12 +124,23 @@ class EmployeeReportTemplateExport
         $month = Carbon::create($this->year, $this->month);
         $report = $this->employee->getMonthlyWorkReport($month);
 
+        // Fill title with correct month and year
+        $monthName = mb_strtoupper($this->monthSheets[$this->month]);
+        $sheet->setCellValue('L3', "EVIDENCIJA O RADNOM VREMENU RADNIKA ZA MJESEC {$monthName} {$this->year}. GODINA");
+
         // Fill employee name (D3:K3 merged cell)
         $sheet->setCellValue('D3', $this->employee->full_name);
 
         // Fill department if available (D4:N4 merged cell)
         if ($this->employee->department) {
             $sheet->setCellValue('D4', $this->employee->department->name);
+        }
+
+        // Clear all pre-existing cell values from the template (e.g. 2025 holiday hours)
+        foreach ($this->dayColumns as $day => $col) {
+            foreach ($this->hourTypeRows as $row) {
+                $sheet->setCellValue($col . $row, null);
+            }
         }
 
         // Fill daily data
@@ -122,29 +153,19 @@ class EmployeeReportTemplateExport
 
             $col = $this->dayColumns[$day];
 
-            // Fill work hours (regular work) - only if NOT work from home
-            if (! empty($daily['work_hours']) && empty($daily['work_from_home_hours'])) {
-                $sheet->setCellValue($col . $this->hourTypeRows['work_hours'], $daily['work_hours']);
-            }
-
-            // Fill work from home hours
-            if (! empty($daily['work_from_home_hours'])) {
-                $sheet->setCellValue($col . $this->hourTypeRows['work_from_home_hours'], $daily['work_from_home_hours']);
-            }
-
             // Fill vacation hours
             if (! empty($daily['vacation_hours'])) {
                 $sheet->setCellValue($col . $this->hourTypeRows['vacation_hours'], $daily['vacation_hours']);
             }
 
+            // Fill holiday hours (public holidays)
+            if (! empty($daily['holiday_hours'])) {
+                $sheet->setCellValue($col . $this->hourTypeRows['holiday_hours'], $daily['holiday_hours']);
+            }
+
             // Fill sick leave hours
             if (! empty($daily['sick_leave_hours'])) {
                 $sheet->setCellValue($col . $this->hourTypeRows['sick_leave_hours'], $daily['sick_leave_hours']);
-            }
-
-            // Fill overtime hours
-            if (! empty($daily['overtime_hours'])) {
-                $sheet->setCellValue($col . $this->hourTypeRows['overtime_hours'], $daily['overtime_hours']);
             }
 
             // Fill maternity leave hours
@@ -157,11 +178,64 @@ class EmployeeReportTemplateExport
                 $sheet->setCellValue($col . $this->hourTypeRows['other_hours'], $daily['other_hours']);
             }
 
-            // Fill holiday hours (public holidays)
-            if (! empty($daily['holiday_hours'])) {
-                $sheet->setCellValue($col . $this->hourTypeRows['holiday_hours'], $daily['holiday_hours']);
+            // Logic for work hours based on client requirements:
+            // 1. Workday + office work: first 8h → row 30 (Redovan rad), rest → row 33 (Prekovremeni)
+            // 2. Workday + WFH: first 8h → row 32 (Rad na daljinu), rest → row 33 (Prekovremeni)
+            // 3. Weekend + any work: all hours → row 33/34 (Prekovremeni) - regardless of WFH or office
+
+            $totalHours = $daily['total_hours'] ?? 0;
+            $totalWfhHours = $daily['total_wfh_hours'] ?? 0;
+            $isWeekend = $daily['is_weekend'] ?? false;
+
+            if ($totalHours > 0) {
+                if ($isWeekend) {
+                    // Weekend: ALL work goes to overtime (row 33 for months 1-10, row 34 for months 11-12)
+                    $sheet->setCellValue($col . $this->hourTypeRows['overtime_hours'], $totalHours);
+                } else {
+                    // Workday
+                    if ($totalWfhHours > 0) {
+                        // Workday + WFH: first 8h → row 32, rest → row 33
+                        $sheet->setCellValue($col . $this->hourTypeRows['work_from_home_hours'], min($totalWfhHours, 8));
+
+                        if ($totalHours > 8) {
+                            $sheet->setCellValue($col . $this->hourTypeRows['overtime_hours'], $totalHours - 8);
+                        }
+                    } else {
+                        // Workday + office work: first 8h → row 30, rest → row 33
+                        $sheet->setCellValue($col . $this->hourTypeRows['work_hours'], min($totalHours, 8));
+
+                        if ($totalHours > 8) {
+                            $sheet->setCellValue($col . $this->hourTypeRows['overtime_hours'], $totalHours - 8);
+                        }
+                    }
+                }
             }
         }
+
+        // Add total formulas for each hour type row
+        $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
+        $lastDayColumn = $this->dayColumns[$daysInMonth];
+        $totalColumn = match ($daysInMonth) {
+            28 => 'AF',
+            29 => 'AG',
+            30 => 'AH',
+            31 => 'AI',
+        };
+
+        // Rows 14-33 need totals (or 14-34 for Nov/Dec), plus one more row for grand total
+        $lastDataRow = in_array($this->month, [11, 12]) ? 34 : 33;
+        $grandTotalRow = $lastDataRow + 1;
+
+        for ($row = 14; $row <= $lastDataRow; $row++) {
+            $sheet->setCellValue($totalColumn . $row, "=SUM(D{$row}:{$lastDayColumn}{$row})");
+        }
+
+        // Grand total of all data rows
+        $sheet->setCellValue($totalColumn . $grandTotalRow, "=SUM({$totalColumn}14:{$totalColumn}{$lastDataRow})");
+
+        // Apply day formatting (white/gray/red) based on actual calendar
+        $month = Carbon::createFromDate($this->year, $this->month, 1);
+        $this->applyDayFormatting($sheet, $month, $report);
 
         // Save to temp file
         $tempDir = storage_path('app/temp');
@@ -184,6 +258,9 @@ class EmployeeReportTemplateExport
     protected function getTemplatePath(): string
     {
         $paths = [
+            storage_path('templates/evidencija_radnog_vremena.xlsx'),
+            storage_path('app/templates/evidencija_radnog_vremena.xlsx'),
+            // Fallback to 2025 template if generic one doesn't exist
             storage_path('templates/evidencija_radnog_vremena_2025.xlsx'),
             storage_path('app/templates/evidencija_radnog_vremena_2025.xlsx'),
         ];
@@ -195,7 +272,63 @@ class EmployeeReportTemplateExport
         }
 
         throw new \Exception(
-            'Template file not found. Please place evidencija_radnog_vremena_2025.xlsx in storage/templates/ or storage/app/templates/'
+            'Template file not found. Please place evidencija_radnog_vremena.xlsx in storage/templates/ or storage/app/templates/'
         );
+    }
+
+    /**
+     * Apply background color to each day column:
+     * - Red for public holidays
+     * - Gray for weekends (Saturday/Sunday)
+     * - White for normal workdays
+     */
+    protected function applyDayFormatting($sheet, Carbon $month, array $report): void
+    {
+        $daysInMonth = $month->daysInMonth;
+        $startRow = 7;
+        $endRow = in_array($this->month, [11, 12]) ? 34 : 33;
+
+        // Build a set of holiday days from report data
+        $holidayDays = [];
+        foreach ($report['daily_data'] as $daily) {
+            if (! empty($daily['is_holiday'])) {
+                $holidayDays[] = $daily['date']->day;
+            }
+        }
+
+        // Paint every day column in the month
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            if (! isset($this->dayColumns[$day])) {
+                continue;
+            }
+
+            $col = $this->dayColumns[$day];
+            $date = $month->copy()->setDay($day);
+            $isWeekend = in_array($date->dayOfWeek, [0, 6]);
+            $isHoliday = in_array($day, $holidayDays);
+
+            if ($isHoliday) {
+                $fillType = Fill::FILL_SOLID;
+                $color = 'FFFF0000'; // Red
+            } elseif ($isWeekend) {
+                $fillType = Fill::FILL_SOLID;
+                $color = 'FFD3D3D3'; // Light gray
+            } else {
+                $fillType = Fill::FILL_NONE;
+                $color = null;
+            }
+
+            for ($row = $startRow; $row <= $endRow; $row++) {
+                $fill = $sheet->getStyle($col . $row)->getFill();
+
+                if ($fillType === Fill::FILL_NONE) {
+                    $fill->setFillType(Fill::FILL_NONE);
+                } else {
+                    $fill->setFillType($fillType)
+                        ->getStartColor()
+                        ->setARGB($color);
+                }
+            }
+        }
     }
 }
