@@ -15,39 +15,43 @@ class ActivityMentionNotification extends Notification implements ShouldQueue
 
     public function __construct(
         public Activity $activity
-    )
-    {
+    ) {
         logger("activity mention notification created for activity ID: {$activity->id}");
     }
 
     public function via(object $notifiable): array
     {
-        return ['telegram', 'database'];
+        $channels = ['database'];
+
+        if (config('employee-management.telegram-bot-api.is_active') && $notifiable->employee?->telegram_chat_id) {
+            $channels[] = 'telegram';
+        }
+
+        return $channels;
     }
 
     public function toTelegram(object $notifiable): ?TelegramMessage
     {
-        if (!config('employee-management.telegram-bot-api.is_active')) {
+        if (! config('employee-management.telegram-bot-api.is_active')) {
             return null;
         }
 
-        if(!$notifiable->telegram_chat_id){
-            return TelegramMessage::create();
+        $telegramChatId = $notifiable->employee?->telegram_chat_id;
+
+        if (! $telegramChatId) {
+            return null;
         }
 
         $body = strip_tags($this->activity->body);
-        $entityType = class_basename($this->activity->activityable_type);
         $entityName = $this->getEntityName();
 
-        $message = TelegramMessage::create()
-            ->to($notifiable->telegram_chat_id)
+        return TelegramMessage::create()
+            ->to($telegramChatId)
             ->content("{$this->activity->author->first_name} {$this->activity->author->last_name} vas je spomenuo u komentaru.\n\n" .
                 "<strong>{$entityName}</strong> \n\n" .
                 "<blockquote>{$body}</blockquote>")
             ->options(['parse_mode' => 'HTML'])
             ->button($this->getButtonText(), $this->activity->activityable->view_url);
-
-        return $message;
     }
 
     public function toDatabase(object $notifiable): array

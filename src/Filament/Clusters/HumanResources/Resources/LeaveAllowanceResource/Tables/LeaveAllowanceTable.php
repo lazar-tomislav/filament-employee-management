@@ -15,32 +15,32 @@ class LeaveAllowanceTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultGroup(Tables\Grouping\Group::make("year")->label("Godina"))
+            ->defaultGroup(Tables\Grouping\Group::make('year')->label('Godina'))
             ->columns([
                 Tables\Columns\TextColumn::make('employee.first_name')
-                    ->formatStateUsing(fn($record) => $record->employee->full_name . " (" . $record->employee->email . ")"),
+                    ->formatStateUsing(fn ($record) => $record->employee->full_name . ' (' . $record->employee->email . ')'),
                 Tables\Columns\TextColumn::make('year')
-                    ->label("Godina"),
+                    ->label('Godina'),
 
                 Tables\Columns\TextColumn::make('total_days')
                     ->label('Ukupno dana G.O')
                     ->numeric(),
 
                 Tables\Columns\TextColumn::make('used_days')
-                    ->state(fn($record) => $record->used_days)
+                    ->state(fn ($record) => $record->used_days)
                     ->label('Iskorišteno dana')
                     ->numeric(),
 
                 Tables\Columns\TextColumn::make('remaining_days')
-                    ->state(fn($record) => $record->total_days - $record->used_days)
+                    ->state(fn ($record) => $record->total_days - $record->used_days)
                     ->label('Preostalo dana')
                     ->numeric()
-                    ->color(fn($state) => $state <= 5 ? 'danger' : 'success'),
+                    ->color(fn ($state) => $state <= 5 ? 'danger' : 'success'),
             ])
             ->filters([
-                //year filter
+                // year filter
                 Tables\Filters\SelectFilter::make('year')
-                    ->options(fn() => LeaveAllowance::query()
+                    ->options(fn () => LeaveAllowance::query()
                         ->select('year')
                         ->distinct()
                         ->pluck('year', 'year'))
@@ -51,9 +51,9 @@ class LeaveAllowanceTable
             ->searchable(['employee.first_name', 'employee.last_name', 'employee.email', 'year'])
             ->recordActions([
                 Actions\ViewAction::make()
-                    ->modalHeading("Pregled godišnjeg odmora")
+                    ->modalHeading('Pregled godišnjeg odmora')
                     ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
-                Actions\EditAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)->modalHeading("Uredi godišnji odmor"),
+                Actions\EditAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)->modalHeading('Uredi godišnji odmor'),
             ])
             ->toolbarActions([
                 Actions\BulkActionGroup::make([
@@ -67,7 +67,7 @@ class LeaveAllowanceTable
     {
         return $table
             ->striped()
-            ->defaultSort("year", 'desc')
+            ->defaultSort('year', 'desc')
             ->heading('Godišnji odmor')
             ->columns([
                 TextColumn::make('year')
@@ -84,9 +84,9 @@ class LeaveAllowanceTable
 
                 TextColumn::make('remaining_days')
                     ->label('Preostalo dana')
-                    ->state(fn($record) => $record->total_days - $record->used_days)
+                    ->state(fn ($record) => $record->total_days - $record->used_days)
                     ->numeric()
-                    ->color(fn($state) => $state <= 5 ? 'warning' : 'primary'),
+                    ->color(fn ($state) => $state <= 5 ? 'warning' : 'primary'),
 
                 TextColumn::make('valid_until_date')
                     ->label('Iskoristivo do')
@@ -94,9 +94,9 @@ class LeaveAllowanceTable
                     ->sortable(),
             ])->recordActions([
                 EditAction::make()
-                    ->visible(fn() => auth()->user()->isUredAdministrativnoOsoblje())
+                    ->visible(fn () => auth()->user()->isAdmin())
                     ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
-                    ->schema(fn($schema) => LeaveAllowanceForm::configure($schema)),
+                    ->schema(fn ($schema) => LeaveAllowanceForm::configure($schema)),
             ]);
     }
 }

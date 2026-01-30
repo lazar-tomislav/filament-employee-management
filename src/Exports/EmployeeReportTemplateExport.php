@@ -40,7 +40,6 @@ class EmployeeReportTemplateExport
         'maternity_leave_hours' => 20,   // Rodiljni dopust
         'other_hours' => 22,             // Plaćeni dopust
         'work_hours' => 30,              // Redovan rad
-        'weekend_work_hours' => 31,      // Rad blagdanom i neradnim danima
         'work_from_home_hours' => 32,    // Rad na daljinu
         'overtime_hours' => 33,          // Prekovremeni sati
     ];
@@ -53,7 +52,6 @@ class EmployeeReportTemplateExport
         'maternity_leave_hours' => 20,   // Rodiljni dopust
         'other_hours' => 23,             // Plaćeni dopust (shifted down by 1)
         'work_hours' => 31,              // Redovan rad (shifted down by 1)
-        'weekend_work_hours' => 32,      // Rad blagdanom i neradnim danima (shifted down by 1)
         'work_from_home_hours' => 33,    // Rad na daljinu (shifted down by 1)
         'overtime_hours' => 34,          // Prekovremeni sati (shifted down by 1)
     ];

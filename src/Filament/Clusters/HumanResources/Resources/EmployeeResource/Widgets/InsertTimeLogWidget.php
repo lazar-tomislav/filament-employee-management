@@ -8,6 +8,7 @@ use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\Holiday;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Amicus\FilamentEmployeeManagement\Models\MonthlyWorkReport;
 use Amicus\FilamentEmployeeManagement\Models\TimeLog;
 use Carbon\Carbon;
 use Filament\Actions\Action;
@@ -18,6 +19,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 use Livewire\Attributes\Url;
 
@@ -41,6 +43,8 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
 
     public ?Employee $record = null;
 
+    public bool $isMonthLocked = false;
+
     public function mount(): void
     {
         if (! $this->selectedDate) {
@@ -57,6 +61,23 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
         $this->weekForm->fill([
             'selected_date' => $this->selectedDate,
         ]);
+
+        $this->checkMonthLock();
+    }
+
+    private function checkMonthLock(): void
+    {
+        if (! $this->record?->id) {
+            $this->isMonthLocked = false;
+
+            return;
+        }
+
+        $selectedMonth = Carbon::parse($this->selectedDate);
+        $this->isMonthLocked = MonthlyWorkReport::isMonthLocked(
+            $this->record->id,
+            $selectedMonth
+        );
     }
 
     public function weekForm(Schema $schema): Schema
@@ -88,6 +109,16 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
 
     public function create(): void
     {
+        if ($this->isMonthLocked) {
+            Notification::make()
+                ->title('Mjesec zaključan')
+                ->body('Unos radnih sati za ovaj mjesec je zaključan.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
         $data = $this->form->getState();
 
         $employeeId = $this->record?->id ?? $data['employee_id'];
@@ -114,7 +145,7 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
                 'is_work_from_home' => $data['is_work_from_home'] ?? false,
             ]);
 
-            Notification::make("radni_sati_uspjesno_dodani")
+            Notification::make('radni_sati_uspjesno_dodani')
                 ->title('Uspješno dodano')
                 ->body('Radni sati su uspješno uneseni.')
                 ->success()
@@ -153,14 +184,19 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
             $currentDay = $startOfWeek->copy()->addDays($i);
 
             $totalHours = TimeLog::getTotalHoursForDate($this->record?->id, $currentDay->format('Y-m-d'));
+            $isHoliday = Holiday::getHolidaysForDate($currentDay)->isNotEmpty();
+            $hasLeaveRequest = LeaveRequest::getLeaveRequestsForDate($this->record?->id, $currentDay->format('Y-m-d'))->isNotEmpty();
 
             $days[] = [
                 'date' => $currentDay->format('Y-m-d'),
                 'day_name' => $currentDay->locale('hr')->format('D'),
                 'day_number' => $currentDay->format('j'),
                 'hours' => $totalHours,
+                'has_hours' => $totalHours !== '00:00',
                 'is_today' => $currentDay->isToday(),
                 'is_weekend' => $currentDay->isWeekend(),
+                'is_holiday' => $isHoliday,
+                'has_leave' => $hasLeaveRequest,
                 'is_selected' => $currentDay->format('Y-m-d') === $this->selectedDate,
             ];
         }
@@ -189,6 +225,8 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
     {
         $this->selectedDate = $date;
 
+        $this->checkMonthLock();
+
         // Ažuriraj i formu za unos sati da koristi odabrani datum
         $this->form->fill([
             'employee_id' => $this->record?->id,
@@ -202,6 +240,32 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
         $this->weekForm->fill([
             'selected_date' => $this->selectedDate,
         ]);
+    }
+
+    public function goToToday(): void
+    {
+        $this->selectDate(now()->format('Y-m-d'));
+    }
+
+    public function previousWeek(): void
+    {
+        $date = Carbon::parse($this->selectedDate)->subWeek();
+        $this->selectDate($date->format('Y-m-d'));
+    }
+
+    public function nextWeek(): void
+    {
+        $date = Carbon::parse($this->selectedDate)->addWeek();
+        $this->selectDate($date->format('Y-m-d'));
+    }
+
+    public function getWeekDateRange(): string
+    {
+        $date = Carbon::parse($this->selectedDate);
+        $startOfWeek = $date->copy()->startOfWeek();
+        $endOfWeek = $date->copy()->endOfWeek();
+
+        return $startOfWeek->format('d.m.Y') . ' - ' . $endOfWeek->format('d.m.Y');
     }
 
     public function getTimeLogsForSelectedDate()
@@ -318,6 +382,95 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
                     Notification::make()
                         ->title('Greška')
                         ->body('Dogodila se greška prilikom brisanja: ' . $e->getMessage())
+                        ->danger()
+                        ->send();
+                }
+            });
+    }
+
+    public function fillMonthAction(): Action
+    {
+        return Action::make('fillMonth')
+            ->label('Popuni cijeli mjesec')
+            ->icon(Heroicon::OutlinedCalendarDays)
+            ->requiresConfirmation()
+            ->link()
+            ->modalHeading('Popuni mjesec')
+            ->tooltip('Autom. popuni radne sate za cijeli mjesec.')
+            ->modalDescription(fn () => new \Illuminate\Support\HtmlString(
+                '<p>Ova akcija će automatski unijeti 8 sati za sve radne dane u odabranom mjesecu.</p>' .
+                '<p class="mt-2"><strong>Preskočit će se dani koji:</strong></p>' .
+                '<ul class="list-disc list-inside mt-1">' .
+                '<li>- Već imaju unesene radne sate</li>' .
+                '<li>- Padaju na praznik</li>' .
+                '<li>- Imaju odobrenu odsutnost (godišnji, bolovanje, itd.)</li>' .
+                '<li>- Nisu radni dani (subota i nedjelja)</li>' .
+                '</ul>' .
+                '<p class="mt-3 text-warning-600 dark:text-warning-400 font-medium">⚠️ UPOZORENJE: Ova akcija NIJE reverzibilna! Unesene sate morat ćete ručno obrisati ako želite promjene.</p>'
+            ))
+            ->modalSubmitActionLabel('Popuni mjesec')
+            ->schema([
+                Forms\Components\Select::make('month')
+                    ->label('Mjesec')
+                    ->options([
+                        1 => '1. Siječanj',
+                        2 => '2. Veljača',
+                        3 => '3. Ožujak',
+                        4 => '4. Travanj',
+                        5 => '5. Svibanj',
+                        6 => '6. Lipanj',
+                        7 => '7. Srpanj',
+                        8 => '8. Kolovoz',
+                        9 => '9. Rujan',
+                        10 => '10. Listopad',
+                        11 => '11. Studeni',
+                        12 => '12. Prosinac',
+                    ])
+                    ->searchable()
+                    ->selectablePlaceholder(false)
+                    ->preload()
+                    ->default(now()->month)
+                    ->required(),
+            ])
+            ->action(function (array $data) {
+                try {
+                    $employeeId = $this->record?->id;
+
+                    if (! $employeeId) {
+                        Notification::make()
+                            ->title('Greška')
+                            ->body('Zaposlenik nije pronađen.')
+                            ->danger()
+                            ->send();
+
+                        return;
+                    }
+
+                    $result = TimeLog::fillMonthWithDefaultHours(
+                        $employeeId,
+                        (int) $data['month'],
+                        now()->year
+                    );
+
+                    if ($result['created'] > 0) {
+                        Notification::make()
+                            ->title('Mjesec uspješno popunjen')
+                            ->body("Dodano {$result['created']} dana s 8 radnih sati. Preskočeno {$result['skipped']} dana.")
+                            ->success()
+                            ->send();
+
+                        $this->dispatch('time-log-created');
+                    } else {
+                        Notification::make()
+                            ->title('Nema dana za popuniti')
+                            ->body('Svi radni dani u odabranom mjesecu već imaju unesene sate, padaju na praznik ili imaju odobrenu odsutnost.')
+                            ->warning()
+                            ->send();
+                    }
+                } catch (\Exception $e) {
+                    Notification::make()
+                        ->title('Greška')
+                        ->body('Dogodila se greška: ' . $e->getMessage())
                         ->danger()
                         ->send();
                 }

@@ -85,7 +85,7 @@ class TimeLog extends Model
 
     public static function formatMinutesToTime(int $totalMinutes): string
     {
-        $hours = (int)($totalMinutes / 60);
+        $hours = (int) ($totalMinutes / 60);
         $minutes = $totalMinutes % 60;
 
         return sprintf('%02d:%02d', $hours, $minutes);
@@ -159,4 +159,68 @@ class TimeLog extends Model
             ->get();
     }
 
+    /**
+     * Popuni cijeli mjesec s 8h za sve radne dane.
+     * Preskače dane koji već imaju unose, praznike ili odobrene odsutnosti.
+     *
+     * @return array{created: int, skipped: int}
+     */
+    public static function fillMonthWithDefaultHours(int $employeeId, int $month, int $year): array
+    {
+        $result = [
+            'created' => 0,
+            'skipped' => 0,
+        ];
+
+        $startDate = Carbon::create($year, $month, 1);
+        $daysInMonth = $startDate->daysInMonth;
+
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = Carbon::create($year, $month, $day);
+
+            if (! in_array($date->dayOfWeek, Employee::WORK_DAYS, true)) {
+                $result['skipped']++;
+
+                continue;
+            }
+
+            $existingTimeLog = self::where('employee_id', $employeeId)
+                ->whereDate('date', $date)
+                ->exists();
+
+            if ($existingTimeLog) {
+                $result['skipped']++;
+
+                continue;
+            }
+
+            $holidays = Holiday::getHolidaysForDate($date);
+            if ($holidays->count() > 0) {
+                $result['skipped']++;
+
+                continue;
+            }
+
+            $leaveRequests = LeaveRequest::getLeaveRequestsForDate($employeeId, $date->format('Y-m-d'));
+            if ($leaveRequests->count() > 0) {
+                $result['skipped']++;
+
+                continue;
+            }
+
+            self::create([
+                'employee_id' => $employeeId,
+                'date' => $date,
+                'hours' => Employee::HOURS_PER_WORK_DAY,
+                'description' => null,
+                'status' => TimeLogStatus::default(),
+                'log_type' => LogType::RADNI_SATI,
+                'is_work_from_home' => false,
+            ]);
+
+            $result['created']++;
+        }
+
+        return $result;
+    }
 }

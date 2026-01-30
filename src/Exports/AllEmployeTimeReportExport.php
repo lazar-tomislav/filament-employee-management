@@ -4,20 +4,21 @@ namespace Amicus\FilamentEmployeeManagement\Exports;
 
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
-use Maatwebsite\Excel\Concerns\FromArray;
-use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithStyles;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Carbon\Carbon;
+use Maatwebsite\Excel\Concerns\FromArray;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithDrawings;
 use Maatwebsite\Excel\Concerns\WithEvents;
+use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles, ShouldAutoSize, WithCustomStartCell, WithEvents, WithDrawings
+class AllEmployeTimeReportExport implements FromArray, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings, WithStyles
 {
     protected int $month;
+
     protected int $year;
 
     public function __construct(int $month, int $year)
@@ -28,14 +29,14 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
 
     public function drawings()
     {
-        $drawing = new Drawing();
+        $drawing = new Drawing;
         $drawing->setName('Logo');
         $drawing->setDescription('This is my logo');
 
         $logoPathFromSettings = app(HumanResourcesSettings::class)->hr_documents_logo;
-        if($logoPathFromSettings && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPathFromSettings)){
+        if ($logoPathFromSettings && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPathFromSettings)) {
             $logoPath = \Illuminate\Support\Facades\Storage::disk('public')->path($logoPathFromSettings);
-        }else{
+        } else {
             $logoPath = public_path('images/logo.png');
         }
         $drawing->setPath($logoPath);
@@ -67,6 +68,7 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
                 $totals['overtime_hours'],
                 $totals['maternity_leave_hours'],
                 $totals['other_hours'],
+                $totals['holiday_hours'],
             ];
         }
 
@@ -84,6 +86,7 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
             'PREKOVREMENI SATI',
             'PORODILJNI',
             'OSTALO (Plaćeno odsustvo)',
+            'PLAĆENI NERADNI DANI I BLAGDANI',
         ];
     }
 
@@ -102,7 +105,7 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
             ],
-            "B:H" => [
+            'B:I' => [
                 'alignment' => [
                     'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
                 ],
@@ -118,13 +121,13 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
     public function registerEvents(): array
     {
         return [
-            AfterSheet::class => function(AfterSheet $event) {
+            AfterSheet::class => function (AfterSheet $event) {
                 $event->sheet->getDelegate()->mergeCells('A2:B2');
                 $event->sheet->getDelegate()->mergeCells('A3:B3');
-                $event->sheet->getDelegate()->mergeCells('C2:H2');
-                $event->sheet->getDelegate()->mergeCells('C3:H3');
+                $event->sheet->getDelegate()->mergeCells('C2:I2');
+                $event->sheet->getDelegate()->mergeCells('C3:I3');
 
-                $event->sheet->getDelegate()->setCellValue('C2',"RADNI SATI");
+                $event->sheet->getDelegate()->setCellValue('C2', 'RADNI SATI');
 
                 $monthName = $this->getMonthNameInCroatian($this->month);
                 $event->sheet->getDelegate()->setCellValue('C3', "{$monthName} {$this->year}.");
@@ -137,7 +140,7 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
                     ],
                 ];
 
-                $event->sheet->getDelegate()->getStyle('A2:H3')->applyFromArray($styleArray);
+                $event->sheet->getDelegate()->getStyle('A2:I3')->applyFromArray($styleArray);
                 $event->sheet->getDelegate()->getRowDimension(2)->setRowHeight(50);
                 $event->sheet->getDelegate()->getRowDimension(3)->setRowHeight(50);
             },
@@ -158,7 +161,7 @@ class AllEmployeTimeReportExport implements FromArray, WithHeadings, WithStyles,
             9 => 'RUJAN',
             10 => 'LISTOPAD',
             11 => 'STUDENI',
-            12 => 'PROSINAC'
+            12 => 'PROSINAC',
         ];
 
         return $months[$month];

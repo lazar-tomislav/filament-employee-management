@@ -6,32 +6,32 @@ use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Schemas\EmployeeForm;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Tables\EmployeeTable;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
-use App\Filament\Clusters\HumanResources\Resources\EmployeeResource\Pages;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class EmployeeResource extends Resource
 {
     protected static ?string $model = Employee::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
+    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedUserGroup;
 
     protected static ?string $cluster = HumanResources::class;
 
     protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationLabel = "Zaposlenici";
+    protected static ?string $navigationLabel = 'Zaposlenici';
 
     protected static ?string $recordTitleAttribute = 'first_name';
 
-    protected static ?string $modelLabel = "zaposlenika";
-    protected static ?string $pluralLabel = "zaposlenici";
+    protected static ?string $modelLabel = 'zaposlenika';
+
+    protected static ?string $pluralLabel = 'zaposlenici';
+
     protected static ?string $label = 'zaposlenik';
 
     public static function form(Schema $schema): Schema
@@ -44,7 +44,7 @@ class EmployeeResource extends Resource
         return EmployeeTable::configure($table)
             ->modifyQueryUsing(function (Builder $query) {
                 // if user is employee, show only their own record
-                if(auth()->user()->isEmployee()){
+                if (auth()->user()->isEmployee()) {
                     $query->where('id', auth()->user()->employee->id);
                 }
             });
@@ -52,9 +52,8 @@ class EmployeeResource extends Resource
 
     public static function getBreadcrumb(): string
     {
-        return "Zaposlenici";
+        return 'Zaposlenici';
     }
-
 
     public static function getRelations(): array
     {
@@ -67,7 +66,9 @@ class EmployeeResource extends Resource
     {
         return [
             'index' => HumanResources\Resources\EmployeeResource\Pages\ListEmployees::route('/'),
+            'create' => HumanResources\Resources\EmployeeResource\Pages\CreateEmployee::route('/create'),
             'view' => HumanResources\Resources\EmployeeResource\Pages\ViewEmployee::route('/{record}'),
+            'edit' => HumanResources\Resources\EmployeeResource\Pages\EditEmployee::route('/{record}/edit'),
         ];
     }
 

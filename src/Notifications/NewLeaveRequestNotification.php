@@ -17,13 +17,17 @@ class NewLeaveRequestNotification extends Notification implements ShouldQueue
 
     public function __construct(
         public LeaveRequest $leaveRequest
-    )
-    {
-    }
+    ) {}
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'telegram', 'database'];
+        $channels = ['mail', 'database'];
+
+        if (config('employee-management.telegram-bot-api.is_active') && $notifiable->telegram_chat_id) {
+            $channels[] = 'telegram';
+        }
+
+        return $channels;
     }
 
     public function toMail(object $notifiable): LeaveRequestApprovalNotification
@@ -34,11 +38,11 @@ class NewLeaveRequestNotification extends Notification implements ShouldQueue
 
     public function toTelegram(object $notifiable): ?TelegramMessage
     {
-        if (!config('employee-management.telegram-bot-api.is_active')) {
+        if (! config('employee-management.telegram-bot-api.is_active')) {
             return null;
         }
 
-        if(!$notifiable->telegram_chat_id){
+        if (! $notifiable->telegram_chat_id) {
             return null;
         }
         $url = EmployeeResource::getUrl('view', [

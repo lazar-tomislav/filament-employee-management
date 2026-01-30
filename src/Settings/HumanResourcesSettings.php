@@ -12,6 +12,10 @@ class HumanResourcesSettings extends Settings
 
     public ?string $director_signature;
 
+    public ?int $employee_director_id = null;
+
+    public ?int $employee_work_hours_approver_id = null;
+
     public static function group(): string
     {
         return 'human_resources';

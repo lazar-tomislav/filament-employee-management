@@ -1,32 +1,104 @@
 <div>
-    <div class="bg-white dark:bg-gray-800 flex items-center flex-col md:flex-row w-full mb-4 shadow rounded-md  ">
+    <!-- Navigacija tjedna - iznad tablice -->
+    <div class="flex items-center justify-between mb-4">
+        <!-- Danas gumb i Popuni mjesec - lijevi kut (skriven na mobitelu) -->
+        <div class="hidden md:flex items-center gap-2">
+            <x-filament::button
+                wire:click="goToToday"
+                size="sm"
+                color="gray"
+            >
+                Danas
+            </x-filament::button>
+            {{ $this->fillMonthAction }}
+        </div>
+        <div class="block md:hidden w-0"></div>
+
+        <!-- Strelice i raspon datuma - centar -->
+        <div class="flex items-center gap-2">
+            <x-filament::button
+                wire:click="previousWeek"
+                icon="heroicon-o-chevron-left"
+                color="gray"
+                size="sm"
+            />
+
+            <span class="text-xs md:text-lg font-semibold text-gray-900 dark:text-white w-full md:min-w-[180px] md:w-auto text-center px-4">
+                {{ $this->getWeekDateRange() }}
+            </span>
+
+            <x-filament::button
+                wire:click="nextWeek"
+                icon="heroicon-o-chevron-right"
+                color="gray"
+                size="sm"
+            />
+        </div>
+
+        <!-- Placeholder za balans - desni kut -->
+        <div class="w-[60px]"></div>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 flex items-center flex-col md:flex-row w-full mb-4 shadow rounded-md">
         <!-- Datepicker za odabir tjedna -->
-        <div class="dark:bg-gray-800 p-4 rounded-lg w-full md:w-36 ">
+        <div class="dark:bg-gray-800 p-4 rounded-lg w-full md:w-36">
             {{ $this->weekForm }}
         </div>
 
-        <div class="border-l border-gray-200 dark:border-gray-700 h-12 mx-2 pr-4"></div>
+        <div class="border-l border-gray-200 dark:border-gray-700 h-12 mx-2 pr-4 hidden md:block"></div>
 
         <!-- Početak komponente: Tjedni pregled vremena -->
         <div class="w-full rounded-lg flex items-center justify-between overflow-x-auto">
 
             <!-- Dani u tjednu -->
-            <div class="flex items-center gap-2 flex-1 ">
+            <div class="flex items-center gap-2 flex-1 overflow-x-auto">
                 <!-- Radni dani -->
-                <div class="flex items-center gap-1 flex-1">
+                <div class="flex items-center gap-1 flex-1 min-w-max md:min-w-0">
                     @foreach($this->getWeekDays() as $day)
                          <div wire:click="selectDate('{{ $day['date'] }}')"
-                              class="flex flex-col items-center text-black dark:text-white justify-center flex-1 py-2 rounded-md cursor-pointer transition-colors
+                              class="flex flex-col items-center text-black dark:text-white justify-center min-w-[70px] flex-1 py-2 rounded-md cursor-pointer transition-colors
                          @if($day['is_selected']) border-b-4 border-primary-600 dark:border-primary-500
-                         @else hover:bg-red-50 dark:hover:bg-gray-800 @endif">
+                         @elseif($day['has_leave']) bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50
+                         @elseif($day['is_holiday']) bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-900/50
+                         @elseif($day['is_weekend']) bg-gray-100 dark:bg-gray-700/50 hover:bg-gray-200 dark:hover:bg-gray-700
+                         @elseif($day['has_hours']) hover:bg-gray-50 dark:hover:bg-gray-800
+                         @else hover:bg-red-50 dark:hover:bg-gray-800 @endif"
+                         @if($day['has_leave'])
+                             style="background-image: repeating-linear-gradient(
+                                 -45deg,
+                                 transparent,
+                                 transparent 4px,
+                                 rgba(239, 68, 68, 0.15) 4px,
+                                 rgba(239, 68, 68, 0.15) 8px
+                             );"
+                         @elseif($day['is_holiday'])
+                             style="background-image: repeating-linear-gradient(
+                                 -45deg,
+                                 transparent,
+                                 transparent 4px,
+                                 rgba(245, 158, 11, 0.15) 4px,
+                                 rgba(245, 158, 11, 0.15) 8px
+                             );"
+                         @elseif($day['is_weekend'])
+                             style="background-image: repeating-linear-gradient(
+                                 -45deg,
+                                 transparent,
+                                 transparent 4px,
+                                 rgba(156, 163, 175, 0.2) 4px,
+                                 rgba(156, 163, 175, 0.2) 8px
+                             );"
+                         @endif>
                         <span
                                 class="text-sm font-semibold @if($day['is_selected']) text-primary-600 dark:text-primary-400 @else dark:text-gray-100 @endif">
                             {{ $day['hours'] }}
                         </span>
                              <span
-                                 class="text-xs @if($day['is_selected']) text-primary-500 dark:text-primary-300 @else text-black dark:text-white @endif">
+                                 class="text-xs @if($day['is_selected']) text-primary-500 dark:text-primary-300 @else text-black dark:text-white @endif whitespace-nowrap">
                              {{ $day['day_name'] }} {{ $day['day_number'] }}
                              </span>
+                             @if($day['has_hours'])
+                                 <span class="block w-1.5 h-1.5 rounded-full bg-green-500 dark:bg-green-400 mt-0.5"></span>
+                             @endif
                         </div>
                     @endforeach
                 </div>
@@ -48,23 +120,35 @@
 
     <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
         <div class="col-span-1 md:col-span-5">
-            <div class="bg-white dark:bg-gray-800 shadow rounded-md p-6">
-                <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                        {{ \Carbon\Carbon::parse($this->selectedDate)->format('d.m.Y') }}
-                    </h3>
+            @if($this->isMonthLocked)
+                <div class="bg-gray-100 dark:bg-gray-800 rounded-lg p-6 text-center shadow">
+                    <x-filament::icon icon="heroicon-o-lock-closed" class="h-12 w-12 mx-auto text-gray-400 mb-4"/>
+                    <p class="text-gray-600 dark:text-gray-400 font-medium">
+                        Unos radnih sati za ovaj mjesec je zaključan.
+                    </p>
+                    <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">
+                        Mjesečni izvještaj je poslan na pregled ili je već zaključan.
+                    </p>
                 </div>
-                <form wire:submit="create">
-                    {{ $this->form }}
-
-                    <div class="flex justify-end mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-                        <button type="submit"
-                                class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
-                            Unesi sate
-                        </button>
+            @else
+                <div class="bg-white dark:bg-gray-800 shadow rounded-md p-6">
+                    <div class="border-b border-gray-200 dark:border-gray-700 pb-4 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+                            {{ \Carbon\Carbon::parse($this->selectedDate)->format('d.m.Y') }}
+                        </h3>
                     </div>
-                </form>
-            </div>
+                    <form wire:submit="create">
+                        {{ $this->form }}
+
+                        <div class="flex justify-end mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+                            <button type="submit"
+                                    class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                                Unesi sate
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            @endif
         </div>
 
         <div class="col-span-1 md:col-span-7 flex flex-col gap-4">

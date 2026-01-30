@@ -15,7 +15,7 @@ class EmployeeTable
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('full_name_email')
-                    ->label("Zaposlenik")
+                    ->label('Zaposlenik')
                     ->searchable(['first_name', 'last_name', 'email']),
                 Tables\Columns\TextColumn::make('department.name')
                     ->label('Odjel')
@@ -39,12 +39,13 @@ class EmployeeTable
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->recordActions([
-                Actions\ViewAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
-                Actions\EditAction::make()->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)->modalHeading("Uredi zaposlenika"),
+                Actions\ViewAction::make()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
+                Actions\EditAction::make()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
             ])
             ->headerActions([
                 EmployeeAction::allEmployeTimeReportExport(),
             ])
+            ->deferLoading()
             ->headerActionsPosition(HeaderActionsPosition::Bottom)
             ->toolbarActions([
                 Actions\BulkActionGroup::make([

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AbsenceWidget extends TableWidget
 {
-    protected int|string|array $columnSpan = 'full';
+    protected int | string | array $columnSpan = 'full';
 
     public string $absenceType = 'current';
 
@@ -31,9 +31,9 @@ class AbsenceWidget extends TableWidget
         $query = LeaveRequest::query()
             ->where('employee_id', $this->record->id);
 
-        if($this->absenceType === 'current'){
+        if ($this->absenceType === 'current') {
             $query->where('end_date', '>=', now()->toDateString());
-        }else{
+        } else {
             $query->where('end_date', '<', now()->toDateString());
         }
 
@@ -61,7 +61,7 @@ class AbsenceWidget extends TableWidget
             ->columns([
                 TextColumn::make('type')
                     ->label('Razlog odsutnosti')
-                    ->formatStateUsing(fn(LeaveRequestType $state): string => ucfirst(str_replace('_', ' ', $state->value))),
+                    ->formatStateUsing(fn (LeaveRequestType $state): string => ucfirst(str_replace('_', ' ', $state->value))),
 
                 TextColumn::make('absence')
                     ->label('Odsutnost'),
@@ -72,7 +72,7 @@ class AbsenceWidget extends TableWidget
                 TextColumn::make('notes')
                     ->label('Napomena')
                     ->limit(20)
-                    ->tooltip(fn ($record)=>$record->notes)
+                    ->tooltip(fn ($record) => $record->notes)
                     ->placeholder('-'),
 
                 TextColumn::make('status')
@@ -95,13 +95,15 @@ class AbsenceWidget extends TableWidget
                     }),
             ])
             ->recordActions(
-        ActionGroup::make([
-            LeaveRequestActions::approveAction(),
-            LeaveRequestActions::rejectAction(),
-            LeaveRequestActions::editNotesAction(),
-            LeaveRequestActions::cancelRequestAction(),
-            LeaveRequestActions::downloadPdfAction(),
-        ])
-    );
+                ActionGroup::make([
+                    LeaveRequestActions::approveAsHeadOfDepartmentAction(),
+                    LeaveRequestActions::approveAsDirectorAction(),
+                    LeaveRequestActions::rejectAction(),
+                    LeaveRequestActions::sendReminderAction(),
+                    LeaveRequestActions::editNotesAction(),
+                    LeaveRequestActions::cancelRequestAction(),
+                    LeaveRequestActions::downloadPdfAction(),
+                ])
+            );
     }
 }

@@ -2,10 +2,10 @@
 
 namespace Amicus\FilamentEmployeeManagement\Mail;
 
+use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -28,8 +28,8 @@ class LeaveRequestStatusNotification extends Mailable
     public function envelope(): Envelope
     {
         $subject = match ($this->leaveRequest->status) {
-            'approved' => 'Vaš zahtjev za godišnjim odmorom je odobren',
-            'rejected' => 'Vaš zahtjev za godišnjim odmorom je odbijen',
+            LeaveRequestStatus::APPROVED => 'Vaš zahtjev za godišnjim odmorom je odobren',
+            LeaveRequestStatus::REJECTED => 'Vaš zahtjev za godišnjim odmorom je odbijen',
             default => 'Status vašeg zahtjeva za godišnjim odmorom je ažuriran',
         };
 

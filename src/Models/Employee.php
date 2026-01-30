@@ -14,11 +14,8 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Traits\HasRoles;
 
 #[ObservedBy([EmployeeObserver::class])]
@@ -27,7 +24,6 @@ class Employee extends Model
     use HasEmployeeRole;
     use HasFactory;
     use HasRoles;
-    use Notifiable;
     use SoftDeletes;
 
     /**
@@ -152,58 +148,6 @@ class Employee extends Model
         }, 'id');
     }
 
-    private function getDailyWorkHours(Carbon $date): float
-    {
-        return (float) $this->timeLogs
-            ->where('date', $date->format('Y-m-d'))
-            ->sum('hours');
-    }
-
-    private function getDailyWorkFromHomeHours(Carbon $date): float
-    {
-        return (float) $this->timeLogs
-            ->where('date', $date->format('Y-m-d'))
-            ->where('is_work_from_home', true)
-            ->sum('hours');
-    }
-
-    private function getDailyLeaveHours(Carbon $date): array
-    {
-        $leaveHours = [
-            'vacation_hours' => 0,
-            'sick_leave_hours' => 0,
-            'other_hours' => 0,
-            'maternity_leave_hours' => 0,
-        ];
-
-        if (! in_array($date->dayOfWeek, self::WORK_DAYS)) {
-            return $leaveHours;
-        }
-
-        $leaveRequest = $this->leaveRequests
-            ->where('start_date', '<=', $date->format('Y-m-d'))
-            ->where('end_date', '>=', $date->format('Y-m-d'))
-            ->first();
-
-        if ($leaveRequest) {
-            $hourType = match ($leaveRequest->type) {
-                LeaveRequestType::ANNUAL_LEAVE => 'vacation_hours',
-                LeaveRequestType::SICK_LEAVE => 'sick_leave_hours',
-                LeaveRequestType::PAID_LEAVE => 'other_hours',
-                LeaveRequestType::MATERNITY_LEAVE => 'maternity_leave_hours',
-                default => null,
-            };
-
-            if ($hourType) {
-                $leaveHours[$hourType] = self::HOURS_PER_WORK_DAY;
-            } else {
-                report(new \Exception("Unknown leave request type: {$leaveRequest->type->value}"));
-            }
-        }
-
-        return $leaveHours;
-    }
-
     public function getMonthlyWorkReport(Carbon $month): array
     {
         $report = [
@@ -216,8 +160,8 @@ class Employee extends Model
                 'sick_leave_hours' => 0.0,
                 'other_hours' => 0.0,
                 'maternity_leave_hours' => 0.0,
-                'available_hours' => 0.0,
                 'holiday_hours' => 0.0,
+                'available_hours' => 0.0,
             ],
         ];
 
@@ -259,8 +203,8 @@ class Employee extends Model
             $dateString = $date->format('Y-m-d');
 
             $dailyLog = $timeLogsByDate->get($dateString);
-            $totalDailyWorkHours = $dailyLog->total_hours ?? 0;
-            $totalDailyWorkFromHomeHours = $dailyLog->wfh_hours ?? 0;
+            $totalDailyWorkHours = (float) ($dailyLog->total_hours ?? 0);
+            $totalDailyWorkFromHomeHours = (float) ($dailyLog->wfh_hours ?? 0);
 
             $dailyWorkHours = 0.0;
             $dailyWorkFromHomeHours = 0.0;
@@ -345,55 +289,5 @@ class Employee extends Model
         }
 
         return $report;
-    }
-
-    public function taskUpdates(): HasMany
-    {
-        return $this->hasMany(TaskUpdate::class, 'employee_id');
-    }
-
-    public function mentionsInTaskUpdates(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            TaskUpdate::class,
-            'task_update_mentions',
-            'mentioned_employee_id',
-            'task_update_id'
-        );
-    }
-
-    public function assignedOffers(): ?HasMany
-    {
-        // if model_exists
-        if (class_exists(Offer::class)) {
-            return $this->hasMany(Offer::class, 'assigned_to');
-        }
-
-        return null;
-    }
-
-    /**
-     * Override notify method to also send notification to associated user
-     * for Filament panel notifications
-     */
-    public function notify($instance)
-    {
-        try {
-            // Send notification to employee using Notifiable trait method
-            parent::notify($instance);
-
-            // Also send to associated user for Filament panel
-            $user = $this->user; // Cachiramo referencu
-            if ($user && method_exists($user, 'notify')) {
-
-                if ($instance->id == null) {
-                    return;
-                }
-                $user->notify($instance);
-            }
-        } catch (\Exception $e) {
-            report($e);
-            Log::error("Failed to notify employee {$this->id} ({$this->full_name}): {$e->getMessage()}");
-        }
     }
 }

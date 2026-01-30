@@ -16,7 +16,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 
-class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings
+class EmployeeReportExport implements \Maatwebsite\Excel\Concerns\WithStyles, FromArray, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings
 {
     protected int $employeeId;
 
@@ -26,19 +26,21 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
 
     protected Employee $employee;
 
-    protected int $totalWorkHours = 0;
+    protected float $totalWorkHours = 0;
 
     protected float $totalWorkFromHomeHours = 0;
 
-    protected ?int $totalVacationHours = 0;
+    protected float $totalVacationHours = 0;
 
-    protected ?int $totalSickLeaveHours = 0;
+    protected float $totalSickLeaveHours = 0;
 
-    protected ?int $totalOvertimeHours = 0;
+    protected float $totalOvertimeHours = 0;
 
-    protected ?int $totalOtherHours = 0;
+    protected float $totalOtherHours = 0;
 
-    protected ?int $totalMaternityLeaveHours = 0;
+    protected float $totalMaternityLeaveHours = 0;
+
+    protected float $totalHolidayHours = 0;
 
     public function __construct(int $employeeId, int $month, int $year)
     {
@@ -96,6 +98,7 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
                 $daily['overtime_hours'] ?: '',
                 $daily['maternity_leave_hours'] ?: '',
                 $daily['other_hours'] ?: '',
+                $daily['holiday_hours'] ?: '',
             ];
         }
 
@@ -106,16 +109,18 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
         $this->totalOvertimeHours = $report['totals']['overtime_hours'];
         $this->totalOtherHours = $report['totals']['other_hours'];
         $this->totalMaternityLeaveHours = $report['totals']['maternity_leave_hours'];
+        $this->totalHolidayHours = $report['totals']['holiday_hours'];
 
         // Add empty rows
-        $data[] = ['', '', '', '', '', '', '', '', ''];
-        $data[] = ['', '', '', '', '', '', '', '', ''];
-        $data[] = ['', '', '', '', '', '', '', '', ''];
+        $data[] = ['', '', '', '', '', '', '', '', '', ''];
+        $data[] = ['', '', '', '', '', '', '', '', '', ''];
+        $data[] = ['', '', '', '', '', '', '', '', '', ''];
 
         // Add totals row
         $monthName = $this->getMonthNameInCroatian($this->month);
         $data[] = [
             "UKUPNO {$monthName} {$this->year}.",
+            '',
             '',
             '',
             '',
@@ -135,10 +140,12 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
             '',
             '',
             '',
+            '',
         ];
         $data[] = [
             'RAD OD KUĆE',
             $this->totalWorkFromHomeHours ?: 0,
+            '',
             '',
             '',
             '',
@@ -157,10 +164,12 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
             '',
             '',
             '',
+            '',
         ];
         $data[] = [
             'BOLOVANJE',
             $this->totalSickLeaveHours ?: 0,
+            '',
             '',
             '',
             '',
@@ -179,6 +188,7 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
             '',
             '',
             '',
+            '',
         ];
         $data[] = [
             'PORODILJNI',
@@ -190,10 +200,24 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
             '',
             '',
             '',
+            '',
         ];
         $data[] = [
             'OSTALO (plaćeno odsustvo)',
             $this->totalOtherHours ?: 0,
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+        ];
+        $data[] = [
+            'PLAĆENI NERADNI DANI I BLAGDANI',
+            $this->totalHolidayHours ?: 0,
+            '',
             '',
             '',
             '',
@@ -218,7 +242,75 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
             'PREKOVREMENI SATI',
             'PORODILJNI',
             'OSTALO (plaćeno odsustvo)',
+            'PLAĆENI NERADNI DANI I BLAGDANI',
         ];
+    }
+
+    public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet): array
+    {
+        $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
+
+        $styles = [
+            6 => [
+                'font' => ['bold' => true],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => [
+                        'argb' => 'FFD3D3D3',
+                    ],
+                ],
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ],
+            'C1:J99' => [
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ],
+            'A2:A' . ($daysInMonth + 6) => [
+                'alignment' => [
+                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                ],
+            ],
+            'A' . ($daysInMonth + 7) . ':A' . ($daysInMonth + 16) => [
+                'font' => ['bold' => true],
+            ],
+        ];
+
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $date = Carbon::create($this->year, $this->month, $day);
+            if ($date->isWeekend()) {
+                $rowNumber = $day + 6;
+                $styles[$rowNumber] = [
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => [
+                            'argb' => 'FFD3D3D3',
+                        ],
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '06A04F'],
+                        ],
+                    ],
+                ];
+            }
+        }
+
+        $totalRow = 6 + $daysInMonth + 3 + 1;
+        $styles[$totalRow] = [
+            'font' => ['bold' => true],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => [
+                    'argb' => 'FFD3D3D3',
+                ],
+            ],
+        ];
+
+        return $styles;
     }
 
     public function startCell(): string
@@ -234,8 +326,8 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
                 $event->sheet->getDelegate()->mergeCells('A3:B3');
                 $event->sheet->getDelegate()->mergeCells('C2:E2');
                 $event->sheet->getDelegate()->mergeCells('C3:E3');
-                $event->sheet->getDelegate()->mergeCells('F2:I2');
-                $event->sheet->getDelegate()->mergeCells('F3:I3');
+                $event->sheet->getDelegate()->mergeCells('F2:J2');
+                $event->sheet->getDelegate()->mergeCells('F3:J3');
 
                 $event->sheet->getDelegate()->setCellValue('C2', 'RADNI SATI');
 
@@ -253,7 +345,7 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
                     ],
                 ];
 
-                $event->sheet->getDelegate()->getStyle('A2:I3')->applyFromArray($styleArray);
+                $event->sheet->getDelegate()->getStyle('A2:J3')->applyFromArray($styleArray);
                 $event->sheet->getDelegate()->getRowDimension(2)->setRowHeight(50);
                 $event->sheet->getDelegate()->getRowDimension(3)->setRowHeight(50);
 

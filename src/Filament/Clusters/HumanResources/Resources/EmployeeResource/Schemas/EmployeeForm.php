@@ -6,7 +6,10 @@ use Amicus\FilamentEmployeeManagement\Filament\Pages\MissingEmployeePage;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\DB;
 
 class EmployeeForm
@@ -18,121 +21,148 @@ class EmployeeForm
         return $schema
             ->columns(2)
             ->components([
-                Forms\Components\TextInput::make('first_name')
-                    ->label('Ime')
-                    ->placeholder('Ivan')
-                    ->required()
-                    ->maxLength(255),
-
-                Forms\Components\TextInput::make('last_name')
-                    ->label('Prezime')
-                    ->placeholder('Horvat')
-                    ->required()
-                    ->maxLength(255),
-
-                Forms\Components\TextInput::make('email')
-                    ->label('Email')
-                    ->placeholder('ivan.horvat@primjer.com')
-                    ->email()
-                    ->required()
-                    ->unique('employees', 'email', ignoreRecord: true)
-                    ->maxLength(255),
-
-                Forms\Components\Repeater::make('phone_numbers')
-                    ->label('Brojevi telefona')
-                    ->collapsed()
-                    ->collapsible()
-                    ->columns(2)
+                Section::make('Osobni podaci')
+                    ->description('Osnovne informacije o zaposleniku')
                     ->schema([
-                        Forms\Components\TextInput::make('number')
-                            ->label('Broj')
+                        Grid::make(2)->schema([
+                            Forms\Components\TextInput::make('first_name')
+                                ->label('Ime')
+                                ->prefixIcon(Heroicon::OutlinedUser)
+                                ->placeholder('Ivan')
+                                ->required()
+                                ->maxLength(255),
+
+                            Forms\Components\TextInput::make('last_name')
+                                ->label('Prezime')
+                                ->prefixIcon(Heroicon::OutlinedUser)
+                                ->placeholder('Horvat')
+                                ->required()
+                                ->maxLength(255),
+
+                            Forms\Components\TextInput::make('oib')
+                                ->label('OIB')
+                                ->prefixIcon(Heroicon::OutlinedIdentification)
+                                ->required()
+                                ->placeholder('12345678901')
+                                ->numeric()
+                                ->helperText('Osobni identifikacijski broj, 11 znamenki.'),
+
+                            Forms\Components\TextInput::make('address')
+                                ->required()
+                                ->label('Adresa')
+                                ->prefixIcon(Heroicon::OutlinedMapPin)
+                                ->placeholder('Ilica 1')
+                                ->maxLength(255),
+
+                            Forms\Components\TextInput::make('city')
+                                ->required()
+                                ->label('Grad')
+                                ->prefixIcon(Heroicon::OutlinedBuildingOffice2)
+                                ->placeholder('Zagreb')
+                                ->maxLength(255),
+                        ]),
+                    ]),
+
+                Section::make('Kontakt podaci')
+                    ->description('Email adresa i telefonski brojevi')
+                    ->schema([
+                        Forms\Components\TextInput::make('email')
+                            ->label('Email')
+                            ->prefixIcon(Heroicon::OutlinedEnvelope)
+                            ->placeholder('ivan.horvat@primjer.com')
+                            ->email()
                             ->required()
-                            ->placeholder('+385 91 123 4567'),
-                        Forms\Components\Radio::make('type')
-                            ->label('Tip')
-                            ->options(\Amicus\FilamentEmployeeManagement\Enums\PhoneNumberType::class)
-                            ->inline()
-                            ->default(\Amicus\FilamentEmployeeManagement\Enums\PhoneNumberType::PRIVATE)
-                            ->required(),
-                    ])
-                    ->columnSpanFull(),
-
-                Forms\Components\TextInput::make('password')
-                    ->label('Lozinka')
-                    ->password()
-                    ->placeholder('*********')
-                    ->columnSpanFull()
-                    ->required(fn (string $context, $get): bool => $context === 'create' && empty($get('user_id')))
-                    ->visible(fn ($get): bool => empty($get('user_id')))
-                    ->helperText('Lozinka je obavezna kad nije odabran postojeći korisnik. Lozinka mora sadržavati najmanje 8 znakova.'),
-
-                Forms\Components\TextInput::make('oib')
-                    ->label('OIB')
-                    ->required()
-                    ->placeholder('12345678901')
-                    ->numeric()
-                    ->helperText('Osobni identifikacijski broj, 11 znamenki.'),
-
-                Forms\Components\Select::make('department_id')
-                    ->label('Odjel')
-                    ->relationship('department', 'name')
-                    ->helperText('Odaberite odjel kojem zaposlenik pripada.')
-                    ->createOptionForm([
-                        Forms\Components\TextInput::make('name')
-                            ->label('Naziv odjela')
-                            ->required()
+                            ->unique('employees', 'email', ignoreRecord: true)
+                            ->rules([
+                                fn ($record) => \Illuminate\Validation\Rule::unique('users', 'email')
+                                    ->ignore($record?->user_id),
+                            ])
+                            ->validationMessages([
+                                'unique' => 'Email adresa je već u upotrebi.',
+                            ])
                             ->maxLength(255),
-                    ])
-                    ->searchable()
-                    ->preload(),
 
-                Forms\Components\TextInput::make('address')
-                    ->required()
-                    ->label('Adresa')
-                    ->placeholder('Ilica 1')
-                    ->maxLength(255),
+                        Forms\Components\Repeater::make('phone_numbers')
+                            ->label('Brojevi telefona')
+                            ->collapsible()
+                            ->columns(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('number')
+                                    ->label('Broj')
+                                    ->required()
+                                    ->placeholder('+385 91 123 4567'),
+                                Forms\Components\Radio::make('type')
+                                    ->label('Tip')
+                                    ->options(\Amicus\FilamentEmployeeManagement\Enums\PhoneNumberType::class)
+                                    ->inline()
+                                    ->default(\Amicus\FilamentEmployeeManagement\Enums\PhoneNumberType::PRIVATE)
+                                    ->required(),
+                            ]),
+                    ]),
 
-                Forms\Components\TextInput::make('city')
-                    ->required()
-                    ->label('Grad')
-                    ->placeholder('Zagreb')
-                    ->maxLength(255),
+                Section::make('Zaposlenje')
+                    ->description('Odjel i pristupni podaci')
+                    ->schema([
+                        Forms\Components\Select::make('department_id')
+                            ->label('Odjel')
+                            ->relationship('department', 'name')
+                            ->helperText('Odaberite odjel kojem zaposlenik pripada.')
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Naziv odjela')
+                                    ->required()
+                                    ->maxLength(255),
+                            ])
+                            ->searchable()
+                            ->preload(),
 
-                Forms\Components\Textarea::make('note')
-                    ->label('Napomena')
-                    ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && auth()->user()->isAdmin())
-                    ->placeholder('Dodatne napomene o zaposleniku.')
-                    ->columnSpanFull(),
+                        Forms\Components\TextInput::make('password')
+                            ->label('Lozinka')
+                            ->prefixIcon(Heroicon::OutlinedLockClosed)
+                            ->password()
+                            ->placeholder('*********')
+                            ->required(fn (string $context, $get): bool => $context === 'create' && empty($get('user_id')))
+                            ->visible(fn ($get): bool => empty($get('user_id')))
+                            ->revealable()
+                            ->helperText('Lozinka je obavezna kad nije odabran postojeći korisnik. Lozinka mora sadržavati najmanje 8 znakova.'),
+                    ]),
 
-                FileUpload::make('signature_path')
-                    ->label('Potpis')
-                    ->helperText('Potpis zaposlenika koji će se koristiti na HR dokumentima (npr. zahtjevima za godišnji odmor).')
-                    ->image()
-                    ->disk('public')
-                    ->previewable()
-                    ->downloadable()
-                    ->directory('hr-documents/signatures')
-                    ->visibility('public')
-                    ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && auth()->user()->isAdmin())
-                    ->columnSpanFull(),
-
-                Forms\Components\CheckboxList::make('role')
-                    ->label('Uloga')
-                    ->options(DB::table('roles')->pluck('name', 'id')->map(fn ($record) => ucwords(str_replace('_', ' ', $record))))
-                    ->formatStateUsing(function ($record) {
-                        return $record?->user?->roles?->pluck('id')->toArray() ?? [];
-                    })
-                    ->required()
-                    ->visible(fn () => auth()->user()->isAdmin() && ! $isCurrentRouteMissingEmployeePage)
-                    ->helperText('Odaberite ulogu za novog zaposlenika.'),
-
-                Forms\Components\Toggle::make('is_active')
-                    ->required()
+                Section::make('Administracija')
+                    ->description('Napomene, potpis i postavke korisničkog računa')
                     ->columnSpanFull()
-                    ->label('Je li zaposlenik aktivan korisnik sustava?')
-                    ->helperText('Ako je zaposlenik neaktivan, neće moći pristupiti sustavu, neće se prikazivati u popisu zaposlenika.')
                     ->visible(fn () => ! $isCurrentRouteMissingEmployeePage && auth()->user()->isAdmin())
-                    ->default(true),
+                    ->schema([
+                        Forms\Components\Textarea::make('note')
+                            ->label('Napomena')
+                            ->placeholder('Dodatne napomene o zaposleniku.'),
+
+                        Grid::make(2)->schema([
+                            FileUpload::make('signature_path')
+                                ->label('Potpis')
+                                ->helperText('Potpis zaposlenika koji će se koristiti na HR dokumentima (npr. zahtjevima za godišnji odmor).')
+                                ->image()
+                                ->disk('public')
+                                ->previewable()
+                                ->downloadable()
+                                ->directory('hr-documents/signatures')
+                                ->visibility('public'),
+
+                            Forms\Components\CheckboxList::make('role')
+                                ->label('Uloga')
+                                ->options(DB::table('roles')->pluck('name', 'id')->map(fn ($record) => ucwords(str_replace('_', ' ', $record))))
+                                ->formatStateUsing(function ($record) {
+                                    return $record?->user?->roles?->pluck('id')->toArray() ?? [];
+                                })
+                                ->required()
+                                ->helperText('Odaberite ulogu za novog zaposlenika.'),
+                        ]),
+
+                        Forms\Components\Toggle::make('is_active')
+                            ->required()
+                            ->label('Je li zaposlenik aktivan korisnik sustava?')
+                            ->helperText('Ako je zaposlenik neaktivan, neće moći pristupiti sustavu, neće se prikazivati u popisu zaposlenika.')
+                            ->default(true),
+                    ]),
             ]);
     }
 

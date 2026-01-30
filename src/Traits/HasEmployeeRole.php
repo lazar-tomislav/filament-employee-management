@@ -1,40 +1,30 @@
 <?php
 
 namespace Amicus\FilamentEmployeeManagement\Traits;
+
+use App\Models\User;
+
 trait HasEmployeeRole
 {
     const ROLE_SUPER_ADMIN = 'super_admin';
-    const ROLE_UPRAVA_ADMIN = 'uprava_admin';
-    const ROLE_EMPLOYEE = 'zaposlenik_employee';
-    const ROLE_URED_ADMINISTRATIVNO_OSOBLJE = 'ured_administrativno_osoblje';
 
-    /**
-     * Check if the user has the employee role.
-     *
-     * @return bool
-     */
+    const ROLE_EMPLOYEE = 'zaposlenik_employee';
+
+    const ROLE_STANAR = 'stanar';
+
     public function isEmployee(): bool
     {
         return $this->hasRole(self::ROLE_EMPLOYEE);
     }
 
-    public function isAdmin(bool $strict = false): bool
+    public function isAdmin(): bool
     {
-        if($strict){
-            return $this->hasRole(self::ROLE_UPRAVA_ADMIN);
-        }
-        return $this->hasRole(self::ROLE_UPRAVA_ADMIN) || $this->hasRole(self::ROLE_SUPER_ADMIN);
+        return $this->hasRole(self::ROLE_SUPER_ADMIN);
     }
 
-    public function isSuperAdmin(): bool
+    public function isStanar(): bool
     {
-        return $this->hasRole(self::ROLE_SUPER_ADMIN) || $this->hasRole(self::ROLE_UPRAVA_ADMIN);
-    }
-
-    public function isUredAdministrativnoOsoblje(): bool
-    {
-        // administrativno + roles above it can see
-        return $this->hasRole(self::ROLE_URED_ADMINISTRATIVNO_OSOBLJE) || $this->isSuperAdmin() || $this->isAdmin();
+        return $this->hasRole(User::ROLE_STANAR);
     }
 
     public static function allAdministrativeUsers(): \Illuminate\Database\Eloquent\Collection
@@ -42,9 +32,7 @@ trait HasEmployeeRole
         return static::query()
             ->whereHas('roles', function ($query) {
                 $query->whereIn('name', [
-                    self::ROLE_UPRAVA_ADMIN,
                     self::ROLE_SUPER_ADMIN,
-                    self::ROLE_URED_ADMINISTRATIVNO_OSOBLJE
                 ]);
             })
             ->get();
