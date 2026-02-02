@@ -6,6 +6,7 @@ use Amicus\FilamentEmployeeManagement\Commands\FilamentEmployeeManagementCommand
 use Amicus\FilamentEmployeeManagement\Commands\PopulateHolidays;
 use Amicus\FilamentEmployeeManagement\Commands\TestMonthlyReportNotificationCommand;
 use Amicus\FilamentEmployeeManagement\Commands\TestTelegramNotificationCommand;
+use Amicus\FilamentEmployeeManagement\Console\Commands\PublishEmployeeReportTemplate;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\Holiday;
 use Amicus\FilamentEmployeeManagement\Models\LeaveAllowance;
@@ -167,6 +168,7 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             TestTelegramNotificationCommand::class,
             TestMonthlyReportNotificationCommand::class,
             PopulateHolidays::class,
+            PublishEmployeeReportTemplate::class,
         ];
     }
 

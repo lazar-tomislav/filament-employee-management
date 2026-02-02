@@ -122,17 +122,15 @@ class EmployeeReportTemplateExport
         $month = Carbon::create($this->year, $this->month);
         $report = $this->employee->getMonthlyWorkReport($month);
 
-        // Update the year in the title (only for November and December which have different layout)
-        if (in_array($this->month, [11, 12])) {
-            $existingTitle = $sheet->getCell('L3')->getValue();
-            if ($existingTitle) {
-                // Replace any 4-digit year (e.g., 2025) with the correct year
-                $updatedTitle = preg_replace('/\b\d{4}\b/', $this->year, $existingTitle);
-                // Also replace month name if needed
-                $monthName = mb_strtoupper($this->monthSheets[$this->month]);
-                $updatedTitle = preg_replace('/MJESEC\s+\w+\s+/', "MJESEC {$monthName} ", $updatedTitle);
-                $sheet->setCellValue('L3', $updatedTitle);
-            }
+        // Update the year and month in the title
+        $existingTitle = $sheet->getCell('L3')->getValue();
+        if ($existingTitle) {
+            // Replace any 4-digit year (e.g., 2025) with the correct year
+            $updatedTitle = preg_replace('/\b\d{4}\b/', $this->year, $existingTitle);
+            // Also replace month name if needed
+            $monthName = mb_strtoupper($this->monthSheets[$this->month]);
+            $updatedTitle = preg_replace('/MJESEC\s+\w+\s+/', "MJESEC {$monthName} ", $updatedTitle);
+            $sheet->setCellValue('L3', $updatedTitle);
         }
 
         // Fill employee name (D3:K3 merged cell)
@@ -277,22 +275,31 @@ class EmployeeReportTemplateExport
 
     protected function getTemplatePath(): string
     {
-        $paths = [
+        // Get template path from config
+        $configPath = config('employee-management.monthly_report.template_path');
+
+        // Try configured path first
+        $primaryPath = storage_path($configPath);
+        if (file_exists($primaryPath)) {
+            return $primaryPath;
+        }
+
+        // Fallback paths for backwards compatibility
+        $fallbackPaths = [
             storage_path('templates/evidencija_radnog_vremena.xlsx'),
             storage_path('app/templates/evidencija_radnog_vremena.xlsx'),
-            // Fallback to 2025 template if generic one doesn't exist
             storage_path('templates/evidencija_radnog_vremena_2025.xlsx'),
             storage_path('app/templates/evidencija_radnog_vremena_2025.xlsx'),
         ];
 
-        foreach ($paths as $path) {
+        foreach ($fallbackPaths as $path) {
             if (file_exists($path)) {
                 return $path;
             }
         }
 
         throw new \Exception(
-            'Template file not found. Please place evidencija_radnog_vremena.xlsx in storage/templates/ or storage/app/templates/'
+            "Template file not found. Please configure the template path in config/employee-management.php or place the file at: {$primaryPath}"
         );
     }
 
