@@ -172,7 +172,7 @@
             <td>
                 <span class="signature-label">DATUM PODNOŠENJA</span>
                 <div style="border-bottom: 1px solid #000; width: 150px; padding-bottom: 5px;">
-                    {{ now()->format('d.m.Y') }}
+                    {{ $leaveRequest->created_at->format('d.m.Y') }}
                 </div>
             </td>
         </tr>
