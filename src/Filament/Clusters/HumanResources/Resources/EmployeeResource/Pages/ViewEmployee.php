@@ -47,6 +47,7 @@ class ViewEmployee extends Page implements HasSchemas
             'Ime' => $this->record->first_name ?? "-",
             'Prezime' => $this->record->last_name ?? "-",
             "Odjel"=>$this->record->department?->name??"-",
+            "Radno mjesto" => $this->record->job_position ?? "-",
             "OIB" => $this->record->oib ?? "-",
             'Email' => $this->record->email ?? "-",
             "Brojevi telefona" => !empty($this->record->phone_numbers)

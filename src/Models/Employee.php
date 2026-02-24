@@ -60,6 +60,7 @@ class Employee extends Model
         'is_active',
         'role',
         'department_id',
+        'job_position',
         'signature_path',
     ];
 

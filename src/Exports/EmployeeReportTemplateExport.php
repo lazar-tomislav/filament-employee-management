@@ -141,6 +141,11 @@ class EmployeeReportTemplateExport
             $sheet->setCellValue('D4', $this->employee->department->name);
         }
 
+        // Fill job position if available (W4 merged cell)
+        if (! empty($this->employee->job_position)) {
+            $sheet->setCellValue('W4', 'Radno mjesto: ' . $this->employee->job_position);
+        }
+
         // Clear all pre-existing cell values from the template (e.g. 2025 holiday hours)
         foreach ($this->dayColumns as $day => $col) {
             foreach ($this->hourTypeRows as $row) {

@@ -116,6 +116,12 @@ class EmployeeForm
                             ->searchable()
                             ->preload(),
 
+                        Forms\Components\TextInput::make('job_position')
+                            ->label('Radno mjesto')
+                            ->prefixIcon(Heroicon::OutlinedBriefcase)
+                            ->placeholder('npr. Voditelj projekta')
+                            ->maxLength(255),
+
                         Forms\Components\TextInput::make('password')
                             ->label('Lozinka')
                             ->prefixIcon(Heroicon::OutlinedLockClosed)
