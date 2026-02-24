@@ -61,8 +61,18 @@ class LeaveRequestObserver
             return;
         }
 
+        // Auto-approve za direktora - direktor ne treba sam sebi odobravati
         if ($employee->id === $directorId) {
-            $this->notifyDirector($leaveRequest, $directorId, afterHodApproval: false);
+            $leaveRequest->updateQuietly([
+                'approved_by_director_id' => $directorId,
+                'approved_by_director_at' => now(),
+                'status' => LeaveRequestStatus::APPROVED->value,
+            ]);
+
+            $pdfPath = LeaveRequestPdfService::generatePdf($leaveRequest);
+            $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
+
+            $this->notifyEmployeeAboutFinalDecision($leaveRequest);
 
             return;
         }
