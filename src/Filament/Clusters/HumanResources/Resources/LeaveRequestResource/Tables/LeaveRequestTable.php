@@ -68,6 +68,7 @@ class LeaveRequestTable
                         ->schema(fn ($schema) => LeaveRequestInfolist::configure($schema))
                         ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
                     LeaveRequestActions::approveAsHeadOfDepartmentAction(),
+                    LeaveRequestActions::rejectAsHeadOfDepartmentAction(),
                     LeaveRequestActions::approveAsDirectorAction(),
                     LeaveRequestActions::rejectAction(),
                     LeaveRequestActions::sendReminderAction(),

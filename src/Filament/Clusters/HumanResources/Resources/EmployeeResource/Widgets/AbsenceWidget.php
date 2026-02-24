@@ -97,6 +97,7 @@ class AbsenceWidget extends TableWidget
             ->recordActions(
                 ActionGroup::make([
                     LeaveRequestActions::approveAsHeadOfDepartmentAction(),
+                    LeaveRequestActions::rejectAsHeadOfDepartmentAction(),
                     LeaveRequestActions::approveAsDirectorAction(),
                     LeaveRequestActions::rejectAction(),
                     LeaveRequestActions::sendReminderAction(),

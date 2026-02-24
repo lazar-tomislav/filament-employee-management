@@ -53,6 +53,49 @@ class LeaveRequestActions
             });
     }
 
+    public static function rejectAsHeadOfDepartmentAction(): Action
+    {
+        return Action::make('reject_as_hod')
+            ->label('Odbij kao voditelj')
+            ->icon(Heroicon::OutlinedXCircle)
+            ->color('danger')
+            ->visible(function (LeaveRequest $record): bool {
+                $employee = auth()->user()->employee ?? null;
+
+                if (! $employee) {
+                    return false;
+                }
+
+                return $record->canBeApprovedByHeadOfDepartment($employee);
+            })
+            ->requiresConfirmation()
+            ->modalHeading('Odbij zahtjev kao voditelj odjela')
+            ->modalSubmitActionLabel('Odbij zahtjev')
+            ->schema([
+                Textarea::make('rejection_reason')
+                    ->label('Razlog odbijanja')
+                    ->helperText('Zaposlenik će primiti obavijest o odbijanju zahtjeva s razlogom.')
+                    ->required()
+                    ->rows(3),
+            ])
+            ->action(function (LeaveRequest $record, array $data): void {
+                $employee = auth()->user()->employee;
+
+                $record->update([
+                    'status' => LeaveRequestStatus::REJECTED->value,
+                    'approved_by_head_of_department_id' => $employee->id,
+                    'approved_by_head_of_department_at' => now(),
+                    'rejection_reason' => $data['rejection_reason'],
+                ]);
+
+                Notification::make()
+                    ->title('Zahtjev odbijen')
+                    ->body('Zaposlenik je obaviješten o odbijanju zahtjeva.')
+                    ->success()
+                    ->send();
+            });
+    }
+
     public static function approveAsDirectorAction(): Action
     {
         return Action::make('approve_as_director')

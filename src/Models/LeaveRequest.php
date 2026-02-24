@@ -34,6 +34,7 @@ class LeaveRequest extends Model
         'approved_by_head_of_department_at',
         'approved_by_director_at',
         'pdf_path',
+        'calendar_event_ids',
     ];
 
     protected $casts = [
@@ -44,6 +45,7 @@ class LeaveRequest extends Model
         'status' => LeaveRequestStatus::class,
         'approved_by_head_of_department_at' => 'datetime',
         'approved_by_director_at' => 'datetime',
+        'calendar_event_ids' => 'array',
     ];
 
     public function employee(): BelongsTo

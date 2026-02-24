@@ -24,6 +24,27 @@ class LeaveRequestObserver
         $directorId = $settings->employee_director_id;
         $employee = $leaveRequest->employee;
 
+        // Auto-approve za voditelja odjela - HOD ne treba odobrenje
+        $isHeadOfDepartment = $employee->department
+            && $employee->department->head_of_department_employee_id === $employee->id;
+
+        if ($isHeadOfDepartment) {
+            $leaveRequest->updateQuietly([
+                'approved_by_head_of_department_id' => $employee->id,
+                'approved_by_head_of_department_at' => now(),
+                'approved_by_director_id' => $directorId,
+                'approved_by_director_at' => now(),
+                'status' => LeaveRequestStatus::APPROVED->value,
+            ]);
+
+            $pdfPath = LeaveRequestPdfService::generatePdf($leaveRequest);
+            $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
+
+            $this->notifyEmployeeAboutFinalDecision($leaveRequest);
+
+            return;
+        }
+
         if ($employee->id === $directorId) {
             $this->notifyDirector($leaveRequest, $directorId, afterHodApproval: false);
 
@@ -44,7 +65,10 @@ class LeaveRequestObserver
      */
     public function updated(LeaveRequest $leaveRequest): void
     {
-        if ($leaveRequest->isDirty('approved_by_head_of_department_id') && $leaveRequest->approved_by_head_of_department_id !== null) {
+        if ($leaveRequest->isDirty('approved_by_head_of_department_id')
+            && $leaveRequest->approved_by_head_of_department_id !== null
+            && $leaveRequest->status !== LeaveRequestStatus::REJECTED
+        ) {
             $settings = app(HumanResourcesSettings::class);
             $this->notifyDirector($leaveRequest, $settings->employee_director_id, afterHodApproval: true);
         }
@@ -132,6 +156,11 @@ class LeaveRequestObserver
     private function notifyHodAboutFinalDecision(LeaveRequest $leaveRequest): void
     {
         if (! $leaveRequest->approved_by_head_of_department_id) {
+            return;
+        }
+
+        // Don't notify HOD if they rejected it themselves
+        if ($leaveRequest->status === LeaveRequestStatus::REJECTED && ! $leaveRequest->approved_by_director_id) {
             return;
         }
 

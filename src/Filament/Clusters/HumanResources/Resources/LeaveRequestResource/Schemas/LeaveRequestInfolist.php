@@ -39,6 +39,7 @@ class LeaveRequestInfolist
                     })
                     ->belowContent([
                         LeaveRequestActions::approveAsHeadOfDepartmentAction(),
+                        LeaveRequestActions::rejectAsHeadOfDepartmentAction(),
                         LeaveRequestActions::approveAsDirectorAction(),
                         LeaveRequestActions::rejectAction(),
                         LeaveRequestActions::sendReminderAction(),
