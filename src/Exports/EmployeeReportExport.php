@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Exports;
 
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
+use App\Services\TenantFeatureService;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -60,7 +61,7 @@ class EmployeeReportExport implements \Maatwebsite\Excel\Concerns\WithStyles, Fr
         if ($logoPathFromSettings && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPathFromSettings)) {
             $logoPath = \Illuminate\Support\Facades\Storage::disk('public')->path($logoPathFromSettings);
         } else {
-            $logoPath = public_path('images/logo.png');
+            $logoPath = app(TenantFeatureService::class)->getBrandLogoStoragePath();
         }
         $drawing->setPath($logoPath);
 
