@@ -89,6 +89,7 @@ class LeaveRequest extends Model
      * - Zaposlenik nema odjel
      * - Odjel nema voditelja
      * - Zaposlenik JE direktor
+     * - Zaposlenik JE voditelj svog odjela (ne treba sam sebi odobravati)
      */
     public function requiresHeadOfDepartmentApproval(): bool
     {
@@ -111,6 +112,10 @@ class LeaveRequest extends Model
         }
 
         if (! $department->head_of_department_employee_id) {
+            return false;
+        }
+
+        if ($department->head_of_department_employee_id === $employee->id) {
             return false;
         }
 
