@@ -95,6 +95,10 @@ class LeaveRequest extends Model
      */
     public function requiresHeadOfDepartmentApproval(): bool
     {
+        if ($this->type->isAutoApproved()) {
+            return false;
+        }
+
         $employee = $this->employee;
 
         if (! $employee) {

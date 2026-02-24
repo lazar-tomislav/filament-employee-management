@@ -20,4 +20,9 @@ enum LeaveRequestType: string implements HasLabel
             self::MATERNITY_LEAVE => 'Porodiljni',
         };
     }
+
+    public function isAutoApproved(): bool
+    {
+        return in_array($this, [self::SICK_LEAVE, self::MATERNITY_LEAVE], true);
+    }
 }

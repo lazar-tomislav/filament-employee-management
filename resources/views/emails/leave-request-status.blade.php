@@ -4,14 +4,14 @@
 # Status vašeg zahtjeva je ažuriran
 
 @if($leaveRequest->status === LeaveRequestStatus::APPROVED)
-## Vaš zahtjev za godišnji odmor je odobren.
+## Vaš zahtjev za dopust ({{ mb_strtolower($leaveRequest->type->getLabel()) }}) je odobren.
 
 **Odobreni dani:** {{ $leaveRequest->start_date->format('d.m.Y') }} - {{ $leaveRequest->end_date->format('d.m.Y') }}
 
 **Napomena:**
 {{ $leaveRequest->notes ?? 'Nema napomene.' }}
 @elseif($leaveRequest->status === LeaveRequestStatus::REJECTED)
-## Vaš zahtjev za godišnji odmor je odbijen.
+## Vaš zahtjev za dopust ({{ mb_strtolower($leaveRequest->type->getLabel()) }}) je odbijen.
 
 **Period:** {{ $leaveRequest->start_date->format('d.m.Y') }} - {{ $leaveRequest->end_date->format('d.m.Y') }}
 

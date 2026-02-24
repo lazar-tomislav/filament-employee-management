@@ -66,9 +66,11 @@ class LeaveRequestStatusChangeNotification extends Notification implements Shoul
         $startDate = $this->leaveRequest->start_date->format('d.m.Y');
         $endDate = $this->leaveRequest->end_date->format('d.m.Y');
 
+        $typeLabel = $this->leaveRequest->type->getLabel();
+
         return TelegramMessage::create()
             ->to($telegramChatId)
-            ->content("Zahtjev za godišnji ({$startDate} - {$endDate}) ima novi status: {$status}\n\nRazlog: " . ($this->leaveRequest->rejection_reason ?? 'Nije naveden'));
+            ->content("Zahtjev za dopust - {$typeLabel} ({$startDate} - {$endDate}) ima novi status: {$status}\n\nRazlog: " . ($this->leaveRequest->rejection_reason ?? 'Nije naveden'));
     }
 
     public function toDatabase(object $notifiable): array
@@ -77,9 +79,11 @@ class LeaveRequestStatusChangeNotification extends Notification implements Shoul
         $startDate = $this->leaveRequest->start_date->format('d.m.Y');
         $endDate = $this->leaveRequest->end_date->format('d.m.Y');
 
+        $typeLabel = $this->leaveRequest->type->getLabel();
+
         return FilamentNotification::make()
-            ->title('Zahtjev za godišnji ažuriran')
-            ->body("Zahtjev za godišnji ({$startDate} - {$endDate}) ima novi status: {$status}\nRazlog: " . ($this->leaveRequest->rejection_reason ?? 'Nije naveden'))
+            ->title("Zahtjev za dopust ({$typeLabel}) ažuriran")
+            ->body("Zahtjev za dopust - {$typeLabel} ({$startDate} - {$endDate}) ima novi status: {$status}\nRazlog: " . ($this->leaveRequest->rejection_reason ?? 'Nije naveden'))
             ->getDatabaseMessage();
     }
 }

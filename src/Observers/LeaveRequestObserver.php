@@ -24,6 +24,22 @@ class LeaveRequestObserver
         $directorId = $settings->employee_director_id;
         $employee = $leaveRequest->employee;
 
+        // Auto-approve za bolovanje i porodiljni - ne trebaju odobrenje
+        if ($leaveRequest->type->isAutoApproved()) {
+            $leaveRequest->updateQuietly([
+                'approved_by_director_id' => $directorId,
+                'approved_by_director_at' => now(),
+                'status' => LeaveRequestStatus::APPROVED->value,
+            ]);
+
+            $pdfPath = LeaveRequestPdfService::generatePdf($leaveRequest);
+            $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
+
+            $this->notifyEmployeeAboutFinalDecision($leaveRequest);
+
+            return;
+        }
+
         // Auto-approve za voditelja odjela - HOD ne treba odobrenje
         $isHeadOfDepartment = $employee->department
             && $employee->department->head_of_department_employee_id === $employee->id;

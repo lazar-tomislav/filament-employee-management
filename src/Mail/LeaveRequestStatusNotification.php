@@ -27,10 +27,12 @@ class LeaveRequestStatusNotification extends Mailable
      */
     public function envelope(): Envelope
     {
+        $typeLabel = mb_strtolower($this->leaveRequest->type->getLabel());
+
         $subject = match ($this->leaveRequest->status) {
-            LeaveRequestStatus::APPROVED => 'Vaš zahtjev za godišnjim odmorom je odobren',
-            LeaveRequestStatus::REJECTED => 'Vaš zahtjev za godišnjim odmorom je odbijen',
-            default => 'Status vašeg zahtjeva za godišnjim odmorom je ažuriran',
+            LeaveRequestStatus::APPROVED => "Vaš zahtjev za dopust ({$typeLabel}) je odobren",
+            LeaveRequestStatus::REJECTED => "Vaš zahtjev za dopust ({$typeLabel}) je odbijen",
+            default => "Status vašeg zahtjeva za dopust ({$typeLabel}) je ažuriran",
         };
 
         return new Envelope(
