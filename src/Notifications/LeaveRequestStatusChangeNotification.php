@@ -8,11 +8,27 @@ use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Illuminate\Queue\Middleware\RateLimited;
 use NotificationChannels\Telegram\TelegramMessage;
 
 class LeaveRequestStatusChangeNotification extends Notification implements ShouldQueue
 {
     use Queueable;
+
+    public int $tries = 10;
+
+    public int $maxExceptions = 3;
+
+    /**
+     * @return array<int, object>
+     */
+    public function middleware(object $notifiable, string $channel): array
+    {
+        return match ($channel) {
+            'mail' => [(new RateLimited('resend-api'))->releaseAfter(3)],
+            default => [],
+        };
+    }
 
     public function __construct(
         public LeaveRequest $leaveRequest
