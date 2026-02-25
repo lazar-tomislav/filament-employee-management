@@ -40,6 +40,16 @@ class TimeLogTable
                         ->alignEnd()
                         ->sortable(),
 
+                    Tables\Columns\TextColumn::make('work_start_time')
+                        ->label('Početak')
+                        ->time('H:i')
+                        ->toggleable(isToggledHiddenByDefault: true),
+
+                    Tables\Columns\TextColumn::make('work_end_time')
+                        ->label('Završetak')
+                        ->time('H:i')
+                        ->toggleable(isToggledHiddenByDefault: true),
+
                     Tables\Columns\TextColumn::make('log_type')
                         ->label('Tip unosa')
                         ->formatStateUsing(function ($state, $record) {

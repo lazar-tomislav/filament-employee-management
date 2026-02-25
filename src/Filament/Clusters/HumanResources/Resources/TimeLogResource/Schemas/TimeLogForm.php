@@ -6,7 +6,11 @@ use Amicus\FilamentEmployeeManagement\Enums\LogType;
 use Amicus\FilamentEmployeeManagement\Enums\TimeLogStatus;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Pages\ViewEmployee;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
+use Carbon\Carbon;
 use Filament\Forms;
+use Filament\Schemas\Components;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Log;
 
@@ -17,6 +21,11 @@ class TimeLogForm
         return $schema
             ->components([
                 self::getTimeComponent(),
+                Components\Grid::make(2)
+                    ->schema([
+                        self::getWorkStartTimeComponent(),
+                        self::getWorkEndTimeComponent(),
+                    ]),
                 self::getWorkFromHomeComponent(),
                 self::getNoteComponent(),
             ]);
@@ -44,6 +53,11 @@ class TimeLogForm
                     ->helperText('Datum za koji se unose radni sati'),
 
                 self::getTimeComponent(),
+                Components\Grid::make(2)
+                    ->schema([
+                        self::getWorkStartTimeComponent(),
+                        self::getWorkEndTimeComponent(),
+                    ]),
 
                 Forms\Components\Select::make('log_type')
                     ->label('Tip unosa')
@@ -87,10 +101,19 @@ class TimeLogForm
             ->minValue(0)
             ->maxValue(24)
             ->placeholder('8.0')
-            ->live()
+            ->live(debounce: 1000)
             ->required()
+            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                $hours = (float) $state;
+                $startTime = $get('work_start_time');
+                if ($hours > 0 && $startTime) {
+                    $start = Carbon::parse($startTime);
+                    $end = $start->copy()->addMinutes((int) round($hours * 60));
+                    $set('work_end_time', $end->format('H:i'));
+                }
+            })
             ->suffix(function ($get) {
-                $hours = (float)$get('hours');
+                $hours = (float) $get('hours');
                 Log::debug('hours: ' . $hours);
                 if ($hours <= 0) {
                     return '00:00';
@@ -102,6 +125,96 @@ class TimeLogForm
                 return $suffix;
             })
             ->helperText('Unesite broj sati (npr. 8 ili 7.5)');
+    }
+
+    protected static function getWorkStartTimeComponent(): Forms\Components\TimePicker
+    {
+        $tenantService = app(\App\Services\TenantFeatureService::class);
+
+        return Forms\Components\TimePicker::make('work_start_time')
+            ->label('Početak rada')
+            ->seconds(false)
+            ->minutesStep(30)
+            ->default($tenantService->getDefaultStartTime())
+            ->live(debounce: 1000)
+            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                if (! $state) {
+                    return;
+                }
+
+                $rounded = self::roundToNext30Minutes($state);
+                if ($rounded !== $state) {
+                    $set('work_start_time', $rounded);
+                    $state = $rounded;
+                }
+
+                $endTime = $get('work_end_time');
+                if ($endTime) {
+                    $start = Carbon::parse($state);
+                    $end = Carbon::parse($endTime);
+                    if ($end->gt($start)) {
+                        $diffHours = abs($start->diffInMinutes($end)) / 60;
+                        $set('hours', round($diffHours, 2));
+                    }
+                }
+            })
+            ->helperText('Vrijeme početka rada (zaokružuje se na 30 min)');
+    }
+
+    protected static function getWorkEndTimeComponent(): Forms\Components\TimePicker
+    {
+        $tenantService = app(\App\Services\TenantFeatureService::class);
+
+        return Forms\Components\TimePicker::make('work_end_time')
+            ->label('Završetak rada')
+            ->seconds(false)
+            ->minutesStep(30)
+            ->default($tenantService->getDefaultEndTime())
+            ->live(debounce: 1000)
+            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                if (! $state) {
+                    return;
+                }
+
+                $rounded = self::roundToNext30Minutes($state);
+                if ($rounded !== $state) {
+                    $set('work_end_time', $rounded);
+                    $state = $rounded;
+                }
+
+                $startTime = $get('work_start_time');
+                if ($startTime) {
+                    $start = Carbon::parse($startTime);
+                    $end = Carbon::parse($state);
+                    if ($end->gt($start)) {
+                        $diffHours = abs($start->diffInMinutes($end)) / 60;
+                        $set('hours', round($diffHours, 2));
+                    }
+                }
+            })
+            ->helperText('Vrijeme završetka rada (zaokružuje se na 30 min)');
+    }
+
+    /**
+     * Zaokružuje vrijeme na sljedeću 30-minutnu vrijednost.
+     * Npr. 07:15 → 07:30, 07:45 → 08:00, 07:00 → 07:00
+     */
+    protected static function roundToNext30Minutes(string $time): string
+    {
+        $parsed = Carbon::parse($time);
+        $minutes = $parsed->minute;
+
+        if ($minutes === 0 || $minutes === 30) {
+            return $parsed->format('H:i');
+        }
+
+        if ($minutes < 30) {
+            $parsed->minute(30);
+        } else {
+            $parsed->minute(0)->addHour();
+        }
+
+        return $parsed->format('H:i');
     }
 
     protected static function getNoteComponent()

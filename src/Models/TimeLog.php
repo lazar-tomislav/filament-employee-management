@@ -19,6 +19,8 @@ class TimeLog extends Model
         'employee_id',
         'date',
         'hours',
+        'work_start_time',
+        'work_end_time',
         'description',
         'status',
         'log_type',
@@ -172,6 +174,10 @@ class TimeLog extends Model
             'skipped' => 0,
         ];
 
+        $tenantService = app(\App\Services\TenantFeatureService::class);
+        $defaultStartTime = $tenantService->getDefaultStartTime();
+        $defaultEndTime = $tenantService->getDefaultEndTime();
+
         $startDate = Carbon::create($year, $month, 1);
         $daysInMonth = $startDate->daysInMonth;
 
@@ -212,6 +218,8 @@ class TimeLog extends Model
                 'employee_id' => $employeeId,
                 'date' => $date,
                 'hours' => Employee::HOURS_PER_WORK_DAY,
+                'work_start_time' => $defaultStartTime,
+                'work_end_time' => $defaultEndTime,
                 'description' => null,
                 'status' => TimeLogStatus::default(),
                 'log_type' => LogType::RADNI_SATI,

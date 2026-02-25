@@ -21,6 +21,7 @@ use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
+use App\Services\TenantFeatureService;
 use Livewire\Attributes\Url;
 
 class InsertTimeLogWidget extends Widget implements HasActions, HasForms
@@ -51,10 +52,14 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
             $this->selectedDate = now()->format('Y-m-d');
         }
 
+        $tenantService = app(TenantFeatureService::class);
+
         $this->form->fill([
             'employee_id' => $this->record?->id,
             'date' => now()->format('Y-m-d'),
             'hours' => 8,
+            'work_start_time' => $tenantService->getDefaultStartTime(),
+            'work_end_time' => $tenantService->getDefaultEndTime(),
             'is_work_from_home' => false,
         ]);
 
@@ -139,6 +144,8 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
                 'employee_id' => $employee->id,
                 'date' => $data['date'] ?? $this->selectedDate,
                 'hours' => $data['hours'],
+                'work_start_time' => $data['work_start_time'] ?? null,
+                'work_end_time' => $data['work_end_time'] ?? null,
                 'description' => $data['description'],
                 'status' => $data['status'] ?? TimeLogStatus::default(),
                 'log_type' => $data['log_type'] ?? LogType::RADNI_SATI,
@@ -151,10 +158,14 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
                 ->success()
                 ->send();
 
+            $tenantService = app(TenantFeatureService::class);
+
             $this->form->fill([
                 'employee_id' => $this->record?->id,
                 'date' => now()->format('Y-m-d'),
                 'hours' => 8,
+                'work_start_time' => $tenantService->getDefaultStartTime(),
+                'work_end_time' => $tenantService->getDefaultEndTime(),
                 'description' => '',
                 'is_work_from_home' => false,
             ]);
@@ -228,10 +239,14 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
         $this->checkMonthLock();
 
         // Ažuriraj i formu za unos sati da koristi odabrani datum
+        $tenantService = app(TenantFeatureService::class);
+
         $this->form->fill([
             'employee_id' => $this->record?->id,
             'date' => $this->selectedDate,
             'hours' => 8,
+            'work_start_time' => $tenantService->getDefaultStartTime(),
+            'work_end_time' => $tenantService->getDefaultEndTime(),
             'description' => '',
             'is_work_from_home' => false,
         ]);
@@ -291,6 +306,8 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
                 'name' => $timeLog->is_work_from_home ? 'Rad od kuće' : 'Redovan unos sati',
                 'description' => $timeLog->description,
                 'hours' => $timeLog->formatted_hours,
+                'work_start_time' => $timeLog->work_start_time,
+                'work_end_time' => $timeLog->work_end_time,
                 'is_work_from_home' => $timeLog->is_work_from_home,
                 'can_delete' => true,
                 'can_edit' => true,
@@ -332,7 +349,7 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
             ->color('warning')
             ->mountUsing(function (Schema $schema, array $arguments) {
                 if ($timeLog = TimeLog::find($arguments['timeLog'] ?? null)) {
-                    $schema->fill($timeLog->only(['hours', 'description', 'is_work_from_home']));
+                    $schema->fill($timeLog->only(['hours', 'work_start_time', 'work_end_time', 'description', 'is_work_from_home']));
                 }
             })
             ->schema(
@@ -350,6 +367,8 @@ class InsertTimeLogWidget extends Widget implements HasActions, HasForms
                     }
                     $timeLog->update([
                         'hours' => $data['hours'],
+                        'work_start_time' => $data['work_start_time'] ?? null,
+                        'work_end_time' => $data['work_end_time'] ?? null,
                         'description' => $data['description'],
                         'is_work_from_home' => $data['is_work_from_home'] ?? false,
                     ]);

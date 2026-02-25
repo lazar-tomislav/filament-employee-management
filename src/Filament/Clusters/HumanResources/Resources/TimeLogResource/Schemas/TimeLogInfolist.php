@@ -18,6 +18,8 @@ class TimeLogInfolist
                             "Zaposlenik" => $record->employee->full_name_email,
                             "Unos za dan" => $record->date ? $record->date->format('d.m.Y') : "-",
                             "Broj sati" => $record->hours,
+                            "Početak rada" => $record->work_start_time ? substr($record->work_start_time, 0, 5) : "-",
+                            "Završetak rada" => $record->work_end_time ? substr($record->work_end_time, 0, 5) : "-",
                             "Status" => $record->status->getLabel(),
                             "Tip unosa" => $record->log_type->getLabel(),
                             "Opis" => $record->description ?? "-",

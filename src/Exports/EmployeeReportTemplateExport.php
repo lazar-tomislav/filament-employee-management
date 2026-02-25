@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Exports;
 
 use Amicus\FilamentEmployeeManagement\Models\Employee;
+use App\Services\TenantFeatureService;
 use Carbon\Carbon;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -223,16 +224,25 @@ class EmployeeReportTemplateExport
         }
 
         // Fill start/end work times (row 7 = početak rada, row 8 = završetak rada)
-        // TODO: Dinamički povući iz TimeLog modela umjesto hardkodiranih vrijednosti
+        $tenantService = app(TenantFeatureService::class);
+        $defaultStartHour = (int) explode(':', $tenantService->getDefaultStartTime())[0];
+        $defaultEndHour = (int) explode(':', $tenantService->getDefaultEndTime())[0];
+
         $holidayDays = [];
         $workedDays = [];
+        $workTimesByDay = [];
         foreach ($report['daily_data'] as $daily) {
+            $day = $daily['date']->day;
             if (! empty($daily['is_holiday'])) {
-                $holidayDays[] = $daily['date']->day;
+                $holidayDays[] = $day;
             }
             if (($daily['total_hours'] ?? 0) > 0) {
-                $workedDays[] = $daily['date']->day;
+                $workedDays[] = $day;
             }
+            $workTimesByDay[$day] = [
+                'start' => $daily['work_start_time'] ?? null,
+                'end' => $daily['work_end_time'] ?? null,
+            ];
         }
 
         $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
@@ -247,11 +257,17 @@ class EmployeeReportTemplateExport
             $isHoliday = in_array($day, $holidayDays);
             $hasWorkedHours = in_array($day, $workedDays);
 
-            // Radni dan: uvijek popuni default 7-15
+            // Radni dan: uvijek popuni default
             // Vikend/praznik: popuni samo ako zaposlenik ima unesene sate
             if ((! $isWeekend && ! $isHoliday) || $hasWorkedHours) {
-                $sheet->setCellValue($col . '7', 7);
-                $sheet->setCellValue($col . '8', 15);
+                $startTime = $workTimesByDay[$day]['start'] ?? null;
+                $endTime = $workTimesByDay[$day]['end'] ?? null;
+
+                $startHour = $startTime ? (int) substr($startTime, 0, 2) : $defaultStartHour;
+                $endHour = $endTime ? (int) substr($endTime, 0, 2) : $defaultEndHour;
+
+                $sheet->setCellValue($col . '7', $startHour);
+                $sheet->setCellValue($col . '8', $endHour);
             }
         }
 

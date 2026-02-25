@@ -172,7 +172,7 @@ class Employee extends Model
         $timeLogsByDate = $this->timeLogs()
             ->whereYear('date', $month->year)
             ->whereMonth('date', $month->month)
-            ->selectRaw('date, SUM(hours) as total_hours, SUM(CASE WHEN is_work_from_home = 1 THEN hours ELSE 0 END) as wfh_hours')
+            ->selectRaw('date, SUM(hours) as total_hours, SUM(CASE WHEN is_work_from_home = 1 THEN hours ELSE 0 END) as wfh_hours, MIN(work_start_time) as work_start_time, MAX(work_end_time) as work_end_time')
             ->groupBy('date')
             ->get()
             ->keyBy(fn ($log) => Carbon::parse($log->date)->format('Y-m-d'));
@@ -277,6 +277,8 @@ class Employee extends Model
                 'total_hours' => $totalDailyWorkHours,
                 'total_wfh_hours' => $totalDailyWorkFromHomeHours,
                 'is_weekend' => ! in_array($date->dayOfWeek, self::WORK_DAYS),
+                'work_start_time' => $dailyLog->work_start_time ?? null,
+                'work_end_time' => $dailyLog->work_end_time ?? null,
             ];
 
             $report['totals']['work_hours'] += $dailyWorkHours;

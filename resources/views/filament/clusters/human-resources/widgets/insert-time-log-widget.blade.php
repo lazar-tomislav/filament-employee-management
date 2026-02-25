@@ -179,10 +179,15 @@
                                     {!! $timeLog['description'] !!}
                                 </div>
                             </div>
-                            <div
-                                class="w-auto px-2 h-8 flex-shrink-0 flex items-center justify-center rounded bg-red-400/50">
-                                     <span
-                                         class="font-bold text-sm text-accent-green dark:text-accent-green-light">{{$timeLog['hours']}} h</span>
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                @if(!empty($timeLog['work_start_time']) || !empty($timeLog['work_end_time']))
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">
+                                        {{ $timeLog['work_start_time'] ? substr($timeLog['work_start_time'], 0, 5) : '' }} - {{ $timeLog['work_end_time'] ? substr($timeLog['work_end_time'], 0, 5) : '' }}
+                                    </span>
+                                @endif
+                                <div class="w-auto px-2 h-8 flex items-center justify-center rounded bg-red-400/50">
+                                    <span class="font-bold text-sm text-accent-green dark:text-accent-green-light">{{$timeLog['hours']}} h</span>
+                                </div>
                             </div>
 
                             <!-- Time Log Actions -->
