@@ -97,7 +97,7 @@ class TimeLogForm
         return Forms\Components\TextInput::make('hours')
             ->label('Broj sati')
             ->numeric()
-            ->step('0.25')
+            ->step('0.5')
             ->minValue(0)
             ->maxValue(24)
             ->placeholder('8.0')
@@ -154,7 +154,7 @@ class TimeLogForm
                     $end = Carbon::parse($endTime);
                     if ($end->gt($start)) {
                         $diffHours = abs($start->diffInMinutes($end)) / 60;
-                        $set('hours', round($diffHours, 2));
+                        $set('hours', round($diffHours * 2) / 2);
                     }
                 }
             })
@@ -188,7 +188,7 @@ class TimeLogForm
                     $end = Carbon::parse($state);
                     if ($end->gt($start)) {
                         $diffHours = abs($start->diffInMinutes($end)) / 60;
-                        $set('hours', round($diffHours, 2));
+                        $set('hours', round($diffHours * 2) / 2);
                     }
                 }
             })
