@@ -465,8 +465,9 @@ class EmployeeReportTemplateExport
             $drawing->setName('Potpis');
             $drawing->setPath($fullPath);
             $drawing->setCoordinates($col.($row - 1));
-            $drawing->setHeight(40);
-            $drawing->setOffsetY(5);
+            $drawing->setHeight(55);
+            $drawing->setOffsetY(15);
+            $drawing->setOffsetx(20);
             $drawing->setWorksheet($sheet);
         }
     }
