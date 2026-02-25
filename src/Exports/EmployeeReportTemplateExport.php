@@ -222,6 +222,39 @@ class EmployeeReportTemplateExport
             }
         }
 
+        // Fill start/end work times (row 7 = početak rada, row 8 = završetak rada)
+        // TODO: Dinamički povući iz TimeLog modela umjesto hardkodiranih vrijednosti
+        $holidayDays = [];
+        $workedDays = [];
+        foreach ($report['daily_data'] as $daily) {
+            if (! empty($daily['is_holiday'])) {
+                $holidayDays[] = $daily['date']->day;
+            }
+            if (($daily['total_hours'] ?? 0) > 0) {
+                $workedDays[] = $daily['date']->day;
+            }
+        }
+
+        $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            if (! isset($this->dayColumns[$day])) {
+                continue;
+            }
+
+            $col = $this->dayColumns[$day];
+            $date = Carbon::create($this->year, $this->month, $day);
+            $isWeekend = in_array($date->dayOfWeek, [0, 6]);
+            $isHoliday = in_array($day, $holidayDays);
+            $hasWorkedHours = in_array($day, $workedDays);
+
+            // Radni dan: uvijek popuni default 7-15
+            // Vikend/praznik: popuni samo ako zaposlenik ima unesene sate
+            if ((! $isWeekend && ! $isHoliday) || $hasWorkedHours) {
+                $sheet->setCellValue($col . '7', 7);
+                $sheet->setCellValue($col . '8', 15);
+            }
+        }
+
         // Set number format for all data cells to show decimals only when needed
         // Format: show whole numbers without decimal, decimals with up to 2 decimal places
         $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
