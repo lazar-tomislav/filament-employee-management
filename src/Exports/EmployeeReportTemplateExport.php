@@ -285,14 +285,10 @@ class EmployeeReportTemplateExport
         $defaultStartHour = (int) explode(':', $tenantService->getDefaultStartTime())[0];
         $defaultEndHour = (int) explode(':', $tenantService->getDefaultEndTime())[0];
 
-        $holidayDays = [];
         $workedDays = [];
         $workTimesByDay = [];
         foreach ($report['daily_data'] as $daily) {
             $day = $daily['date']->day;
-            if (! empty($daily['is_holiday'])) {
-                $holidayDays[] = $day;
-            }
             if (($daily['total_hours'] ?? 0) > 0) {
                 $workedDays[] = $day;
             }
@@ -309,14 +305,9 @@ class EmployeeReportTemplateExport
             }
 
             $col = $this->dayColumns[$day];
-            $date = Carbon::create($year, $month, $day);
-            $isWeekend = in_array($date->dayOfWeek, [0, 6]);
-            $isHoliday = in_array($day, $holidayDays);
-            $hasWorkedHours = in_array($day, $workedDays);
 
-            // Radni dan: uvijek popuni default
-            // Vikend/praznik: popuni samo ako zaposlenik ima unesene sate
-            if ((! $isWeekend && ! $isHoliday) || $hasWorkedHours) {
+            // Popuni početak/kraj rada samo ako zaposlenik ima odrađene radne sate taj dan
+            if (in_array($day, $workedDays)) {
                 $startTime = $workTimesByDay[$day]['start'] ?? null;
                 $endTime = $workTimesByDay[$day]['end'] ?? null;
 
