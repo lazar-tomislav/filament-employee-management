@@ -173,7 +173,7 @@ Template sadrži **12 sheetova**, jedan za svaki mjesec, s hrvatskim nazivima:
 |--------|---------|---------|
 | `D3` | Ime i prezime zaposlenika | Merged ćelija D3:K3 |
 | `D4` | Naziv odjela | Merged ćelija D4:N4 |
-| `W4` | `"Radno mjesto: {job_position}"` | Samo ako zaposlenik ima popunjeno `job_position` |
+| `W4` | `"{job_position}"` | Samo ako zaposlenik ima popunjeno `job_position` |
 | `L3` | Naslov s mjesecom i godinom | Regex zamjena godine i mjeseca u postojećem tekstu |
 
 ### Radno vrijeme header (rows 7-8)
