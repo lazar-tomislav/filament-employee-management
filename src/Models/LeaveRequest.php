@@ -105,9 +105,14 @@ class LeaveRequest extends Model
             return false;
         }
 
-        $directorId = app(HumanResourcesSettings::class)->employee_director_id;
+        $settings = app(HumanResourcesSettings::class);
 
-        if ($employee->id === $directorId) {
+        if ($employee->id === $settings->employee_director_id) {
+            return false;
+        }
+
+        // Zamjenik direktora ne treba odobrenje voditelja odjela - ide direktno direktoru
+        if ($settings->employee_deputy_director_id && $employee->id === $settings->employee_deputy_director_id) {
             return false;
         }
 

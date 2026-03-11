@@ -87,6 +87,14 @@ class LeaveRequestObserver
             return;
         }
 
+        // Zamjenik direktora - zahtjev ide direktno direktoru (bez HOD koraka)
+        $deputyDirectorId = $settings->employee_deputy_director_id;
+        if ($deputyDirectorId && $employee->id === $deputyDirectorId) {
+            $this->notifyDirector($leaveRequest, $directorId, afterHodApproval: false);
+
+            return;
+        }
+
         if ($leaveRequest->requiresHeadOfDepartmentApproval()) {
             $this->notifyHeadOfDepartment($leaveRequest);
 
