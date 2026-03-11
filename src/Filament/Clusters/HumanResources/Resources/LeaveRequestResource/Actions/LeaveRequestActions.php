@@ -157,7 +157,19 @@ class LeaveRequestActions
 
                 $settings = app(HumanResourcesSettings::class);
 
-                return $employee->id === $settings->employee_director_id;
+                // Direktor može odbiti bilo koji zahtjev
+                if ($employee->id === $settings->employee_director_id) {
+                    return true;
+                }
+
+                // Zamjenik direktora može odbiti samo direktorov zahtjev
+                if ($settings->employee_deputy_director_id
+                    && $employee->id === $settings->employee_deputy_director_id
+                    && $record->employee_id === $settings->employee_director_id) {
+                    return true;
+                }
+
+                return false;
             })
             ->color('danger')
             ->schema([

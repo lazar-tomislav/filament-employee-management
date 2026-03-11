@@ -164,8 +164,21 @@ class LeaveRequest extends Model
             return false;
         }
 
-        $directorId = app(HumanResourcesSettings::class)->employee_director_id;
+        $settings = app(HumanResourcesSettings::class);
+        $directorId = $settings->employee_director_id;
+        $deputyDirectorId = $settings->employee_deputy_director_id;
 
+        // Zamjenik direktora može odobriti samo direktorov zahtjev
+        if ($deputyDirectorId && $approver->id === $deputyDirectorId && $this->employee_id === $directorId) {
+            return true;
+        }
+
+        // Direktor ne može odobriti vlastiti zahtjev kad postoji zamjenik
+        if ($approver->id === $directorId && $this->employee_id === $directorId && $deputyDirectorId) {
+            return false;
+        }
+
+        // Direktor može odobriti (postojeća logika)
         if ($approver->id !== $directorId) {
             return false;
         }

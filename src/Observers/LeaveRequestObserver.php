@@ -61,18 +61,28 @@ class LeaveRequestObserver
             return;
         }
 
-        // Auto-approve za direktora - direktor ne treba sam sebi odobravati
+        // Direktor podnosi zahtjev - zamjenik odobrava
         if ($employee->id === $directorId) {
-            $leaveRequest->updateQuietly([
-                'approved_by_director_id' => $directorId,
-                'approved_by_director_at' => now(),
-                'status' => LeaveRequestStatus::APPROVED->value,
-            ]);
+            $deputyDirectorId = $settings->employee_deputy_director_id;
 
-            $pdfPath = LeaveRequestPdfService::generatePdf($leaveRequest);
-            $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
+            // Ako zamjenik nije konfiguriran, auto-approve (fallback)
+            if (! $deputyDirectorId) {
+                $leaveRequest->updateQuietly([
+                    'approved_by_director_id' => $directorId,
+                    'approved_by_director_at' => now(),
+                    'status' => LeaveRequestStatus::APPROVED->value,
+                ]);
 
-            $this->notifyEmployeeAboutFinalDecision($leaveRequest);
+                $pdfPath = LeaveRequestPdfService::generatePdf($leaveRequest);
+                $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
+
+                $this->notifyEmployeeAboutFinalDecision($leaveRequest);
+
+                return;
+            }
+
+            // Pošalji zamjeniku direktora na odobrenje
+            $this->notifyDeputyDirector($leaveRequest, $deputyDirectorId);
 
             return;
         }
@@ -141,6 +151,25 @@ class LeaveRequestObserver
         }
 
         $headOfDepartment->user->notify(new LeaveRequestPendingHodApprovalNotification($leaveRequest));
+    }
+
+    private function notifyDeputyDirector(LeaveRequest $leaveRequest, int $deputyDirectorId): void
+    {
+        $deputyDirector = Employee::find($deputyDirectorId);
+
+        if (! $deputyDirector) {
+            Log::warning("Cannot notify deputy director for leave request {$leaveRequest->id}: deputy director employee not found.");
+
+            return;
+        }
+
+        if (! $deputyDirector->user) {
+            Log::warning("Cannot notify deputy director for leave request {$leaveRequest->id}: deputy director has no associated user.");
+
+            return;
+        }
+
+        $deputyDirector->user->notify(new LeaveRequestPendingDirectorApprovalNotification($leaveRequest, afterHodApproval: false));
     }
 
     private function notifyDirector(LeaveRequest $leaveRequest, ?int $directorId, bool $afterHodApproval): void

@@ -70,6 +70,14 @@ class HumanResourcesSettingsPage extends SettingsPage
                                 ->nullable()
                                 ->helperText('Odaberite zaposlenika koji će imati ulogu direktora za odobravanje zahtjeva.'),
 
+                            Forms\Components\Select::make('employee_deputy_director_id')
+                                ->label('Zamjenik direktora')
+                                ->options(Employee::options())
+                                ->searchable()
+                                ->preload()
+                                ->nullable()
+                                ->helperText('Zamjenik odobrava zahtjeve za odsustvo direktora. Ako nije postavljen, direktorovi zahtjevi se automatski odobravaju.'),
+
                             FileUpload::make('director_signature')
                                 ->label('Potpis direktora')
                                 ->helperText('Potpis direktora koji se prikazuje na HR dokumentima poput zahtjeva za G.O nakon odobrenja.')
