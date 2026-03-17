@@ -9,11 +9,9 @@ use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
-use Filament\Infolists\Components\KeyValueEntry;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
-use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
 use Illuminate\Support\Carbon;
@@ -122,30 +120,19 @@ class MonthlySummaryWidget extends Widget implements HasActions, HasSchemas
         return $monthNames[$date->month] . ' ' . $date->year;
     }
 
-    public function summaryInfoList(Schema $schema): Schema
+    public function getSummaryData(): array
     {
         $selectedMonth = Carbon::parse($this->selectedMonth);
         $totals = $this->record->getMonthlyWorkReport($selectedMonth)['totals'];
-        $details = [
-            'Radni sati' => $totals['work_hours'],
-            'Rad od kuće' => $totals['work_from_home_hours'],
-            'Prekovremeno' => $totals['overtime_hours'],
-            'Godišnji odmor' => $totals['vacation_hours'],
-            'Bolovanje' => $totals['sick_leave_hours'],
-            'Plaćeno odsustvo' => $totals['other_hours'],
-            'Plaćeni neradni dani i blagdani' => $totals['holiday_hours'],
-            'Predviđeno vrijeme rada' => $totals['available_hours'],
-        ];
+        $totalWorked = $totals['work_hours'] + $totals['work_from_home_hours'] + $totals['overtime_hours'];
+        $available = $totals['available_hours'];
+        $percentage = $available > 0 ? round(($totalWorked / $available) * 100) : 0;
 
-        return $schema
-            ->record($this->record)
-            ->state(['work_hours_details' => $details])
-            ->components([
-                KeyValueEntry::make('work_hours_details')
-                    ->hiddenLabel()
-                    ->keyLabel("Sažetak za {$selectedMonth->translatedFormat('F Y')}")
-                    ->valueLabel('Broj sati'),
-            ]);
+        return [
+            'totals' => $totals,
+            'total_worked' => $totalWorked,
+            'percentage' => $percentage,
+        ];
     }
 
     public function downloadMonthlyTimeReportAction(): Action
