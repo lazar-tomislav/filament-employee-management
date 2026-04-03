@@ -115,6 +115,7 @@
                     ['key' => 'sick_leave_hours', 'label' => 'Bolovanje', 'icon' => 'heroicon-o-heart', 'color' => 'red'],
                     ['key' => 'other_hours', 'label' => 'Plaćeno odsustvo', 'icon' => 'heroicon-o-calendar-days', 'color' => 'purple'],
                     ['key' => 'holiday_hours', 'label' => 'Blagdani', 'icon' => 'heroicon-o-flag', 'color' => 'teal'],
+                    ['key' => 'maternity_leave_hours', 'label' => 'Porodiljni dopust', 'icon' => 'heroicon-o-face-smile', 'color' => 'pink'],
                 ];
             @endphp
 
@@ -131,6 +132,7 @@
                             'red' => ['bg' => 'bg-red-50 dark:bg-red-950/30', 'icon' => 'text-red-500 dark:text-red-400', 'ring' => 'ring-red-200 dark:ring-red-800', 'dot' => 'bg-red-500'],
                             'purple' => ['bg' => 'bg-purple-50 dark:bg-purple-950/30', 'icon' => 'text-purple-500 dark:text-purple-400', 'ring' => 'ring-purple-200 dark:ring-purple-800', 'dot' => 'bg-purple-500'],
                             'teal' => ['bg' => 'bg-teal-50 dark:bg-teal-950/30', 'icon' => 'text-teal-500 dark:text-teal-400', 'ring' => 'ring-teal-200 dark:ring-teal-800', 'dot' => 'bg-teal-500'],
+                            'pink' => ['bg' => 'bg-pink-50 dark:bg-pink-950/30', 'icon' => 'text-pink-500 dark:text-pink-400', 'ring' => 'ring-pink-200 dark:ring-pink-800', 'dot' => 'bg-pink-500'],
                         ];
                         $colors = $colorMap[$cat['color']];
                     @endphp
