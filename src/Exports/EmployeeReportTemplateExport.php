@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement\Exports;
 
+use Amicus\FilamentEmployeeManagement\Enums\CroatianMonth;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use App\Services\TenantFeatureService;
@@ -65,20 +66,7 @@ class EmployeeReportTemplateExport
     /**
      * Sheet names for each month (Croatian)
      */
-    protected array $monthSheets = [
-        1 => 'Siječanj',
-        2 => 'Veljača',
-        3 => 'Ožujak',
-        4 => 'Travanj',
-        5 => 'Svibanj',
-        6 => 'Lipanj',
-        7 => 'Srpanj',
-        8 => 'Kolovoz',
-        9 => 'Rujan',
-        10 => 'Listopad',
-        11 => 'Studeni',
-        12 => 'Prosinac',
-    ];
+    protected array $monthSheets;
 
     public function __construct(int $employeeId, int $month, int $year)
     {
@@ -86,6 +74,7 @@ class EmployeeReportTemplateExport
         $this->month = $month;
         $this->year = $year;
         $this->employee = Employee::find($employeeId);
+        $this->monthSheets = CroatianMonth::labels();
     }
 
     public function download(string $fileName): BinaryFileResponse
@@ -119,7 +108,7 @@ class EmployeeReportTemplateExport
         ])->deleteFileAfterSend(true);
     }
 
-    protected function generateFile(string $templatePath): string
+    public function generateFile(string $templatePath): string
     {
         // Load template - only the needed sheet for performance
         $reader = IOFactory::createReader('Xlsx');
@@ -207,7 +196,7 @@ class EmployeeReportTemplateExport
         // Clear all pre-existing cell values from the template (e.g. 2025 holiday hours)
         foreach ($this->dayColumns as $day => $col) {
             foreach ($hourTypeRows as $row) {
-                $sheet->setCellValue($col.$row, null);
+                $sheet->setCellValue($col . $row, null);
             }
         }
 
@@ -223,27 +212,27 @@ class EmployeeReportTemplateExport
 
             // Fill vacation hours
             if (! empty($daily['vacation_hours'])) {
-                $sheet->setCellValue($col.$hourTypeRows['vacation_hours'], $daily['vacation_hours']);
+                $sheet->setCellValue($col . $hourTypeRows['vacation_hours'], $daily['vacation_hours']);
             }
 
             // Fill holiday hours (public holidays)
             if (! empty($daily['holiday_hours'])) {
-                $sheet->setCellValue($col.$hourTypeRows['holiday_hours'], $daily['holiday_hours']);
+                $sheet->setCellValue($col . $hourTypeRows['holiday_hours'], $daily['holiday_hours']);
             }
 
             // Fill sick leave hours
             if (! empty($daily['sick_leave_hours'])) {
-                $sheet->setCellValue($col.$hourTypeRows['sick_leave_hours'], $daily['sick_leave_hours']);
+                $sheet->setCellValue($col . $hourTypeRows['sick_leave_hours'], $daily['sick_leave_hours']);
             }
 
             // Fill maternity leave hours
             if (! empty($daily['maternity_leave_hours'])) {
-                $sheet->setCellValue($col.$hourTypeRows['maternity_leave_hours'], $daily['maternity_leave_hours']);
+                $sheet->setCellValue($col . $hourTypeRows['maternity_leave_hours'], $daily['maternity_leave_hours']);
             }
 
             // Fill other hours (paid leave)
             if (! empty($daily['other_hours'])) {
-                $sheet->setCellValue($col.$hourTypeRows['other_hours'], $daily['other_hours']);
+                $sheet->setCellValue($col . $hourTypeRows['other_hours'], $daily['other_hours']);
             }
 
             // Logic for work hours based on client requirements:
@@ -258,22 +247,22 @@ class EmployeeReportTemplateExport
             if ($totalHours > 0) {
                 if ($isWeekend) {
                     // Weekend: ALL work goes to overtime
-                    $sheet->setCellValue($col.$hourTypeRows['overtime_hours'], $totalHours);
+                    $sheet->setCellValue($col . $hourTypeRows['overtime_hours'], $totalHours);
                 } else {
                     // Workday
                     if ($totalWfhHours > 0) {
                         // Workday + WFH: first 8h → WFH row, rest → overtime
-                        $sheet->setCellValue($col.$hourTypeRows['work_from_home_hours'], min($totalWfhHours, 8));
+                        $sheet->setCellValue($col . $hourTypeRows['work_from_home_hours'], min($totalWfhHours, 8));
 
                         if ($totalHours > 8) {
-                            $sheet->setCellValue($col.$hourTypeRows['overtime_hours'], $totalHours - 8);
+                            $sheet->setCellValue($col . $hourTypeRows['overtime_hours'], $totalHours - 8);
                         }
                     } else {
                         // Workday + office work: first 8h → work row, rest → overtime
-                        $sheet->setCellValue($col.$hourTypeRows['work_hours'], min($totalHours, 8));
+                        $sheet->setCellValue($col . $hourTypeRows['work_hours'], min($totalHours, 8));
 
                         if ($totalHours > 8) {
-                            $sheet->setCellValue($col.$hourTypeRows['overtime_hours'], $totalHours - 8);
+                            $sheet->setCellValue($col . $hourTypeRows['overtime_hours'], $totalHours - 8);
                         }
                     }
                 }
@@ -314,8 +303,8 @@ class EmployeeReportTemplateExport
                 $startHour = $startTime ? (int) substr($startTime, 0, 2) : $defaultStartHour;
                 $endHour = $endTime ? (int) substr($endTime, 0, 2) : $defaultEndHour;
 
-                $sheet->setCellValue($col.'7', $startHour);
-                $sheet->setCellValue($col.'8', $endHour);
+                $sheet->setCellValue($col . '7', $startHour);
+                $sheet->setCellValue($col . '8', $endHour);
             }
         }
 
@@ -343,11 +332,11 @@ class EmployeeReportTemplateExport
         $grandTotalRow = $lastDataRow + 1;
 
         for ($row = 14; $row <= $lastDataRow; $row++) {
-            $sheet->setCellValue($totalColumn.$row, "=SUM(D{$row}:{$lastDayColumn}{$row})");
+            $sheet->setCellValue($totalColumn . $row, "=SUM(D{$row}:{$lastDayColumn}{$row})");
         }
 
         // Grand total of all data rows
-        $sheet->setCellValue($totalColumn.$grandTotalRow, "=SUM({$totalColumn}14:{$totalColumn}{$lastDataRow})");
+        $sheet->setCellValue($totalColumn . $grandTotalRow, "=SUM({$totalColumn}14:{$totalColumn}{$lastDataRow})");
 
         // Apply day formatting (white/gray/red) based on actual calendar
         $this->applyDayFormatting($sheet, Carbon::createFromDate($year, $month, 1), $report);
@@ -364,7 +353,7 @@ class EmployeeReportTemplateExport
             mkdir($tempDir, 0755, true);
         }
 
-        $tempPath = $tempDir.'/'.uniqid('report_', true).'.xlsx';
+        $tempPath = $tempDir . '/' . uniqid('report_', true) . '.xlsx';
 
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         $writer->save($tempPath);
@@ -376,7 +365,7 @@ class EmployeeReportTemplateExport
         return $tempPath;
     }
 
-    protected function getTemplatePath(): string
+    public function getTemplatePath(): string
     {
         // Get template path from config
         $configPath = config('employee-management.monthly_report.template_path');
@@ -416,7 +405,9 @@ class EmployeeReportTemplateExport
 
         // Zaposlenik potpis (D{signatureRow})
         $this->addSignatureToCell(
-            $sheet, 'D', $signatureRow,
+            $sheet,
+            'D',
+            $signatureRow,
             $this->employee->signature_path,
             $this->employee->full_name
         );
@@ -424,7 +415,9 @@ class EmployeeReportTemplateExport
         // Voditelj odjela potpis (N{signatureRow})
         $voditelj = $this->employee->department?->headOfDepartment;
         $this->addSignatureToCell(
-            $sheet, 'N', $signatureRow,
+            $sheet,
+            'N',
+            $signatureRow,
             $voditelj?->signature_path,
             $voditelj?->full_name
         );
@@ -434,7 +427,9 @@ class EmployeeReportTemplateExport
             ? Employee::find($settings->employee_director_id)
             : null;
         $this->addSignatureToCell(
-            $sheet, 'W', $signatureRow,
+            $sheet,
+            'W',
+            $signatureRow,
             $settings->director_signature,
             $director?->full_name
         );
@@ -446,7 +441,7 @@ class EmployeeReportTemplateExport
     protected function addSignatureToCell(Worksheet $sheet, string $col, int $row, ?string $signaturePath, ?string $name): void
     {
         if ($name) {
-            $sheet->setCellValue($col.$row, $name);
+            $sheet->setCellValue($col . $row, $name);
         }
 
         if ($signaturePath && Storage::disk('public')->exists($signaturePath)) {
@@ -455,7 +450,7 @@ class EmployeeReportTemplateExport
             $drawing = new Drawing;
             $drawing->setName('Potpis');
             $drawing->setPath($fullPath);
-            $drawing->setCoordinates($col.($row - 1));
+            $drawing->setCoordinates($col . ($row - 1));
             $drawing->setHeight(65);
             $drawing->setOffsetY(15);
             $drawing->setOffsetx(20);

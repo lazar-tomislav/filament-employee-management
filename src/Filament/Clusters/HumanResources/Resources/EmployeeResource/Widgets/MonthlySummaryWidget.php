@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Widgets;
 
+use Amicus\FilamentEmployeeManagement\Enums\CroatianMonth;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Actions\EmployeeAction;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\MonthlyWorkReport;
@@ -109,15 +110,9 @@ class MonthlySummaryWidget extends Widget implements HasActions, HasSchemas
 
     public function getCurrentMonthLabel(): string
     {
-        $monthNames = [
-            1 => 'Siječanj', 2 => 'Veljača', 3 => 'Ožujak', 4 => 'Travanj',
-            5 => 'Svibanj', 6 => 'Lipanj', 7 => 'Srpanj', 8 => 'Kolovoz',
-            9 => 'Rujan', 10 => 'Listopad', 11 => 'Studeni', 12 => 'Prosinac',
-        ];
-
         $date = Carbon::parse($this->selectedMonth);
 
-        return $monthNames[$date->month] . ' ' . $date->year;
+        return CroatianMonth::from($date->month)->label() . ' ' . $date->year;
     }
 
     public function getSummaryData(): array
