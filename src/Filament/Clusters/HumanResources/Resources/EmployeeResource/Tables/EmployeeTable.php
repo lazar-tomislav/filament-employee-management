@@ -43,7 +43,7 @@ class EmployeeTable
                 Actions\EditAction::make()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
             ])
             ->headerActions([
-                EmployeeAction::allEmployeTimeReportExport(),
+                EmployeeAction::allEmployeeMonthlyReportsZipExport(),
             ])
             ->deferLoading()
             ->headerActionsPosition(HeaderActionsPosition::Bottom)
