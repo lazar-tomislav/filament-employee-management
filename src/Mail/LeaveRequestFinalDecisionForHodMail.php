@@ -23,7 +23,7 @@ class LeaveRequestFinalDecisionForHodMail extends Mailable
         $status = $this->leaveRequest->status->getLabel();
 
         return new Envelope(
-            subject: "Zahtjev za odsustvo - finalna odluka: {$status}",
+            subject: "Odsustvo – finalna odluka: {$status}",
         );
     }
 

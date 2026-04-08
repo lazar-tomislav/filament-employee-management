@@ -28,7 +28,7 @@ class LeaveRequestApprovalNotification extends Mailable
     {
         return new Envelope(
             to: $this->leaveRequest->employee->email,
-            subject: 'Novi zahtjev za dopust',
+            subject: 'Novi zahtjev za dopust – potrebno odobrenje',
         );
     }
 

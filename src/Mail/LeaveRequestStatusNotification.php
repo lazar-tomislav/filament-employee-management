@@ -30,9 +30,9 @@ class LeaveRequestStatusNotification extends Mailable
         $typeLabel = mb_strtolower($this->leaveRequest->type->getLabel());
 
         $subject = match ($this->leaveRequest->status) {
-            LeaveRequestStatus::APPROVED => "Vaš zahtjev za dopust ({$typeLabel}) je odobren",
-            LeaveRequestStatus::REJECTED => "Vaš zahtjev za dopust ({$typeLabel}) je odbijen",
-            default => "Status vašeg zahtjeva za dopust ({$typeLabel}) je ažuriran",
+            LeaveRequestStatus::APPROVED => "Dopust odobren: {$typeLabel}",
+            LeaveRequestStatus::REJECTED => "Dopust odbijen: {$typeLabel}",
+            default => "Dopust – promjena statusa: {$typeLabel}",
         };
 
         return new Envelope(

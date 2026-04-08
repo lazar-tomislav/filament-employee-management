@@ -22,8 +22,8 @@ class LeaveRequestPendingDirectorApprovalMail extends Mailable
     public function envelope(): Envelope
     {
         $subject = $this->afterHodApproval
-            ? 'Zahtjev za odsustvo odobren od voditelja - potrebno finalno odobrenje'
-            : 'Zahtjev za odsustvo - potrebno finalno odobrenje';
+            ? 'Odsustvo odobreno od voditelja – čeka finalno odobrenje'
+            : 'Zahtjev za odsustvo – finalno odobrenje';
 
         return new Envelope(
             subject: $subject,

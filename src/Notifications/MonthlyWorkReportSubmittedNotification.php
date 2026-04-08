@@ -37,7 +37,7 @@ class MonthlyWorkReportSubmittedNotification extends Notification implements Sho
         $url = ViewEmployee::getUrl(['record' => $employee->id]) . '?tab=monthly_report';
 
         return (new MailMessage)
-            ->subject("Mjesečni izvještaj poslan na pregled - {$employee->full_name}")
+            ->subject("Izvještaj čeka pregled: {$employee->full_name} – {$month}")
             ->greeting('Poštovani,')
             ->line("Zaposlenik {$employee->full_name} je potvrdio radne sate za {$month} i čeka pregled.")
             ->line('Molimo pregledajte izvještaj i odobrite ga.')

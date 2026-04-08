@@ -37,7 +37,7 @@ class MonthlyWorkReportReturnedNotification extends Notification implements Shou
         $url = ViewEmployee::getUrl(['record' => $employee->id]) . '?tab=monthly_report';
 
         return (new MailMessage)
-            ->subject("Mjesečni izvještaj vraćen na ispravak - {$month}")
+            ->subject("Izvještaj vraćen na ispravak: {$month}")
             ->greeting('Poštovani,')
             ->line("Vaš mjesečni izvještaj za {$month} je vraćen na ispravak.")
             ->line('Molimo pregledajte i ponovno pošaljite izvještaj.')

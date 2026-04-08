@@ -37,7 +37,7 @@ class MonthlyWorkReportApprovedNotification extends Notification implements Shou
         $url = ViewEmployee::getUrl(['record' => $employee->id]) . '?tab=monthly_report';
 
         return (new MailMessage)
-            ->subject("Mjesečni izvještaj zaključan - {$month}")
+            ->subject("Izvještaj zaključan: {$month}")
             ->greeting('Poštovani,')
             ->line("Vaš mjesečni izvještaj za {$month} je zaključan.")
             ->line('Izvještaj je finaliziran za isplatu plaće.')

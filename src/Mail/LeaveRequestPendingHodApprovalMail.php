@@ -21,7 +21,7 @@ class LeaveRequestPendingHodApprovalMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Novi zahtjev za odsustvo - potrebno vaše odobrenje',
+            subject: 'Zahtjev za odsustvo – potrebno odobrenje voditelja',
         );
     }
 

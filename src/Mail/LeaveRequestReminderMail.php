@@ -21,7 +21,7 @@ class LeaveRequestReminderMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Podsjetnik: Zahtjev za odsustvo čeka odobrenje',
+            subject: 'Podsjetnik: zahtjev za odsustvo čeka odobrenje',
         );
     }
 
