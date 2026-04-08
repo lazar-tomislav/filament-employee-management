@@ -5,6 +5,7 @@ namespace Amicus\FilamentEmployeeManagement\Observers;
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Amicus\FilamentEmployeeManagement\Notifications\LeaveAbsenceInfoNotification;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestFinalDecisionForHodNotification;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestPendingDirectorApprovalNotification;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestPendingHodApprovalNotification;
@@ -36,6 +37,7 @@ class LeaveRequestObserver
             $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
 
             $this->notifyEmployeeAboutFinalDecision($leaveRequest);
+            $this->notifyManagersAboutAbsence($leaveRequest);
 
             return;
         }
@@ -57,6 +59,7 @@ class LeaveRequestObserver
             $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
 
             $this->notifyEmployeeAboutFinalDecision($leaveRequest);
+            $this->notifyManagersAboutAbsence($leaveRequest);
 
             return;
         }
@@ -77,6 +80,7 @@ class LeaveRequestObserver
                 $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
 
                 $this->notifyEmployeeAboutFinalDecision($leaveRequest);
+                $this->notifyManagersAboutAbsence($leaveRequest);
 
                 return;
             }
@@ -130,6 +134,10 @@ class LeaveRequestObserver
             if (in_array($leaveRequest->status, [LeaveRequestStatus::APPROVED, LeaveRequestStatus::REJECTED], true)) {
                 $this->notifyEmployeeAboutFinalDecision($leaveRequest);
                 $this->notifyHodAboutFinalDecision($leaveRequest);
+
+                if ($leaveRequest->status === LeaveRequestStatus::APPROVED) {
+                    $this->notifyManagersAboutAbsence($leaveRequest);
+                }
             }
         }
     }
@@ -214,6 +222,33 @@ class LeaveRequestObserver
         }
 
         $employee->user->notify(new LeaveRequestStatusChangeNotification($leaveRequest));
+    }
+
+    private function notifyManagersAboutAbsence(LeaveRequest $leaveRequest): void
+    {
+        $settings = app(HumanResourcesSettings::class);
+
+        // Obavijesti voditelja za radne sate
+        if ($settings->employee_work_hours_approver_id
+            && $settings->employee_work_hours_approver_id !== $leaveRequest->employee_id
+        ) {
+            $approver = Employee::find($settings->employee_work_hours_approver_id);
+
+            if ($approver?->user) {
+                $approver->user->notify(new LeaveAbsenceInfoNotification($leaveRequest));
+            }
+        }
+
+        // Obavijesti direktora
+        if ($settings->employee_director_id
+            && $settings->employee_director_id !== $leaveRequest->employee_id
+        ) {
+            $director = Employee::find($settings->employee_director_id);
+
+            if ($director?->user) {
+                $director->user->notify(new LeaveAbsenceInfoNotification($leaveRequest));
+            }
+        }
     }
 
     private function notifyHodAboutFinalDecision(LeaveRequest $leaveRequest): void
