@@ -7,17 +7,17 @@
     <style>
         body {
             font-family: 'DejaVu Sans', sans-serif; /* Neophodno za ispravan prikaz hrvatskih/bosanskih slova (č, ć, ž, š, đ) u PDF-u */
-            font-size: 14px;
+            font-size: 13px;
             margin: 0;
-            padding: 30px 40px;
+            padding: 20px 35px;
             color: #000;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         /* Zaglavlje (Header) */
         .header-table {
             width: 100%;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             border: none;
         }
         .header-table td {
@@ -29,50 +29,50 @@
             text-align: left;
         }
         .logo {
-            max-height: 70px;
+            max-height: 55px;
             width: auto;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         .company-info {
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 10px;
+            line-height: 1.3;
             color: #333;
         }
 
         /* Datumi i mjesto */
         .date-section {
-            margin-top: 20px;
-            margin-bottom: 30px;
-            font-size: 14px;
+            margin-top: 10px;
+            margin-bottom: 15px;
+            font-size: 11px;
         }
 
         /* Uvodni paragraf */
         .intro-text {
             text-align: justify;
-            margin-bottom: 40px;
+            margin-bottom: 15px;
         }
 
         /* Naslov */
         .main-title {
             text-align: center;
-            font-size: 18px;
+            font-size: 14px;
             font-weight: bold;
-            margin-bottom: 30px;
+            margin-bottom: 15px;
             line-height: 1.3;
         }
 
         /* Numerirana lista (Tijelo odluke) */
         .decision-body {
-            margin-bottom: 30px;
+            margin-bottom: 15px;
         }
         .decision-item {
             display: table;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 8px;
         }
         .decision-number {
             display: table-cell;
-            width: 30px;
+            width: 25px;
             font-weight: bold;
             vertical-align: top;
         }
@@ -85,19 +85,19 @@
         /* Obrazloženje */
         .explanation-title {
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         .explanation-text {
             text-align: justify;
-            margin-bottom: 50px;
+            margin-bottom: 20px;
         }
 
         /* Podnožje i Potpisi (Footer) */
         .footer-table {
             width: 100%;
             border: none;
-            margin-top: 40px;
-            font-size: 11px;
+            margin-top: 15px;
+            font-size: 10px;
         }
         .footer-table td {
             border: none;
@@ -105,7 +105,7 @@
         }
         .company-details-cell {
             width: 60%;
-            line-height: 1.4;
+            line-height: 1.3;
             color: #555;
         }
         .signature-cell {
@@ -114,26 +114,26 @@
         }
         .director-name {
             font-weight: bold;
-            font-size: 14px;
+            font-size: 12px;
             margin-bottom: 2px;
             color: #000;
         }
         .director-title {
-            font-size: 12px;
-            margin-bottom: 20px;
+            font-size: 10px;
+            margin-bottom: 10px;
             color: #000;
         }
         .signature-area {
             position: relative;
-            height: 100px;
+            height: 80px;
             width: 100%;
-            border-bottom: 1px solid #ccc; /* Linija za potpis, ukloniti po želji */
+            border-bottom: 1px solid #ccc;
         }
 
         /* Predikcija slika potpisa i pečata */
         .signature-img {
-            max-height: 80px;
-            max-width: 150px;
+            max-height: 70px;
+            max-width: 130px;
             position: absolute;
             bottom: 5px;
             left: 50%;
@@ -141,8 +141,8 @@
             z-index: 2;
         }
         .stamp-img {
-            max-height: 90px;
-            max-width: 90px;
+            max-height: 80px;
+            max-width: 80px;
             position: absolute;
             bottom: 5px;
             left: 10%;

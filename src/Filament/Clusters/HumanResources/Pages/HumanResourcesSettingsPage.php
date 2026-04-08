@@ -87,6 +87,16 @@ class HumanResourcesSettingsPage extends SettingsPage
                                 ->downloadable()
                                 ->directory('hr-documents/signatures')
                                 ->visibility('public'),
+
+                            FileUpload::make('company_stamp')
+                                ->label('Pečat tvrtke')
+                                ->helperText('Pečat tvrtke koji se prikazuje na HR dokumentima (npr. odluka o godišnjem odmoru).')
+                                ->image()
+                                ->disk('public')
+                                ->previewable()
+                                ->downloadable()
+                                ->directory('hr-documents/signatures')
+                                ->visibility('public'),
                         ]),
 
                     Section::make('Voditelj za radne sate')

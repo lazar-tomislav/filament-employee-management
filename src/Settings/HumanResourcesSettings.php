@@ -12,6 +12,8 @@ class HumanResourcesSettings extends Settings
 
     public ?string $director_signature;
 
+    public ?string $company_stamp = null;
+
     public ?int $employee_director_id = null;
 
     public ?int $employee_deputy_director_id = null;
