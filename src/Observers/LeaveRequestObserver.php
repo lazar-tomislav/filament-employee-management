@@ -33,11 +33,7 @@ class LeaveRequestObserver
                 'status' => LeaveRequestStatus::APPROVED->value,
             ]);
 
-            $pdfPath = LeaveRequestPdfService::generatePdf($leaveRequest);
-            $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
-
-            $this->notifyEmployeeAboutFinalDecision($leaveRequest);
-            $this->notifyManagersAboutAbsence($leaveRequest);
+            $this->finalizeApproval($leaveRequest);
 
             return;
         }
@@ -55,11 +51,7 @@ class LeaveRequestObserver
                 'status' => LeaveRequestStatus::APPROVED->value,
             ]);
 
-            $pdfPath = LeaveRequestPdfService::generatePdf($leaveRequest);
-            $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
-
-            $this->notifyEmployeeAboutFinalDecision($leaveRequest);
-            $this->notifyManagersAboutAbsence($leaveRequest);
+            $this->finalizeApproval($leaveRequest);
 
             return;
         }
@@ -76,11 +68,7 @@ class LeaveRequestObserver
                     'status' => LeaveRequestStatus::APPROVED->value,
                 ]);
 
-                $pdfPath = LeaveRequestPdfService::generatePdf($leaveRequest);
-                $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
-
-                $this->notifyEmployeeAboutFinalDecision($leaveRequest);
-                $this->notifyManagersAboutAbsence($leaveRequest);
+                $this->finalizeApproval($leaveRequest);
 
                 return;
             }
@@ -224,6 +212,15 @@ class LeaveRequestObserver
         $employee->user->notify(new LeaveRequestStatusChangeNotification($leaveRequest));
     }
 
+    private function finalizeApproval(LeaveRequest $leaveRequest): void
+    {
+        $pdfPath = LeaveRequestPdfService::generatePdf($leaveRequest);
+        $leaveRequest->updateQuietly(['pdf_path' => $pdfPath]);
+
+        $this->notifyEmployeeAboutFinalDecision($leaveRequest);
+        $this->notifyManagersAboutAbsence($leaveRequest);
+    }
+
     private function notifyManagersAboutAbsence(LeaveRequest $leaveRequest): void
     {
         $settings = app(HumanResourcesSettings::class);
@@ -239,9 +236,10 @@ class LeaveRequestObserver
             }
         }
 
-        // Obavijesti direktora
+        // Obavijesti direktora (preskoči ako je on sam odobrio — već zna)
         if ($settings->employee_director_id
             && $settings->employee_director_id !== $leaveRequest->employee_id
+            && $settings->employee_director_id !== $leaveRequest->approved_by_director_id
         ) {
             $director = Employee::find($settings->employee_director_id);
 

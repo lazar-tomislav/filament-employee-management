@@ -14,8 +14,10 @@ class LeaveAbsenceInfoNotification extends Notification implements ShouldQueue
     use Queueable;
 
     public function __construct(
-        public LeaveRequest $leaveRequest
-    ) {}
+        public LeaveRequest $leaveRequest,
+    ) {
+        $this->leaveRequest->loadMissing('employee');
+    }
 
     public function via(object $notifiable): array
     {
