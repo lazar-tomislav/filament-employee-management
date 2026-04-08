@@ -9,6 +9,7 @@ use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestReminderNotifica
 use Amicus\FilamentEmployeeManagement\Services\LeaveRequestPdfService;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Support\Icons\Heroicon;
@@ -337,10 +338,32 @@ class LeaveRequestActions
             ->label('Skini PDF')
             ->icon(Heroicon::OutlinedDocumentArrowDown)
             ->visible(fn ($record) => $record->status === LeaveRequestStatus::APPROVED)
-            ->action(function (LeaveRequest $record) {
+            ->schema(function (LeaveRequest $record): array {
+                $pdfExists = $record->pdf_path && Storage::disk('local')->exists($record->pdf_path);
+
+                if (! $pdfExists) {
+                    return [];
+                }
+
+                return [
+                    Radio::make('pdf_option')
+                        ->label('Opcija preuzimanja')
+                        ->options([
+                            'existing' => 'Preuzmi postojeći PDF',
+                            'regenerate' => 'Generiraj novi PDF',
+                        ])
+                        ->default('existing')
+                        ->helperText('Generirajte novi PDF ako su se promijenili podaci dokumenta (npr. potpis direktora, logo, naziv tvrtke).')
+                        ->required(),
+                ];
+            })
+            ->action(function (LeaveRequest $record, array $data) {
                 try {
-                    // Generate PDF if not exists
-                    if (! $record->pdf_path || ! Storage::disk('local')->exists($record->pdf_path)) {
+                    $shouldRegenerate = ($data['pdf_option'] ?? null) === 'regenerate'
+                        || ! $record->pdf_path
+                        || ! Storage::disk('local')->exists($record->pdf_path);
+
+                    if ($shouldRegenerate) {
                         $pdfPath = LeaveRequestPdfService::generatePdf($record);
                         if (! $pdfPath) {
                             Notification::make()
