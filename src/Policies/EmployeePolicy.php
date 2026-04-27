@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Amicus\FilamentEmployeeManagement\Policies;
 
 use Amicus\FilamentEmployeeManagement\Models\Employee;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Foundation\Auth\User as AuthUser;
 
@@ -19,7 +20,11 @@ class EmployeePolicy
 
     public function view(AuthUser $authUser, Employee $employee): bool
     {
-        return $authUser->can('View:Employee');
+        if (! $authUser->can('View:Employee')) {
+            return false;
+        }
+
+        return $this->canAccessRecord($authUser, $employee);
     }
 
     public function create(AuthUser $authUser): bool
@@ -29,22 +34,38 @@ class EmployeePolicy
 
     public function update(AuthUser $authUser, Employee $employee): bool
     {
-        return $authUser->can('Update:Employee');
+        if (! $authUser->can('Update:Employee')) {
+            return false;
+        }
+
+        return $this->canAccessRecord($authUser, $employee);
     }
 
     public function delete(AuthUser $authUser, Employee $employee): bool
     {
-        return $authUser->can('Delete:Employee');
+        if (! $authUser->can('Delete:Employee')) {
+            return false;
+        }
+
+        return $this->canAccessRecord($authUser, $employee);
     }
 
     public function restore(AuthUser $authUser, Employee $employee): bool
     {
-        return $authUser->can('Restore:Employee');
+        if (! $authUser->can('Restore:Employee')) {
+            return false;
+        }
+
+        return $this->canAccessRecord($authUser, $employee);
     }
 
     public function forceDelete(AuthUser $authUser, Employee $employee): bool
     {
-        return $authUser->can('ForceDelete:Employee');
+        if (! $authUser->can('ForceDelete:Employee')) {
+            return false;
+        }
+
+        return $this->canAccessRecord($authUser, $employee);
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
@@ -59,7 +80,11 @@ class EmployeePolicy
 
     public function replicate(AuthUser $authUser, Employee $employee): bool
     {
-        return $authUser->can('Replicate:Employee');
+        if (! $authUser->can('Replicate:Employee')) {
+            return false;
+        }
+
+        return $this->canAccessRecord($authUser, $employee);
     }
 
     public function reorder(AuthUser $authUser): bool
@@ -67,4 +92,19 @@ class EmployeePolicy
         return $authUser->can('Reorder:Employee');
     }
 
+    private function canAccessRecord(AuthUser $authUser, Employee $employee): bool
+    {
+        /** @var User $authUser */
+        if ($authUser->canSeeAllLeave()) {
+            return true;
+        }
+
+        $ownEmployeeId = $authUser->employee?->id;
+
+        if ($ownEmployeeId && $employee->id === $ownEmployeeId) {
+            return true;
+        }
+
+        return $authUser->hodDepartmentIds()->contains($employee->department_id);
+    }
 }

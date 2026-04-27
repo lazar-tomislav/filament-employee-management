@@ -5,9 +5,8 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Schemas\LeaveRequestInfolist;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Tables\LeaveRequestTable;
-use Amicus\FilamentEmployeeManagement\Filament\Clusters\TimeTracking;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
-use App\Filament\Clusters\TimeTracking\Resources\LeaveRequestResource\Pages;
+use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
@@ -23,14 +22,16 @@ class LeaveRequestResource extends Resource
 
     protected static ?string $navigationLabel = 'Zahtjevi za odsustvo';
 
-    protected static string | UnitEnum | null $navigationGroup="Odsustva";
+    protected static string | UnitEnum | null $navigationGroup = 'Odsustva';
+
     protected static ?string $modelLabel = 'Zahtjev';
 
     protected static ?string $pluralModelLabel = 'Zahtjevi';
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPaperAirplane;
+    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedPaperAirplane;
 
     protected static ?int $navigationSort = 25;
+
     protected static ?string $cluster = HumanResources::class;
 
     public static function form(Schema $schema): Schema
@@ -65,9 +66,45 @@ class LeaveRequestResource extends Resource
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
     {
-        return parent::getRecordRouteBindingEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
+        return static::scopeForCurrentUser(
+            parent::getRecordRouteBindingEloquentQuery()
+                ->withoutGlobalScopes([
+                    SoftDeletingScope::class,
+                ])
+        );
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return static::scopeForCurrentUser(parent::getEloquentQuery());
+    }
+
+    public static function scopeForCurrentUser(Builder $query): Builder
+    {
+        /** @var User|null $user */
+        $user = auth()->user();
+
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->canSeeAllLeave()) {
+            return $query;
+        }
+
+        $employeeId = $user->employee?->id;
+        $hodDeptIds = $user->hodDepartmentIds();
+
+        return $query->where(function (Builder $q) use ($employeeId, $hodDeptIds) {
+            if ($employeeId) {
+                $q->where('employee_id', $employeeId);
+            } else {
+                $q->whereRaw('1 = 0');
+            }
+
+            if ($hodDeptIds->isNotEmpty()) {
+                $q->orWhereHas('employee', fn (Builder $sub) => $sub->whereIn('department_id', $hodDeptIds));
+            }
+        });
     }
 }
