@@ -5,8 +5,10 @@ namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Res
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Actions\LeaveRequestActions;
 use Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\LeaveRequestResource\Schemas\LeaveRequestInfolist;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use App\Models\User;
 use Filament\Actions;
 use Filament\Actions\ActionGroup;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -66,13 +68,32 @@ class LeaveRequestTable
                 ActionGroup::make([
                     Actions\ViewAction::make()
                         ->schema(fn ($schema) => LeaveRequestInfolist::configure($schema))
-                        ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge),
+                        ->modal()->modalWidth(Width::FiveExtraLarge),
+                    Actions\EditAction::make()
+                        ->label('Uredi (admin)')
+                        ->visible(function (LeaveRequest $record): bool {
+                            /** @var User|null $user */
+                            $user = auth()->user();
+
+                            if (! $user) {
+                                return false;
+                            }
+
+                            if ($user->canSeeAllLeave()) {
+                                return true;
+                            }
+
+                            return $user->hodDepartmentIds()->contains($record->employee?->department_id);
+                        }),
                     LeaveRequestActions::approveAsHeadOfDepartmentAction(),
                     LeaveRequestActions::rejectAsHeadOfDepartmentAction(),
                     LeaveRequestActions::approveAsDirectorAction(),
                     LeaveRequestActions::rejectAction(),
                     LeaveRequestActions::sendReminderAction(),
                     LeaveRequestActions::downloadPdfAction(),
+                    LeaveRequestActions::overrideStatusAction(),
+                    LeaveRequestActions::deletePendingAction(),
+                    LeaveRequestActions::deleteApprovedAction(),
                 ]),
             ]);
     }

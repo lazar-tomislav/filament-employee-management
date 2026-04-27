@@ -6,12 +6,17 @@ use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestReminderNotification;
+use Amicus\FilamentEmployeeManagement\Services\LeaveRequestAdminService;
 use Amicus\FilamentEmployeeManagement\Services\LeaveRequestPdfService;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
+use App\Models\User;
+use Exception;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -179,7 +184,7 @@ class LeaveRequestActions
                     ->helperText('Zaposlenik će primiti obavijest o odbijanju zahtjeva s razlogom.')
                     ->required(),
             ])
-            ->modal()->modalWidth(\Filament\Support\Enums\Width::FiveExtraLarge)
+            ->modal()->modalWidth(Width::FiveExtraLarge)
             ->action(function (LeaveRequest $record, array $data): void {
                 $employee = auth()->user()->employee;
 
@@ -200,7 +205,7 @@ class LeaveRequestActions
 
     public static function editNotesAction(): Action
     {
-        return \Filament\Actions\Action::make('edit_notes')
+        return Action::make('edit_notes')
             ->label('Napomena')
             ->icon(Heroicon::OutlinedPencil)
             ->visible(fn ($record) => auth()->user()->isAdmin())
@@ -226,7 +231,7 @@ class LeaveRequestActions
 
     public static function cancelRequestAction(): Action
     {
-        return \Filament\Actions\Action::make('cancel_request')
+        return Action::make('cancel_request')
             ->label('Otkaži zahtjev')
             ->icon(Heroicon::OutlinedXMark)
             ->color('danger')
@@ -391,14 +396,129 @@ class LeaveRequestActions
                             ->danger()
                             ->send();
                     }
-                } catch (\Exception $e) {
-                    Log::error('PDF download failed: ' . $e->getMessage());
+                } catch (Exception $e) {
+                    Log::error('PDF download failed: '.$e->getMessage());
                     Notification::make()
                         ->title('Greška')
                         ->body('Došlo je do greške prilikom preuzimanja PDF-a.')
                         ->danger()
                         ->send();
                 }
+            });
+    }
+
+    public static function deletePendingAction(): Action
+    {
+        return Action::make('admin_delete_pending')
+            ->label('Obriši zahtjev (admin)')
+            ->icon(Heroicon::OutlinedTrash)
+            ->color('danger')
+            ->visible(function (LeaveRequest $record): bool {
+                /** @var User|null $user */
+                $user = auth()->user();
+
+                return $user?->canSeeAllLeave()
+                    && $record->status === LeaveRequestStatus::PENDING;
+            })
+            ->modalHeading('Obriši zahtjev na čekanju')
+            ->modalDescription(fn (LeaveRequest $record): string => "Trajno ćete obrisati zahtjev zaposlenika {$record->employee->full_name_email} ({$record->start_date->format('d.m.Y')} - {$record->end_date->format('d.m.Y')}).")
+            ->schema([
+                Textarea::make('reason')
+                    ->label('Razlog brisanja')
+                    ->required()
+                    ->minLength(5)
+                    ->rows(3),
+            ])
+            ->action(function (LeaveRequest $record, array $data): void {
+                /** @var User $user */
+                $user = auth()->user();
+
+                app(LeaveRequestAdminService::class)->deletePending($record, $data['reason'], $user);
+
+                Notification::make()
+                    ->title('Zahtjev obrisan')
+                    ->success()
+                    ->send();
+            });
+    }
+
+    public static function deleteApprovedAction(): Action
+    {
+        return Action::make('admin_delete_approved')
+            ->label('Obriši odobreni zahtjev (admin)')
+            ->icon(Heroicon::OutlinedTrash)
+            ->color('danger')
+            ->visible(function (LeaveRequest $record): bool {
+                /** @var User|null $user */
+                $user = auth()->user();
+
+                return $user?->canSeeAllLeave()
+                    && $record->status === LeaveRequestStatus::APPROVED;
+            })
+            ->modalHeading('Obriši odobreni zahtjev')
+            ->modalDescription(fn (LeaveRequest $record): string => "Trajno ćete obrisati odobreni zahtjev ({$record->start_date->format('d.m.Y')} - {$record->end_date->format('d.m.Y')}). PDF će biti obrisan, dani vraćeni, a zaposlenik dobiva obavijest o storniranju.")
+            ->schema([
+                Textarea::make('reason')
+                    ->label('Razlog storniranja')
+                    ->required()
+                    ->minLength(5)
+                    ->rows(3),
+            ])
+            ->action(function (LeaveRequest $record, array $data): void {
+                /** @var User $user */
+                $user = auth()->user();
+
+                app(LeaveRequestAdminService::class)->deleteApproved($record, $data['reason'], $user);
+
+                Notification::make()
+                    ->title('Zahtjev storniran')
+                    ->body('Zaposlenik je obaviješten o storniranju.')
+                    ->success()
+                    ->send();
+            });
+    }
+
+    public static function overrideStatusAction(): Action
+    {
+        return Action::make('admin_override_status')
+            ->label('Administratorska promjena statusa')
+            ->icon(Heroicon::OutlinedShieldCheck)
+            ->color('warning')
+            ->visible(function (LeaveRequest $record): bool {
+                /** @var User|null $user */
+                $user = auth()->user();
+
+                return (bool) $user?->canSeeAllLeave();
+            })
+            ->fillForm(fn (LeaveRequest $record): array => [
+                'status' => $record->status?->value,
+            ])
+            ->modalHeading('Administratorska promjena statusa')
+            ->schema([
+                Select::make('status')
+                    ->label('Novi status')
+                    ->options(collect(LeaveRequestStatus::cases())
+                        ->mapWithKeys(fn (LeaveRequestStatus $s) => [$s->value => $s->getLabel()])
+                        ->all())
+                    ->required(),
+                Textarea::make('reason')
+                    ->label('Razlog promjene')
+                    ->required()
+                    ->minLength(5)
+                    ->rows(3),
+            ])
+            ->action(function (LeaveRequest $record, array $data): void {
+                /** @var User $user */
+                $user = auth()->user();
+
+                $newStatus = LeaveRequestStatus::from($data['status']);
+
+                app(LeaveRequestAdminService::class)->overrideStatus($record, $newStatus, $data['reason'], $user);
+
+                Notification::make()
+                    ->title('Status promijenjen')
+                    ->success()
+                    ->send();
             });
     }
 }

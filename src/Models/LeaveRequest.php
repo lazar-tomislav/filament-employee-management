@@ -12,12 +12,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 #[ObservedBy([LeaveRequestObserver::class])]
 class LeaveRequest extends Model
 {
     use HasFactory;
+    use LogsActivity;
     use SoftDeletes;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['status', 'start_date', 'end_date', 'days_count', 'type', 'leave_allowance_id', 'notes', 'rejection_reason'])
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges()
+            ->useLogName('leave_request');
+    }
 
     protected $fillable = [
         'employee_id',
@@ -71,7 +83,7 @@ class LeaveRequest extends Model
     protected function absence(): Attribute
     {
         return Attribute::make(
-            get: fn () => $this->start_date->format('d.m.Y') . ' - ' . $this->end_date->format('d.m.Y'),
+            get: fn () => $this->start_date->format('d.m.Y').' - '.$this->end_date->format('d.m.Y'),
         );
     }
 
