@@ -3,9 +3,13 @@
 namespace Amicus\FilamentEmployeeManagement\Mail;
 
 use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestStatus;
+use Amicus\FilamentEmployeeManagement\Enums\LeaveRequestType;
+use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
+use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -37,6 +41,7 @@ class LeaveRequestStatusNotification extends Mailable
 
         return new Envelope(
             to: $this->leaveRequest->employee->email,
+            cc: $this->resolveCc(),
             subject: $subject,
         );
     }
@@ -54,10 +59,37 @@ class LeaveRequestStatusNotification extends Mailable
     /**
      * Get the attachments for the message.
      *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     * @return array<int, Attachment>
      */
     public function attachments(): array
     {
+        if ($this->leaveRequest->status === LeaveRequestStatus::APPROVED
+            && $this->leaveRequest->type === LeaveRequestType::ANNUAL_LEAVE
+            && $this->leaveRequest->pdf_path
+        ) {
+            return [Attachment::fromStorageDisk('local', $this->leaveRequest->pdf_path)];
+        }
+
         return [];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function resolveCc(): array
+    {
+        $approverId = app(HumanResourcesSettings::class)->employee_work_hours_approver_id;
+
+        if (! $approverId || $approverId === $this->leaveRequest->employee_id) {
+            return [];
+        }
+
+        $approver = Employee::find($approverId);
+
+        if (! $approver?->email) {
+            return [];
+        }
+
+        return [$approver->email];
     }
 }
