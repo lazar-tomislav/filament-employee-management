@@ -225,16 +225,7 @@ class LeaveRequestObserver
     {
         $settings = app(HumanResourcesSettings::class);
 
-        // Obavijesti voditelja za radne sate
-        if ($settings->employee_work_hours_approver_id
-            && $settings->employee_work_hours_approver_id !== $leaveRequest->employee_id
-        ) {
-            $approver = Employee::find($settings->employee_work_hours_approver_id);
-
-            if ($approver?->user) {
-                $approver->user->notify(new LeaveAbsenceInfoNotification($leaveRequest));
-            }
-        }
+        // Voditelj radnih sati je već u CC LeaveRequestStatusChangeNotification — ne šaljemo dvostruko.
 
         // Obavijesti direktora (preskoči ako je on sam odobrio — već zna)
         if ($settings->employee_director_id
