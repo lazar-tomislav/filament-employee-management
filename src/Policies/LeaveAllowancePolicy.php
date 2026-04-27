@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Amicus\FilamentEmployeeManagement\Policies;
 
 use Amicus\FilamentEmployeeManagement\Models\LeaveAllowance;
+use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Foundation\Auth\User as AuthUser;
 
@@ -19,7 +20,11 @@ class LeaveAllowancePolicy
 
     public function view(AuthUser $authUser, LeaveAllowance $leaveAllowance): bool
     {
-        return $authUser->can('View:LeaveAllowance');
+        if (! $authUser->can('View:LeaveAllowance')) {
+            return false;
+        }
+
+        return $this->canAccessRecord($authUser, $leaveAllowance);
     }
 
     public function create(AuthUser $authUser): bool
@@ -29,22 +34,38 @@ class LeaveAllowancePolicy
 
     public function update(AuthUser $authUser, LeaveAllowance $leaveAllowance): bool
     {
-        return $authUser->can('Update:LeaveAllowance');
+        if (! $authUser->can('Update:LeaveAllowance')) {
+            return false;
+        }
+
+        return $this->canAccessRecord($authUser, $leaveAllowance);
     }
 
     public function delete(AuthUser $authUser, LeaveAllowance $leaveAllowance): bool
     {
-        return $authUser->can('Delete:LeaveAllowance');
+        if (! $authUser->can('Delete:LeaveAllowance')) {
+            return false;
+        }
+
+        return $this->canAccessRecord($authUser, $leaveAllowance);
     }
 
     public function restore(AuthUser $authUser, LeaveAllowance $leaveAllowance): bool
     {
-        return $authUser->can('Restore:LeaveAllowance');
+        if (! $authUser->can('Restore:LeaveAllowance')) {
+            return false;
+        }
+
+        return $this->canAccessRecord($authUser, $leaveAllowance);
     }
 
     public function forceDelete(AuthUser $authUser, LeaveAllowance $leaveAllowance): bool
     {
-        return $authUser->can('ForceDelete:LeaveAllowance');
+        if (! $authUser->can('ForceDelete:LeaveAllowance')) {
+            return false;
+        }
+
+        return $this->canAccessRecord($authUser, $leaveAllowance);
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
@@ -59,7 +80,11 @@ class LeaveAllowancePolicy
 
     public function replicate(AuthUser $authUser, LeaveAllowance $leaveAllowance): bool
     {
-        return $authUser->can('Replicate:LeaveAllowance');
+        if (! $authUser->can('Replicate:LeaveAllowance')) {
+            return false;
+        }
+
+        return $this->canAccessRecord($authUser, $leaveAllowance);
     }
 
     public function reorder(AuthUser $authUser): bool
@@ -67,4 +92,19 @@ class LeaveAllowancePolicy
         return $authUser->can('Reorder:LeaveAllowance');
     }
 
+    private function canAccessRecord(AuthUser $authUser, LeaveAllowance $leaveAllowance): bool
+    {
+        /** @var User $authUser */
+        if ($authUser->canSeeAllLeave()) {
+            return true;
+        }
+
+        $ownEmployeeId = $authUser->employee?->id;
+
+        if ($ownEmployeeId && $leaveAllowance->employee_id === $ownEmployeeId) {
+            return true;
+        }
+
+        return $authUser->hodDepartmentIds()->contains($leaveAllowance->employee?->department_id);
+    }
 }
