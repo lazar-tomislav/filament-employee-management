@@ -8,6 +8,7 @@ use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use App\Services\TenantFeatureService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class LeaveRequestPdfService
@@ -22,16 +23,16 @@ class LeaveRequestPdfService
             $companyName = $settings->company_name_for_hr_documents ?: '-';
 
             // Set locale for Croatian days
-            \Carbon\Carbon::setLocale('hr');
+            Carbon::setLocale('hr');
 
             $tenantKey = app(TenantFeatureService::class)->getActiveTenantKey();
             $isSplit = $tenantKey === 'rast_split';
 
             $fileName = $isSplit
-                ? 'odluka_godisnji_odmor_' . $leaveRequest->id . '.pdf'
-                : 'zahtjev_za_godisnji_odmor_' . $leaveRequest->id . '.pdf';
+                ? 'odluka_godisnji_odmor_'.$leaveRequest->id.'.pdf'
+                : 'zahtjev_za_godisnji_odmor_'.$leaveRequest->id.'.pdf';
 
-            $path = 'user/' . $leaveRequest->employee_id . '/odsustva/' . $fileName;
+            $path = 'user/'.$leaveRequest->employee_id.'/odsustva/'.$fileName;
             $fullPath = Storage::disk('local')->path($path);
 
             // Ensure directory exists
@@ -68,7 +69,7 @@ class LeaveRequestPdfService
 
             return $path;
         } catch (\Exception $e) {
-            \Log::error('PDF generation failed: ' . $e->getMessage());
+            \Log::error('PDF generation failed: '.$e->getMessage());
 
             return '';
         }
@@ -82,11 +83,14 @@ class LeaveRequestPdfService
     ): \Barryvdh\DomPDF\PDF {
         $stampPath = self::getFileBase64($settings->company_stamp);
 
-        // Dohvati allowance — direktno s zahtjeva ili fallback na allowance zaposlenika za tu godinu
+        // Allowance: koristimo onaj koji je vezan na zahtjev (FIFO odabir kod kreiranja).
+        // Fallback na start_date->year zadržan samo za zahtjeve prije migracije / backfilla.
         $allowance = $leaveRequest->leaveAllowance
             ?? $leaveRequest->employee->leaveAllowances()
                 ->where('year', $leaveRequest->start_date->year)
                 ->first();
+
+        $displayYear = $allowance?->year ?? $leaveRequest->start_date->year;
 
         // Izračunaj prvi radni dan nakon godišnjeg (preskače vikende i praznike)
         $returnDate = $leaveRequest->end_date->copy()->addDay();
@@ -103,7 +107,7 @@ class LeaveRequestPdfService
             'decisionDate' => now()->format('d.m.Y.'),
             'employeeName' => $leaveRequest->employee->full_name,
             'jobTitle' => $leaveRequest->employee->job_position ?? '-',
-            'year' => $leaveRequest->start_date->year,
+            'year' => $displayYear,
             'totalLeaveDays' => $allowance?->total_days ?? '-',
             'requestedDays' => $leaveRequest->days_count,
             'startDate' => $leaveRequest->start_date->format('d.m.Y.'),
@@ -121,7 +125,7 @@ class LeaveRequestPdfService
             $content = Storage::disk('public')->get($settingsPath);
             $mimeType = Storage::disk('public')->mimeType($settingsPath);
 
-            return 'data:' . $mimeType . ';base64,' . base64_encode($content);
+            return 'data:'.$mimeType.';base64,'.base64_encode($content);
         }
 
         return null;
