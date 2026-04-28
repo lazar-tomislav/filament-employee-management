@@ -19,6 +19,8 @@ class LeaveRequestTable
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->recordAction('view')
+            ->recordUrl(null)
             ->columns([
                 Tables\Columns\TextColumn::make('employee.full_name_email')
                     ->label('Zatražio')
@@ -30,7 +32,7 @@ class LeaveRequestTable
                 Tables\Columns\TextColumn::make('start_date')
                     ->label('Datum odsutnosti')
                     ->formatStateUsing(function ($record) {
-                        return $record->start_date->format('d.m.Y') . ' - ' . $record->end_date->format('d.m.Y');
+                        return $record->start_date->format('d.m.Y').' - '.$record->end_date->format('d.m.Y');
                     })
                     ->sortable(),
 
