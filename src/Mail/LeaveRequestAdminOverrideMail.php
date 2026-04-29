@@ -28,8 +28,29 @@ class LeaveRequestAdminOverrideMail extends Mailable
     {
         return new Envelope(
             to: $this->leaveRequest->employee->email,
+            cc: $this->resolveCc(),
             subject: 'Promjena statusa zahtjeva za godišnji odmor',
         );
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function resolveCc(): array
+    {
+        $approverId = app(HumanResourcesSettings::class)->employee_work_hours_approver_id;
+
+        if (! $approverId || $approverId === $this->leaveRequest->employee_id) {
+            return [];
+        }
+
+        $approver = Employee::find($approverId);
+
+        if (! $approver?->email) {
+            return [];
+        }
+
+        return [$approver->email];
     }
 
     public function content(): Content
