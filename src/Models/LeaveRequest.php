@@ -104,6 +104,7 @@ class LeaveRequest extends Model
      * - Odjel nema voditelja
      * - Zaposlenik JE direktor
      * - Zaposlenik JE voditelj svog odjela (ne treba sam sebi odobravati)
+     * - Voditelj odjela JE direktor (preskače se HOD korak da direktor ne odobrava dvaput)
      */
     public function requiresHeadOfDepartmentApproval(): bool
     {
@@ -139,6 +140,11 @@ class LeaveRequest extends Model
         }
 
         if ($department->head_of_department_employee_id === $employee->id) {
+            return false;
+        }
+
+        // Voditelj odjela je ujedno direktor - preskoči HOD korak, ide direktno na finalno odobrenje
+        if ($department->head_of_department_employee_id === $settings->employee_director_id) {
             return false;
         }
 

@@ -38,24 +38,6 @@ class LeaveRequestObserver
             return;
         }
 
-        // Auto-approve za voditelja odjela - HOD ne treba odobrenje
-        $isHeadOfDepartment = $employee->department
-            && $employee->department->head_of_department_employee_id === $employee->id;
-
-        if ($isHeadOfDepartment) {
-            $leaveRequest->updateQuietly([
-                'approved_by_head_of_department_id' => $employee->id,
-                'approved_by_head_of_department_at' => now(),
-                'approved_by_director_id' => $directorId,
-                'approved_by_director_at' => now(),
-                'status' => LeaveRequestStatus::APPROVED->value,
-            ]);
-
-            $this->finalizeApproval($leaveRequest);
-
-            return;
-        }
-
         // Direktor podnosi zahtjev - zamjenik odobrava
         if ($employee->id === $directorId) {
             $deputyDirectorId = $settings->employee_deputy_director_id;
@@ -79,9 +61,19 @@ class LeaveRequestObserver
             return;
         }
 
-        // Zamjenik direktora - zahtjev ide direktno direktoru (bez HOD koraka)
+        // Zamjenik direktora - zahtjev ide direktno direktorici (bez HOD koraka)
         $deputyDirectorId = $settings->employee_deputy_director_id;
         if ($deputyDirectorId && $employee->id === $deputyDirectorId) {
+            $this->notifyDirector($leaveRequest, $directorId, afterHodApproval: false);
+
+            return;
+        }
+
+        // Voditelj odjela - vlastiti zahtjev ide direktorici na odobrenje (bez HOD koraka)
+        $isHeadOfDepartment = $employee->department
+            && $employee->department->head_of_department_employee_id === $employee->id;
+
+        if ($isHeadOfDepartment) {
             $this->notifyDirector($leaveRequest, $directorId, afterHodApproval: false);
 
             return;
