@@ -91,7 +91,13 @@ class EmployeeResource extends Resource
             return $query;
         }
 
-        $employeeId = $user->employee?->id;
+        $employee = $user->employee;
+
+        if ($employee?->department?->can_see_all_employees) {
+            return $query;
+        }
+
+        $employeeId = $employee?->id;
         $hodDeptIds = $user->hodDepartmentIds();
 
         return $query->where(function (Builder $q) use ($employeeId, $hodDeptIds) {

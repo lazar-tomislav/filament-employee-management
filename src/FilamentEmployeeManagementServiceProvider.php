@@ -8,6 +8,7 @@ use Amicus\FilamentEmployeeManagement\Commands\TestAbsenceNotificationCommand;
 use Amicus\FilamentEmployeeManagement\Commands\TestMonthlyReportNotificationCommand;
 use Amicus\FilamentEmployeeManagement\Commands\TestTelegramNotificationCommand;
 use Amicus\FilamentEmployeeManagement\Console\Commands\PublishEmployeeReportTemplate;
+use Amicus\FilamentEmployeeManagement\Jobs\SendMonthlyHoursReportNotification;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Models\Holiday;
 use Amicus\FilamentEmployeeManagement\Models\LeaveAllowance;
@@ -126,7 +127,7 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
 
         $this->app->booted(function (Application $app) {
             $schedule = $app->make(Schedule::class);
-            $schedule->job(new \Amicus\FilamentEmployeeManagement\Jobs\SendMonthlyHoursReportNotification)
+            $schedule->job(new SendMonthlyHoursReportNotification)
                 ->dailyAt('17:00')
                 ->when(function () {
                     $today = now();
@@ -217,6 +218,7 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
             'create_activity_mentions_table',
             'replace_phone_number_with_phone_numbers_in_employees_table',
             'add_head_of_department_to_departments_table',
+            'add_can_see_all_employees_to_departments_table',
         ];
     }
 

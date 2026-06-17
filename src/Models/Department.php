@@ -14,7 +14,18 @@ class Department extends Model
     protected $fillable = [
         'name',
         'head_of_department_employee_id',
+        'can_see_all_employees',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'can_see_all_employees' => 'boolean',
+        ];
+    }
 
     public function employees(): HasMany
     {
