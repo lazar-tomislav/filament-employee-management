@@ -66,9 +66,13 @@ class LeaveRequestForm
                                 $options['allowance_' . $allowance->id] = "Godišnji odmor - {$allowance->year}";
                             }
                         }
-                        $options[LeaveRequestType::SICK_LEAVE->value] = 'Bolovanje';
-                        $options[LeaveRequestType::PAID_LEAVE->value] = 'Plaćeni slobodan dan';
-                        $options[LeaveRequestType::MATERNITY_LEAVE->value] = 'Porodiljni';
+                        foreach (LeaveRequestType::cases() as $type) {
+                            if ($type === LeaveRequestType::ANNUAL_LEAVE) {
+                                continue;
+                            }
+
+                            $options[$type->value] = $type->getLabel();
+                        }
 
                         return $options;
                     })

@@ -222,7 +222,9 @@ class Employee extends Model
                     LeaveRequestType::ANNUAL_LEAVE => 'dailyVacationHours',
                     LeaveRequestType::SICK_LEAVE => 'dailySickLeaveHours',
                     LeaveRequestType::PAID_LEAVE => 'dailyOtherHours',
-                    LeaveRequestType::MATERNITY_LEAVE => 'dailyMaternityLeaveHours',
+                    LeaveRequestType::MATERNITY_LEAVE,
+                    LeaveRequestType::PATERNITY_LEAVE,
+                    LeaveRequestType::PARENTAL_LEAVE => 'dailyMaternityLeaveHours',
                     default => null,
                 };
                 if ($hourType) {

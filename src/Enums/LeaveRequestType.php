@@ -10,6 +10,8 @@ enum LeaveRequestType: string implements HasLabel
     case SICK_LEAVE = 'bolovanje';
     case PAID_LEAVE = 'placeni_slobodan_dan';
     case MATERNITY_LEAVE = 'porodiljni';
+    case PATERNITY_LEAVE = 'ocinski';
+    case PARENTAL_LEAVE = 'roditeljski';
 
     public function getLabel(): ?string
     {
@@ -18,11 +20,21 @@ enum LeaveRequestType: string implements HasLabel
             self::SICK_LEAVE => 'Bolovanje',
             self::PAID_LEAVE => 'Plaćeni slobodan dan',
             self::MATERNITY_LEAVE => 'Porodiljni',
+            self::PATERNITY_LEAVE => 'Očinski dopust',
+            self::PARENTAL_LEAVE => 'Roditeljski dopust',
         };
     }
 
+    /**
+     * Vrste koje se koriste po rješenjima HZZO-a i ne zahtijevaju odobrenje.
+     */
     public function isAutoApproved(): bool
     {
-        return in_array($this, [self::SICK_LEAVE, self::MATERNITY_LEAVE], true);
+        return in_array($this, [
+            self::SICK_LEAVE,
+            self::MATERNITY_LEAVE,
+            self::PATERNITY_LEAVE,
+            self::PARENTAL_LEAVE,
+        ], true);
     }
 }

@@ -61,7 +61,7 @@ class AbsenceWidget extends TableWidget
             ->columns([
                 TextColumn::make('type')
                     ->label('Razlog odsutnosti')
-                    ->formatStateUsing(fn (LeaveRequestType $state): string => ucfirst(str_replace('_', ' ', $state->value))),
+                    ->formatStateUsing(fn (LeaveRequestType $state): string => $state->getLabel()),
 
                 TextColumn::make('absence')
                     ->label('Odsutnost'),
