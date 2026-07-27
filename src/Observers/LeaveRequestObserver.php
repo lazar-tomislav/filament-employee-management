@@ -10,6 +10,7 @@ use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestFinalDecisionFor
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestPendingDirectorApprovalNotification;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestPendingHodApprovalNotification;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestStatusChangeNotification;
+use Amicus\FilamentEmployeeManagement\Services\LeaveRequestCalendarSyncService;
 use Amicus\FilamentEmployeeManagement\Services\LeaveRequestPdfService;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use Illuminate\Support\Facades\Log;
@@ -211,6 +212,8 @@ class LeaveRequestObserver
 
         $this->notifyEmployeeAboutFinalDecision($leaveRequest);
         $this->notifyManagersAboutAbsence($leaveRequest);
+
+        LeaveRequestCalendarSyncService::syncApproved($leaveRequest);
     }
 
     private function notifyManagersAboutAbsence(LeaveRequest $leaveRequest): void

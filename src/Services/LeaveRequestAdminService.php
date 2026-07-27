@@ -9,6 +9,7 @@ use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestAdminOverrideNotification;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestStatusChangeNotification;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
+use Amicus\FilamentEmployeeManagement\Services\LeaveRequestCalendarSyncService;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -192,6 +193,8 @@ class LeaveRequestAdminService
         if ($employee?->user) {
             $employee->user->notify(new LeaveRequestStatusChangeNotification($request));
         }
+
+        LeaveRequestCalendarSyncService::syncApproved($request);
     }
 
     private function notifyEmployee(LeaveRequest $request, string $reason, string $statusKey): void
