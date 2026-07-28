@@ -103,6 +103,41 @@
                         style="width: {{ min($summary['percentage'], 100) }}%"
                     ></div>
                 </div>
+
+                {{-- Kontrola: zbroj svih evidentiranih sati naspram predviđenih --}}
+                @php
+                    $balanceMap = [
+                        'match' => ['icon' => 'heroicon-o-check-circle', 'color' => 'text-emerald-600 dark:text-emerald-400'],
+                        'under' => ['icon' => 'heroicon-o-exclamation-circle', 'color' => 'text-amber-600 dark:text-amber-400'],
+                        'over' => ['icon' => 'heroicon-o-exclamation-circle', 'color' => 'text-red-600 dark:text-red-400'],
+                    ];
+                    $balance = $balanceMap[$summary['balance_status']];
+                    $formatHours = fn ($value) => number_format($value, $value == intval($value) ? 0 : 1);
+                    $overtime = $summary['totals']['overtime_hours'];
+                @endphp
+                <div class="border-t border-gray-100 dark:border-gray-800 mt-4 pt-3">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <x-filament::icon :icon="$balance['icon']" class="h-5 w-5 {{ $balance['color'] }}" />
+                            <span class="text-sm font-medium text-gray-600 dark:text-gray-400">Ukupno evidentirano</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm font-semibold {{ $balance['color'] }}">
+                                {{ $formatHours($summary['total_recorded']) }}h / {{ $formatHours($summary['totals']['available_hours']) }}h
+                            </span>
+                            @if ($summary['difference'] != 0)
+                                <span class="text-xs {{ $balance['color'] }}">
+                                    ({{ $summary['difference'] < 0 ? 'nedostaje' : 'višak' }} {{ $formatHours(abs($summary['difference'])) }}h)
+                                </span>
+                            @endif
+                        </div>
+                    </div>
+                    @if ($overtime > 0)
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 text-right">
+                            + {{ $formatHours($overtime) }}h prekovremeno (izvan norme)
+                        </p>
+                    @endif
+                </div>
             </div>
 
             {{-- Category cards grid --}}

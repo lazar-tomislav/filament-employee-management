@@ -15,6 +15,7 @@ use Filament\Schemas\Concerns\InteractsWithSchemas;
 use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\Widget;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Livewire\Attributes\On;
 
@@ -115,6 +116,16 @@ class MonthlySummaryWidget extends Widget implements HasActions, HasSchemas
         return CroatianMonth::from($date->month)->label() . ' ' . $date->year;
     }
 
+    /**
+     * @return array{
+     *     totals: array<string, float>,
+     *     total_worked: float,
+     *     percentage: float,
+     *     total_recorded: float,
+     *     difference: float,
+     *     balance_status: 'match'|'under'|'over',
+     * }
+     */
     public function getSummaryData(): array
     {
         $selectedMonth = Carbon::parse($this->selectedMonth);
@@ -123,10 +134,20 @@ class MonthlySummaryWidget extends Widget implements HasActions, HasSchemas
         $available = $totals['available_hours'];
         $percentage = $available > 0 ? round(($totalWorked / $available) * 100) : 0;
 
+        $totalRecorded = array_sum(Arr::except($totals, ['available_hours', 'overtime_hours']));
+        $difference = $totalRecorded - $available;
+
         return [
             'totals' => $totals,
             'total_worked' => $totalWorked,
             'percentage' => $percentage,
+            'total_recorded' => $totalRecorded,
+            'difference' => $difference,
+            'balance_status' => match (true) {
+                $difference > 0 => 'over',
+                $difference < 0 => 'under',
+                default => 'match',
+            },
         ];
     }
 
