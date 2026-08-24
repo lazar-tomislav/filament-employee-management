@@ -245,7 +245,9 @@ class Employee extends Model
 
             $isOnLeave = $dailyVacationHours > 0 || $dailySickLeaveHours > 0 || $dailyOtherHours > 0 || $dailyMaternityLeaveHours > 0;
 
-            if ($isWorkDayOfWeek && ! $isPublicHoliday) {
+            // Blagdan je plaćeni neradni dan pa ulazi u mjesečni fond sati,
+            // jednako kao što se evidentira kroz holiday_hours.
+            if ($isWorkDayOfWeek) {
                 $report['totals']['available_hours'] += self::HOURS_PER_WORK_DAY;
             }
 

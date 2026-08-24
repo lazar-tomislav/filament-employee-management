@@ -87,6 +87,10 @@ class EmployeeResource extends Resource
             return $query->whereRaw('1 = 0');
         }
 
+        if ($user->isAdmin()) {
+            return $query;
+        }
+
         if ($user->canSeeAllLeave()) {
             return $query;
         }
