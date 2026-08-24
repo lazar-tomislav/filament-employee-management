@@ -95,6 +95,10 @@ class EmployeePolicy
     private function canAccessRecord(AuthUser $authUser, Employee $employee): bool
     {
         /** @var User $authUser */
+        if ($authUser->isAdmin()) {
+            return true;
+        }
+
         if ($authUser->canSeeAllLeave()) {
             return true;
         }
