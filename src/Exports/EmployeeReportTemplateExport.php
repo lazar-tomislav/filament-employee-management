@@ -4,6 +4,7 @@ namespace Amicus\FilamentEmployeeManagement\Exports;
 
 use Amicus\FilamentEmployeeManagement\Enums\CroatianMonth;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
+use Amicus\FilamentEmployeeManagement\Services\LibreOfficePdfConverter;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use App\Services\TenantFeatureService;
 use Carbon\Carbon;
@@ -11,7 +12,9 @@ use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\PageSetup;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -92,6 +95,37 @@ class EmployeeReportTemplateExport
     }
 
     /**
+     * Preuzimanje izvještaja kao PDF (XLSX predložak pretvoren LibreOfficeom).
+     */
+    public function downloadPdf(string $fileName): BinaryFileResponse
+    {
+        set_time_limit(300);
+        ini_set('memory_limit', '512M');
+
+        $pdfPath = $this->generatePdfFile();
+
+        return response()->download($pdfPath, $fileName, [
+            'Content-Type' => 'application/pdf',
+        ])->deleteFileAfterSend(true);
+    }
+
+    /**
+     * Generira PDF datoteku u temp direktoriju i vraća njezinu putanju.
+     *
+     * @throws \RuntimeException
+     */
+    public function generatePdfFile(): string
+    {
+        $xlsxPath = $this->generateFile($this->getTemplatePath(), forPrint: true);
+
+        try {
+            return LibreOfficePdfConverter::make()->convert($xlsxPath);
+        } finally {
+            @unlink($xlsxPath);
+        }
+    }
+
+    /**
      * Generate all months (1-12) in a single XLSX file.
      * Loads the full template once and fills each month sheet.
      */
@@ -108,7 +142,7 @@ class EmployeeReportTemplateExport
         ])->deleteFileAfterSend(true);
     }
 
-    public function generateFile(string $templatePath): string
+    public function generateFile(string $templatePath, bool $forPrint = false): string
     {
         // Load template - only the needed sheet for performance
         $reader = IOFactory::createReader('Xlsx');
@@ -129,7 +163,24 @@ class EmployeeReportTemplateExport
         // Fill this month's data
         $this->fillSheet($sheet, $this->month, $this->year);
 
+        if ($forPrint) {
+            $this->preparePageSetupForPrint($sheet);
+        }
+
         return $this->saveToTemp($spreadsheet);
+    }
+
+    /**
+     * Forsira A4 landscape i fit-to-page (listovi za studeni/prosinac u predlošku su portrait).
+     */
+    protected function preparePageSetupForPrint(Worksheet $sheet): void
+    {
+        $sheet->getPageSetup()
+            ->setOrientation(PageSetup::ORIENTATION_LANDSCAPE)
+            ->setPaperSize(PageSetup::PAPERSIZE_A4)
+            ->setFitToPage(true)
+            ->setFitToWidth(1)
+            ->setFitToHeight(1);
     }
 
     protected function generateAllMonthsFile(string $templatePath): string
@@ -169,15 +220,16 @@ class EmployeeReportTemplateExport
         $carbonMonth = Carbon::create($year, $month);
         $report = $this->employee->getMonthlyWorkReport($carbonMonth);
 
-        // Update the year and month in the title
-        $existingTitle = $sheet->getCell('L3')->getValue();
+        // Update the year and month in the title (L3 u većini listova, M3 u studenom/prosincu)
+        $titleCell = $sheet->getCell('L3')->getValue() ? 'L3' : 'M3';
+        $existingTitle = $sheet->getCell($titleCell)->getValue();
         if ($existingTitle) {
             // Replace any 4-digit year (e.g., 2025) with the correct year
             $updatedTitle = preg_replace('/\b\d{4}\b/', (string) $year, $existingTitle);
             // Also replace month name if needed
             $monthName = mb_strtoupper($this->monthSheets[$month]);
             $updatedTitle = preg_replace('/MJESEC\s+\w+\s+/', "MJESEC {$monthName} ", $updatedTitle);
-            $sheet->setCellValue('L3', $updatedTitle);
+            $sheet->setCellValue($titleCell, $updatedTitle);
         }
 
         // Fill employee name (D3:K3 merged cell)
@@ -314,7 +366,7 @@ class EmployeeReportTemplateExport
         foreach (array_unique(array_values($hourTypeRows)) as $row) {
             $sheet->getStyle("{$firstCol}{$row}:{$lastCol}{$row}")
                 ->getNumberFormat()
-                ->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_GENERAL);
+                ->setFormatCode(NumberFormat::FORMAT_GENERAL);
         }
 
         // Add total formulas for each hour type row

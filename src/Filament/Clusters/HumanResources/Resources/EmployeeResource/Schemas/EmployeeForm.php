@@ -2,6 +2,7 @@
 
 namespace Amicus\FilamentEmployeeManagement\Filament\Clusters\HumanResources\Resources\EmployeeResource\Schemas;
 
+use Amicus\FilamentEmployeeManagement\Enums\PhoneNumberType;
 use Amicus\FilamentEmployeeManagement\Filament\Pages\MissingEmployeePage;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
@@ -11,6 +12,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class EmployeeForm
 {
@@ -74,7 +76,7 @@ class EmployeeForm
                             ->required()
                             ->unique('employees', 'email', ignoreRecord: true)
                             ->rules([
-                                fn ($record) => \Illuminate\Validation\Rule::unique('users', 'email')
+                                fn ($record) => Rule::unique('users', 'email')
                                     ->ignore($record?->user_id),
                             ])
                             ->validationMessages([
@@ -93,9 +95,9 @@ class EmployeeForm
                                     ->placeholder('+385 91 123 4567'),
                                 Forms\Components\Radio::make('type')
                                     ->label('Tip')
-                                    ->options(\Amicus\FilamentEmployeeManagement\Enums\PhoneNumberType::class)
+                                    ->options(PhoneNumberType::class)
                                     ->inline()
-                                    ->default(\Amicus\FilamentEmployeeManagement\Enums\PhoneNumberType::PRIVATE)
+                                    ->default(PhoneNumberType::PRIVATE)
                                     ->required(),
                             ]),
                     ]),
@@ -103,7 +105,7 @@ class EmployeeForm
                 Section::make('Zaposlenje')
                     ->description('Odjel i pristupni podaci')
                     ->schema([
-                        Forms\Components\Select::make('department_id')
+                        Select::make('department_id')
                             ->label('Odjel')
                             ->relationship('department', 'name')
                             ->helperText('Odaberite odjel kojem zaposlenik pripada.')
@@ -172,9 +174,25 @@ class EmployeeForm
             ]);
     }
 
-    public static function monthlyTimeReport(Schema $schema): Schema
+    public static function reportFormatSelect(): Select
+    {
+        return Select::make('format')
+            ->label('Format datoteke')
+            ->options([
+                'xlsx' => 'Excel (XLSX)',
+                'pdf' => 'PDF',
+            ])
+            ->default('xlsx')
+            ->selectablePlaceholder(false)
+            ->live()
+            ->required();
+    }
+
+    public static function monthlyTimeReport(Schema $schema, bool $withFormat = false): Schema
     {
         return $schema->components([
+            ...($withFormat ? [self::reportFormatSelect()] : []),
+
             Select::make('month')
                 ->label('Mjesec')
                 ->options([
