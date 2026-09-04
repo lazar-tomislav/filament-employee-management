@@ -644,3 +644,28 @@ Download response koristi `->deleteFileAfterSend(true)` tako da se temp file aut
 - **Number format**: Per-row styling umjesto rectangular range — čuva template formatting
 - **Day formatting**: Range-based `applyFromArray()` per column umjesto per-cell petlje
 - **All-months**: Template se učitava jednom, `fillSheet()` se poziva 12 puta
+
+---
+
+## 12. PDF izvoz (LibreOffice)
+
+Evidencija radnog vremena može se preuzeti i kao PDF. PDF se **ne generira zasebno** — popunjeni XLSX predložak
+pretvara se u PDF pomoću LibreOffice headless moda (`soffice --headless --convert-to pdf`), pa je izgled identičan Excel verziji.
+
+### Preduvjet
+LibreOffice mora biti instaliran na serveru (npr. `apt install libreoffice-calc`).
+
+### Konfiguracija (.env)
+- `LIBREOFFICE_PATH` — putanja do `soffice` binarke (default `soffice`, traži se u `PATH`-u)
+- `LIBREOFFICE_TIMEOUT` — maksimalno trajanje pretvorbe u sekundama (default 120)
+
+### Kod
+- `Services/LibreOfficePdfConverter` — `convert(string $xlsxPath): string`, `isAvailable(): bool`
+- `EmployeeReportTemplateExport::downloadPdf(string $fileName)` — download response
+- `EmployeeReportTemplateExport::generatePdfFile(): string` — temp PDF putanja (koristi ZIP izvoz)
+- `generateFile($templatePath, forPrint: true)` prije spremanja forsira A4 landscape + fit-to-page
+  (listovi Studeni/Prosinac u predlošku su portrait)
+
+### UI
+- Per-employee akcija "Mjesečni izvještaj radnih sati" i admin ZIP akcija imaju select **Format datoteke** (Excel / PDF).
+- Ako LibreOffice nije dostupan, prikazuje se danger notifikacija umjesto 500 greške.
