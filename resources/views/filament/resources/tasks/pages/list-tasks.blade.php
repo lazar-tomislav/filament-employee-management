@@ -19,7 +19,7 @@
             TaskStatus::DONE,
             TaskStatus::POSTPONED
         ] as $status)
-            @livewire('filament-employee-management::tasks.task-table', ['status' => $status], key('task-table-'.$status->value))
+            @livewire('filament-employee-management.tasks.task-table', ['status' => $status], key('task-table-'.$status->value))
         @endforeach
     </div>
 

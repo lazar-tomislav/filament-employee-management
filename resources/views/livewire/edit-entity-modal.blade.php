@@ -37,7 +37,7 @@
             <div class="mt-4">
                 @if($activeTab === 'updates')
                     @if($entity)
-                        <livewire:filament-employee-management::entity-activity
+                        <livewire:filament-employee-management.entity-activity
                             :entity="$entity"
                             :entityType="$entityType"
                             :key="'entity-activity-'.$entity->id"
