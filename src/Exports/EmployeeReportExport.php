@@ -51,7 +51,7 @@ class EmployeeReportExport implements \Maatwebsite\Excel\Concerns\WithStyles, Fr
         $this->employee = Employee::find($employeeId);
     }
 
-    public function drawings()
+    public function drawings(): Drawing
     {
         $drawing = new Drawing;
         $drawing->setName('Logo');

@@ -27,7 +27,7 @@ class AllEmployeTimeReportExport implements FromArray, ShouldAutoSize, WithCusto
         $this->year = $year;
     }
 
-    public function drawings()
+    public function drawings(): Drawing
     {
         $drawing = new Drawing;
         $drawing->setName('Logo');
