@@ -5,10 +5,10 @@ namespace Amicus\FilamentEmployeeManagement\Exports;
 use Amicus\FilamentEmployeeManagement\Enums\CroatianMonth;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Services\LibreOfficePdfConverter;
+use Amicus\FilamentEmployeeManagement\Services\TemporaryLocalCopy;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use App\Services\TenantFeatureService;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -496,12 +496,12 @@ class EmployeeReportTemplateExport
             $sheet->setCellValue($col . $row, $name);
         }
 
-        if ($signaturePath && Storage::disk('public')->exists($signaturePath)) {
-            $fullPath = Storage::disk('public')->path($signaturePath);
+        $localSignaturePath = TemporaryLocalCopy::of($signaturePath);
 
+        if ($localSignaturePath) {
             $drawing = new Drawing;
             $drawing->setName('Potpis');
-            $drawing->setPath($fullPath);
+            $drawing->setPath($localSignaturePath);
             $drawing->setCoordinates($col . ($row - 1));
             $drawing->setHeight(65);
             $drawing->setOffsetY(15);

@@ -344,7 +344,7 @@ class LeaveRequestActions
             ->icon(Heroicon::OutlinedDocumentArrowDown)
             ->visible(fn ($record) => $record->status === LeaveRequestStatus::APPROVED)
             ->schema(function (LeaveRequest $record): array {
-                $pdfExists = $record->pdf_path && Storage::disk('local')->exists($record->pdf_path);
+                $pdfExists = $record->pdf_path && Storage::exists($record->pdf_path);
 
                 if (! $pdfExists) {
                     return [];
@@ -366,7 +366,7 @@ class LeaveRequestActions
                 try {
                     $shouldRegenerate = ($data['pdf_option'] ?? null) === 'regenerate'
                         || ! $record->pdf_path
-                        || ! Storage::disk('local')->exists($record->pdf_path);
+                        || ! Storage::exists($record->pdf_path);
 
                     if ($shouldRegenerate) {
                         $pdfPath = LeaveRequestPdfService::generatePdf($record);
@@ -382,13 +382,8 @@ class LeaveRequestActions
                         $record->updateQuietly(['pdf_path' => $pdfPath]);
                     }
 
-                    if ($record->pdf_path && Storage::disk('local')->exists($record->pdf_path)) {
-                        $file = Storage::disk('local')->get($record->pdf_path);
-                        $filename = basename($record->pdf_path);
-
-                        return response()->streamDownload(function () use ($file) {
-                            echo $file;
-                        }, $filename, ['Content-Type' => 'application/pdf']);
+                    if ($record->pdf_path && Storage::exists($record->pdf_path)) {
+                        return Storage::download($record->pdf_path);
                     } else {
                         Notification::make()
                             ->title('Greška')
@@ -397,7 +392,7 @@ class LeaveRequestActions
                             ->send();
                     }
                 } catch (Exception $e) {
-                    Log::error('PDF download failed: '.$e->getMessage());
+                    Log::error('PDF download failed: ' . $e->getMessage());
                     Notification::make()
                         ->title('Greška')
                         ->body('Došlo je do greške prilikom preuzimanja PDF-a.')

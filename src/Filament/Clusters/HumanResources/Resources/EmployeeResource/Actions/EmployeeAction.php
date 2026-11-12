@@ -17,6 +17,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Dashboard;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
+use Illuminate\Support\Facades\File;
 use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeAction
@@ -91,8 +92,11 @@ class EmployeeAction
                             ? $export->generatePdfFile()
                             : $export->generateFile($export->getTemplatePath());
 
-                        $zip->addFromString($fileName, file_get_contents($tempFile));
-                        @unlink($tempFile);
+                        try {
+                            $zip->addFromString($fileName, file_get_contents($tempFile));
+                        } finally {
+                            File::delete($tempFile);
+                        }
                     } catch (\Exception $e) {
                         report($e);
                     }

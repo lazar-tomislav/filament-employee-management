@@ -9,7 +9,6 @@ use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestAdminOverrideNotification;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestStatusChangeNotification;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
-use Amicus\FilamentEmployeeManagement\Services\LeaveRequestCalendarSyncService;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -178,8 +177,8 @@ class LeaveRequestAdminService
 
     private function deletePdfFile(LeaveRequest $request): void
     {
-        if ($request->pdf_path && Storage::disk('local')->exists($request->pdf_path)) {
-            Storage::disk('local')->delete($request->pdf_path);
+        if ($request->pdf_path) {
+            Storage::delete($request->pdf_path);
         }
     }
 

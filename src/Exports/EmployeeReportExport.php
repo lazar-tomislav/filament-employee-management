@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Exports;
 
 use Amicus\FilamentEmployeeManagement\Models\Employee;
+use Amicus\FilamentEmployeeManagement\Services\TemporaryLocalCopy;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use App\Services\TenantFeatureService;
 use Carbon\Carbon;
@@ -12,12 +13,15 @@ use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithDrawings;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
+use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
-class EmployeeReportExport implements \Maatwebsite\Excel\Concerns\WithStyles, FromArray, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings
+class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings, WithStyles
 {
     protected int $employeeId;
 
@@ -57,13 +61,10 @@ class EmployeeReportExport implements \Maatwebsite\Excel\Concerns\WithStyles, Fr
         $drawing->setName('Logo');
         $drawing->setDescription('Logo');
 
-        $logoPathFromSettings = app(HumanResourcesSettings::class)->hr_documents_logo;
-        if ($logoPathFromSettings && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPathFromSettings)) {
-            $logoPath = \Illuminate\Support\Facades\Storage::disk('public')->path($logoPathFromSettings);
-        } else {
-            $logoPath = app(TenantFeatureService::class)->getBrandLogoStoragePath();
-        }
-        $drawing->setPath($logoPath);
+        $drawing->setPath(
+            TemporaryLocalCopy::of(app(HumanResourcesSettings::class)->hr_documents_logo)
+                ?? app(TenantFeatureService::class)->getBrandLogoStoragePath()
+        );
 
         $drawing->setHeight(120);
         $drawing->setCoordinates('A2');
@@ -247,7 +248,7 @@ class EmployeeReportExport implements \Maatwebsite\Excel\Concerns\WithStyles, Fr
         ];
     }
 
-    public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet): array
+    public function styles(Worksheet $sheet): array
     {
         $daysInMonth = Carbon::create($this->year, $this->month)->daysInMonth;
 
@@ -255,23 +256,23 @@ class EmployeeReportExport implements \Maatwebsite\Excel\Concerns\WithStyles, Fr
             6 => [
                 'font' => ['bold' => true],
                 'fill' => [
-                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'fillType' => Fill::FILL_SOLID,
                     'startColor' => [
                         'argb' => 'FFD3D3D3',
                     ],
                 ],
                 'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
                 ],
             ],
             'C1:J99' => [
                 'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
                 ],
             ],
             'A2:A' . ($daysInMonth + 6) => [
                 'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
                 ],
             ],
             'A' . ($daysInMonth + 7) . ':A' . ($daysInMonth + 16) => [
@@ -285,14 +286,14 @@ class EmployeeReportExport implements \Maatwebsite\Excel\Concerns\WithStyles, Fr
                 $rowNumber = $day + 6;
                 $styles[$rowNumber] = [
                     'fill' => [
-                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'fillType' => Fill::FILL_SOLID,
                         'startColor' => [
                             'argb' => 'FFD3D3D3',
                         ],
                     ],
                     'borders' => [
                         'allBorders' => [
-                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'borderStyle' => Border::BORDER_THIN,
                             'color' => ['argb' => '06A04F'],
                         ],
                     ],
@@ -304,7 +305,7 @@ class EmployeeReportExport implements \Maatwebsite\Excel\Concerns\WithStyles, Fr
         $styles[$totalRow] = [
             'font' => ['bold' => true],
             'fill' => [
-                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'fillType' => Fill::FILL_SOLID,
                 'startColor' => [
                     'argb' => 'FFD3D3D3',
                 ],

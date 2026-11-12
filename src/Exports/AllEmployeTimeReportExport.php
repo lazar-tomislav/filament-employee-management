@@ -3,6 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Exports;
 
 use Amicus\FilamentEmployeeManagement\Models\Employee;
+use Amicus\FilamentEmployeeManagement\Services\TemporaryLocalCopy;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromArray;
@@ -13,7 +14,10 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class AllEmployeTimeReportExport implements FromArray, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings, WithStyles
 {
@@ -33,13 +37,10 @@ class AllEmployeTimeReportExport implements FromArray, ShouldAutoSize, WithCusto
         $drawing->setName('Logo');
         $drawing->setDescription('This is my logo');
 
-        $logoPathFromSettings = app(HumanResourcesSettings::class)->hr_documents_logo;
-        if ($logoPathFromSettings && \Illuminate\Support\Facades\Storage::disk('public')->exists($logoPathFromSettings)) {
-            $logoPath = \Illuminate\Support\Facades\Storage::disk('public')->path($logoPathFromSettings);
-        } else {
-            $logoPath = public_path('images/logo.png');
-        }
-        $drawing->setPath($logoPath);
+        $drawing->setPath(
+            TemporaryLocalCopy::of(app(HumanResourcesSettings::class)->hr_documents_logo)
+                ?? public_path('images/logo.png')
+        );
 
         $drawing->setHeight(120);
         $drawing->setCoordinates('A2');
@@ -90,24 +91,24 @@ class AllEmployeTimeReportExport implements FromArray, ShouldAutoSize, WithCusto
         ];
     }
 
-    public function styles(\PhpOffice\PhpSpreadsheet\Worksheet\Worksheet $sheet): array
+    public function styles(Worksheet $sheet): array
     {
         return [
             6 => [
                 'font' => ['bold' => true],
                 'fill' => [
-                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'fillType' => Fill::FILL_SOLID,
                     'startColor' => [
                         'argb' => 'FFD3D3D3',
                     ],
                 ],
                 'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
                 ],
             ],
             'B:I' => [
                 'alignment' => [
-                    'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
                 ],
             ],
         ];
@@ -135,8 +136,8 @@ class AllEmployeTimeReportExport implements FromArray, ShouldAutoSize, WithCusto
                 $styleArray = [
                     'font' => ['bold' => true],
                     'alignment' => [
-                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
-                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                        'horizontal' => Alignment::HORIZONTAL_LEFT,
+                        'vertical' => Alignment::VERTICAL_CENTER,
                     ],
                 ];
 

@@ -29,17 +29,10 @@ class LeaveRequestPdfService
             $isSplit = $tenantKey === 'rast_split';
 
             $fileName = $isSplit
-                ? 'odluka_godisnji_odmor_'.$leaveRequest->id.'.pdf'
-                : 'zahtjev_za_godisnji_odmor_'.$leaveRequest->id.'.pdf';
+                ? 'odluka_godisnji_odmor_' . $leaveRequest->id . '.pdf'
+                : 'zahtjev_za_godisnji_odmor_' . $leaveRequest->id . '.pdf';
 
-            $path = 'user/'.$leaveRequest->employee_id.'/odsustva/'.$fileName;
-            $fullPath = Storage::disk('local')->path($path);
-
-            // Ensure directory exists
-            $directory = dirname($fullPath);
-            if (! is_dir($directory)) {
-                mkdir($directory, 0755, true);
-            }
+            $path = 'user/' . $leaveRequest->employee_id . '/odsustva/' . $fileName;
 
             if ($isSplit) {
                 $pdf = self::buildSplitPdf($leaveRequest, $settings, $logoPath, $directorSignature);
@@ -65,11 +58,11 @@ class LeaveRequestPdfService
                 ]);
             }
 
-            $pdf->save($fullPath);
+            Storage::put($path, $pdf->output());
 
             return $path;
         } catch (\Exception $e) {
-            \Log::error('PDF generation failed: '.$e->getMessage());
+            \Log::error('PDF generation failed: ' . $e->getMessage());
 
             return '';
         }
@@ -121,11 +114,11 @@ class LeaveRequestPdfService
 
     private static function getFileBase64(?string $settingsPath): ?string
     {
-        if ($settingsPath && Storage::disk('public')->exists($settingsPath)) {
-            $content = Storage::disk('public')->get($settingsPath);
-            $mimeType = Storage::disk('public')->mimeType($settingsPath);
+        if ($settingsPath && Storage::exists($settingsPath)) {
+            $content = Storage::get($settingsPath);
+            $mimeType = Storage::mimeType($settingsPath);
 
-            return 'data:'.$mimeType.';base64,'.base64_encode($content);
+            return 'data:' . $mimeType . ';base64,' . base64_encode($content);
         }
 
         return null;

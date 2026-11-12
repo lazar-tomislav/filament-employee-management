@@ -50,11 +50,9 @@ class HumanResourcesSettingsPage extends SettingsPage
                             ->label('Logo za HR dokumente')
                             ->helperText('Ovaj logo se prikazuje u PDF-ovima i službenim dokumentima za zaposlenike.')
                             ->image()
-                            ->disk('public')
                             ->previewable()
                             ->downloadable()
-                            ->directory('hr-documents')
-                            ->visibility('public'),
+                            ->directory('hr-documents'),
                     ]),
 
                 Grid::make(1)->schema([
@@ -82,21 +80,17 @@ class HumanResourcesSettingsPage extends SettingsPage
                                 ->label('Potpis direktora')
                                 ->helperText('Potpis direktora koji se prikazuje na HR dokumentima poput zahtjeva za G.O nakon odobrenja.')
                                 ->image()
-                                ->disk('public')
                                 ->previewable()
                                 ->downloadable()
-                                ->directory('hr-documents/signatures')
-                                ->visibility('public'),
+                                ->directory('hr-documents/signatures'),
 
                             FileUpload::make('company_stamp')
                                 ->label('Pečat tvrtke')
                                 ->helperText('Pečat tvrtke koji se prikazuje na HR dokumentima (npr. odluka o godišnjem odmoru).')
                                 ->image()
-                                ->disk('public')
                                 ->previewable()
                                 ->downloadable()
-                                ->directory('hr-documents/signatures')
-                                ->visibility('public'),
+                                ->directory('hr-documents/signatures'),
                         ]),
 
                     Section::make('Voditelj za radne sate')

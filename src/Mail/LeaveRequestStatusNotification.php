@@ -67,7 +67,7 @@ class LeaveRequestStatusNotification extends Mailable
             && $this->leaveRequest->type === LeaveRequestType::ANNUAL_LEAVE
             && $this->leaveRequest->pdf_path
         ) {
-            return [Attachment::fromStorageDisk('local', $this->leaveRequest->pdf_path)];
+            return [Attachment::fromStorage($this->leaveRequest->pdf_path)];
         }
 
         return [];
