@@ -10,62 +10,62 @@ use App\Services\TenantFeatureService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use RuntimeException;
 
 class LeaveRequestPdfService
 {
+    /**
+     * @throws RuntimeException when the PDF cannot be stored on the default disk
+     */
     public static function generatePdf(LeaveRequest $leaveRequest): string
     {
-        try {
-            $settings = app(HumanResourcesSettings::class);
+        $settings = app(HumanResourcesSettings::class);
 
-            $logoPath = self::getFileBase64($settings->hr_documents_logo);
-            $directorSignature = self::getFileBase64($settings->director_signature);
-            $companyName = $settings->company_name_for_hr_documents ?: '-';
+        $logoPath = self::getFileBase64($settings->hr_documents_logo);
+        $directorSignature = self::getFileBase64($settings->director_signature);
+        $companyName = $settings->company_name_for_hr_documents ?: '-';
 
-            // Set locale for Croatian days
-            Carbon::setLocale('hr');
+        // Set locale for Croatian days
+        Carbon::setLocale('hr');
 
-            $tenantKey = app(TenantFeatureService::class)->getActiveTenantKey();
-            $isSplit = $tenantKey === 'rast_split';
+        $tenantKey = app(TenantFeatureService::class)->getActiveTenantKey();
+        $isSplit = $tenantKey === 'rast_split';
 
-            $fileName = $isSplit
-                ? 'odluka_godisnji_odmor_' . $leaveRequest->id . '.pdf'
-                : 'zahtjev_za_godisnji_odmor_' . $leaveRequest->id . '.pdf';
+        $fileName = $isSplit
+            ? 'odluka_godisnji_odmor_' . $leaveRequest->id . '.pdf'
+            : 'zahtjev_za_godisnji_odmor_' . $leaveRequest->id . '.pdf';
 
-            $path = 'user/' . $leaveRequest->employee_id . '/odsustva/' . $fileName;
+        $path = 'user/' . $leaveRequest->employee_id . '/odsustva/' . $fileName;
 
-            if ($isSplit) {
-                $pdf = self::buildSplitPdf($leaveRequest, $settings, $logoPath, $directorSignature);
-            } else {
-                // Get head of department's signature from their employee profile
-                $headOfDepartmentSignature = null;
-                if ($leaveRequest->headOfDepartmentApprover) {
-                    $headOfDepartmentSignature = self::getFileBase64($leaveRequest->headOfDepartmentApprover->signature_path);
-                }
-
-                // Get employee's signature from their profile
-                $employeeSignature = $leaveRequest->employee
-                    ? self::getFileBase64($leaveRequest->employee->signature_path)
-                    : null;
-
-                $pdf = Pdf::loadView('filament-employee-management::leave_request_pdf', [
-                    'leaveRequest' => $leaveRequest,
-                    'logoPath' => $logoPath,
-                    'companyName' => $companyName,
-                    'directorSignature' => $directorSignature,
-                    'headOfDepartmentSignature' => $headOfDepartmentSignature,
-                    'employeeSignature' => $employeeSignature,
-                ]);
+        if ($isSplit) {
+            $pdf = self::buildSplitPdf($leaveRequest, $settings, $logoPath, $directorSignature);
+        } else {
+            // Get head of department's signature from their employee profile
+            $headOfDepartmentSignature = null;
+            if ($leaveRequest->headOfDepartmentApprover) {
+                $headOfDepartmentSignature = self::getFileBase64($leaveRequest->headOfDepartmentApprover->signature_path);
             }
 
-            Storage::put($path, $pdf->output());
+            // Get employee's signature from their profile
+            $employeeSignature = $leaveRequest->employee
+                ? self::getFileBase64($leaveRequest->employee->signature_path)
+                : null;
 
-            return $path;
-        } catch (\Exception $e) {
-            \Log::error('PDF generation failed: ' . $e->getMessage());
-
-            return '';
+            $pdf = Pdf::loadView('filament-employee-management::leave_request_pdf', [
+                'leaveRequest' => $leaveRequest,
+                'logoPath' => $logoPath,
+                'companyName' => $companyName,
+                'directorSignature' => $directorSignature,
+                'headOfDepartmentSignature' => $headOfDepartmentSignature,
+                'employeeSignature' => $employeeSignature,
+            ]);
         }
+
+        if (! Storage::put($path, $pdf->output())) {
+            throw new RuntimeException("Leave PDF could not be stored at {$path}.");
+        }
+
+        return $path;
     }
 
     private static function buildSplitPdf(

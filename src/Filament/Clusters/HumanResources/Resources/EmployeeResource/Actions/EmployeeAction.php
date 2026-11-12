@@ -18,7 +18,6 @@ use Filament\Pages\Dashboard;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\File;
-use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeAction
 {
@@ -31,7 +30,7 @@ class EmployeeAction
             ->color('primary')
             ->schema(fn ($schema) => EmployeeForm::monthlyTimeReport($schema))
             ->action(function (array $data) {
-                return Excel::download(new AllEmployeTimeReportExport($data['month'], $data['year']), 'izvjestaj-svi-zaposlenici.xlsx');
+                return (new AllEmployeTimeReportExport($data['month'], $data['year']))->download('izvjestaj-svi-zaposlenici.xlsx');
             });
     }
 
@@ -254,7 +253,7 @@ class EmployeeAction
                         $year
                     );
 
-                    return Excel::download($export, $fileName);
+                    return $export->download($fileName);
                 } catch (\Exception $e) {
                     report($e);
                     Notification::make()

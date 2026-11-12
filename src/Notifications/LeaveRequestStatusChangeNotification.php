@@ -6,12 +6,12 @@ use Amicus\FilamentEmployeeManagement\Mail\LeaveRequestStatusNotification;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Notification;
 use Illuminate\Queue\Middleware\RateLimited;
 use NotificationChannels\Telegram\TelegramMessage;
 
-class LeaveRequestStatusChangeNotification extends Notification implements ShouldQueue
+class LeaveRequestStatusChangeNotification extends Notification implements ShouldQueueAfterCommit
 {
     use Queueable;
 

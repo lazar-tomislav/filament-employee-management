@@ -5,7 +5,7 @@ namespace Amicus\FilamentEmployeeManagement\Exports;
 use Amicus\FilamentEmployeeManagement\Enums\CroatianMonth;
 use Amicus\FilamentEmployeeManagement\Models\Employee;
 use Amicus\FilamentEmployeeManagement\Services\LibreOfficePdfConverter;
-use Amicus\FilamentEmployeeManagement\Services\TemporaryLocalCopy;
+use Amicus\FilamentEmployeeManagement\Services\TemporaryLocalCopies;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use App\Services\TenantFeatureService;
 use Carbon\Carbon;
@@ -27,6 +27,8 @@ class EmployeeReportTemplateExport
     protected int $year;
 
     protected Employee $employee;
+
+    protected TemporaryLocalCopies $localCopies;
 
     /**
      * Column mapping for days 1-31
@@ -78,6 +80,7 @@ class EmployeeReportTemplateExport
         $this->year = $year;
         $this->employee = Employee::find($employeeId);
         $this->monthSheets = CroatianMonth::labels();
+        $this->localCopies = new TemporaryLocalCopies;
     }
 
     public function download(string $fileName): BinaryFileResponse
@@ -160,14 +163,18 @@ class EmployeeReportTemplateExport
         // Set as active sheet
         $spreadsheet->setActiveSheetIndexByName($sheetName);
 
-        // Fill this month's data
-        $this->fillSheet($sheet, $this->month, $this->year);
+        try {
+            // Fill this month's data
+            $this->fillSheet($sheet, $this->month, $this->year);
 
-        if ($forPrint) {
-            $this->preparePageSetupForPrint($sheet);
+            if ($forPrint) {
+                $this->preparePageSetupForPrint($sheet);
+            }
+
+            return $this->saveToTemp($spreadsheet);
+        } finally {
+            $this->localCopies->delete();
         }
-
-        return $this->saveToTemp($spreadsheet);
     }
 
     /**
@@ -189,21 +196,25 @@ class EmployeeReportTemplateExport
         $reader = IOFactory::createReader('Xlsx');
         $spreadsheet = $reader->load($templatePath);
 
-        for ($month = 1; $month <= 12; $month++) {
-            $sheetName = $this->monthSheets[$month];
-            $sheet = $spreadsheet->getSheetByName($sheetName);
+        try {
+            for ($month = 1; $month <= 12; $month++) {
+                $sheetName = $this->monthSheets[$month];
+                $sheet = $spreadsheet->getSheetByName($sheetName);
 
-            if (! $sheet) {
-                continue;
+                if (! $sheet) {
+                    continue;
+                }
+
+                $this->fillSheet($sheet, $month, $this->year);
             }
 
-            $this->fillSheet($sheet, $month, $this->year);
+            // Set first month as active
+            $spreadsheet->setActiveSheetIndexByName($this->monthSheets[1]);
+
+            return $this->saveToTemp($spreadsheet);
+        } finally {
+            $this->localCopies->delete();
         }
-
-        // Set first month as active
-        $spreadsheet->setActiveSheetIndexByName($this->monthSheets[1]);
-
-        return $this->saveToTemp($spreadsheet);
     }
 
     /**
@@ -496,7 +507,7 @@ class EmployeeReportTemplateExport
             $sheet->setCellValue($col . $row, $name);
         }
 
-        $localSignaturePath = TemporaryLocalCopy::of($signaturePath);
+        $localSignaturePath = $this->localCopies->of($signaturePath);
 
         if ($localSignaturePath) {
             $drawing = new Drawing;

@@ -6,10 +6,10 @@ use Amicus\FilamentEmployeeManagement\Mail\LeaveRequestFinalDecisionForHodMail;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Notification;
 
-class LeaveRequestFinalDecisionForHodNotification extends Notification implements ShouldQueue
+class LeaveRequestFinalDecisionForHodNotification extends Notification implements ShouldQueueAfterCommit
 {
     use Queueable;
 

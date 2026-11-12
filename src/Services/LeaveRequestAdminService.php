@@ -105,8 +105,7 @@ class LeaveRequestAdminService
 
             if ($wasApproved && $datesChanged) {
                 $this->deletePdfFile($request);
-                $newPdfPath = LeaveRequestPdfService::generatePdf($request);
-                $request->updateQuietly(['pdf_path' => $newPdfPath ?: null]);
+                $request->updateQuietly(['pdf_path' => LeaveRequestPdfService::generatePdf($request)]);
             }
         });
     }
@@ -184,8 +183,7 @@ class LeaveRequestAdminService
 
     private function finalizeApproval(LeaveRequest $request): void
     {
-        $pdfPath = LeaveRequestPdfService::generatePdf($request);
-        $request->updateQuietly(['pdf_path' => $pdfPath ?: null]);
+        $request->updateQuietly(['pdf_path' => LeaveRequestPdfService::generatePdf($request)]);
 
         $employee = $request->employee;
 

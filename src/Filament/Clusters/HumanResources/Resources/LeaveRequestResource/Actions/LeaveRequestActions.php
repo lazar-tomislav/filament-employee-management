@@ -118,6 +118,7 @@ class LeaveRequestActions
                 return $record->canBeApprovedByDirector($employee);
             })
             ->requiresConfirmation()
+            ->databaseTransaction()
             ->modalHeading('Finalno odobrenje zahtjeva')
             ->modalDescription(function (LeaveRequest $record): string {
                 $text = "Finalno ćete odobriti zahtjev zaposlenika {$record->employee->full_name_email} za odsustvo u periodu od {$record->start_date->format('d.m.Y')} do {$record->end_date->format('d.m.Y')}.";
@@ -362,35 +363,17 @@ class LeaveRequestActions
                         ->required(),
                 ];
             })
-            ->action(function (LeaveRequest $record, array $data) {
+            ->action(function (Action $action, LeaveRequest $record, array $data): void {
                 try {
-                    $shouldRegenerate = ($data['pdf_option'] ?? null) === 'regenerate'
-                        || ! $record->pdf_path
-                        || ! Storage::exists($record->pdf_path);
-
-                    if ($shouldRegenerate) {
-                        $pdfPath = LeaveRequestPdfService::generatePdf($record);
-                        if (! $pdfPath) {
-                            Notification::make()
-                                ->title('Greška')
-                                ->body('PDF se nije mogao generirati. Pokušajte ponovno.')
-                                ->danger()
-                                ->send();
-
-                            return;
-                        }
-                        $record->updateQuietly(['pdf_path' => $pdfPath]);
+                    // Bez postojećeg PDF-a schema ne nudi opciju, pa se PDF generira.
+                    if (($data['pdf_option'] ?? 'regenerate') === 'regenerate') {
+                        $record->updateQuietly(['pdf_path' => LeaveRequestPdfService::generatePdf($record)]);
                     }
 
-                    if ($record->pdf_path && Storage::exists($record->pdf_path)) {
-                        return Storage::download($record->pdf_path);
-                    } else {
-                        Notification::make()
-                            ->title('Greška')
-                            ->body('PDF datoteka nije pronađena.')
-                            ->danger()
-                            ->send();
-                    }
+                    $action->redirect(Storage::temporaryUrl(
+                        $record->pdf_path,
+                        now()->addMinutes(config('filament.temporary_file_url_expiry_minutes')),
+                    ));
                 } catch (Exception $e) {
                     Log::error('PDF download failed: ' . $e->getMessage());
                     Notification::make()

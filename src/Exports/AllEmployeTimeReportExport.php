@@ -3,7 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Exports;
 
 use Amicus\FilamentEmployeeManagement\Models\Employee;
-use Amicus\FilamentEmployeeManagement\Services\TemporaryLocalCopy;
+use Amicus\FilamentEmployeeManagement\Services\TemporaryLocalCopies;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromArray;
@@ -14,10 +14,12 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class AllEmployeTimeReportExport implements FromArray, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings, WithStyles
 {
@@ -25,10 +27,25 @@ class AllEmployeTimeReportExport implements FromArray, ShouldAutoSize, WithCusto
 
     protected int $year;
 
+    protected TemporaryLocalCopies $localCopies;
+
     public function __construct(int $month, int $year)
     {
         $this->month = $month;
         $this->year = $year;
+        $this->localCopies = new TemporaryLocalCopies;
+    }
+
+    /**
+     * Writes the workbook, then deletes the local logo copy it embedded.
+     */
+    public function download(string $fileName): BinaryFileResponse
+    {
+        try {
+            return Excel::download($this, $fileName);
+        } finally {
+            $this->localCopies->delete();
+        }
     }
 
     public function drawings(): Drawing
@@ -38,7 +55,7 @@ class AllEmployeTimeReportExport implements FromArray, ShouldAutoSize, WithCusto
         $drawing->setDescription('This is my logo');
 
         $drawing->setPath(
-            TemporaryLocalCopy::of(app(HumanResourcesSettings::class)->hr_documents_logo)
+            $this->localCopies->of(app(HumanResourcesSettings::class)->hr_documents_logo)
                 ?? public_path('images/logo.png')
         );
 

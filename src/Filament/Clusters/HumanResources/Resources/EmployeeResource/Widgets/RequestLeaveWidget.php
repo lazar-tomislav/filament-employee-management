@@ -14,6 +14,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Schema;
 use Filament\Widgets\Widget;
+use Illuminate\Support\Facades\DB;
 
 class RequestLeaveWidget extends Widget implements HasForms
 {
@@ -83,7 +84,8 @@ class RequestLeaveWidget extends Widget implements HasForms
             $requestData['leave_allowance_id'] = $allowance->id;
         }
 
-        LeaveRequest::create($requestData);
+        // Auto-approved requests store the PDF in the observer; a failed store must roll back the request.
+        DB::transaction(fn () => LeaveRequest::create($requestData));
 
         Notification::make()->title('Zahtjev poslan administratorima na email.')->success()->send();
 

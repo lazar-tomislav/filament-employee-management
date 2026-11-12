@@ -3,7 +3,7 @@
 namespace Amicus\FilamentEmployeeManagement\Exports;
 
 use Amicus\FilamentEmployeeManagement\Models\Employee;
-use Amicus\FilamentEmployeeManagement\Services\TemporaryLocalCopy;
+use Amicus\FilamentEmployeeManagement\Services\TemporaryLocalCopies;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
 use App\Services\TenantFeatureService;
 use Carbon\Carbon;
@@ -15,11 +15,13 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStartCell, WithDrawings, WithEvents, WithHeadings, WithStyles
 {
@@ -47,12 +49,27 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
 
     protected float $totalHolidayHours = 0;
 
+    protected TemporaryLocalCopies $localCopies;
+
     public function __construct(int $employeeId, int $month, int $year)
     {
         $this->employeeId = $employeeId;
         $this->month = $month;
         $this->year = $year;
         $this->employee = Employee::find($employeeId);
+        $this->localCopies = new TemporaryLocalCopies;
+    }
+
+    /**
+     * Writes the workbook, then deletes the local logo copy it embedded.
+     */
+    public function download(string $fileName): BinaryFileResponse
+    {
+        try {
+            return Excel::download($this, $fileName);
+        } finally {
+            $this->localCopies->delete();
+        }
     }
 
     public function drawings(): Drawing
@@ -62,7 +79,7 @@ class EmployeeReportExport implements FromArray, ShouldAutoSize, WithCustomStart
         $drawing->setDescription('Logo');
 
         $drawing->setPath(
-            TemporaryLocalCopy::of(app(HumanResourcesSettings::class)->hr_documents_logo)
+            $this->localCopies->of(app(HumanResourcesSettings::class)->hr_documents_logo)
                 ?? app(TenantFeatureService::class)->getBrandLogoStoragePath()
         );
 
