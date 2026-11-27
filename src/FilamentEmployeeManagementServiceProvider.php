@@ -243,7 +243,8 @@ class FilamentEmployeeManagementServiceProvider extends PackageServiceProvider
                         // Convert PascalCase to kebab-case
                         $componentPath = strtolower(preg_replace('/([a-z])([A-Z])/', '$1-$2', $className));
                         $componentPath = str_replace('\\', '.', $componentPath);
-                        $componentName = 'filament-employee-management::' . $componentPath;
+                        // No "::": Livewire 4 resolves such names as namespaces and skips registered aliases.
+                        $componentName = 'filament-employee-management.' . $componentPath;
 
                         Livewire::component($componentName, $fullClass);
                     }

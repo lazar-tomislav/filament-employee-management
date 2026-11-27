@@ -6,10 +6,10 @@ use Amicus\FilamentEmployeeManagement\Mail\LeaveRequestPendingDirectorApprovalMa
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Notification;
 
-class LeaveRequestPendingDirectorApprovalNotification extends Notification implements ShouldQueue
+class LeaveRequestPendingDirectorApprovalNotification extends Notification implements ShouldQueueAfterCommit
 {
     use Queueable;
 

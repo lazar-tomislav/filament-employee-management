@@ -6,10 +6,10 @@ use Amicus\FilamentEmployeeManagement\Mail\LeaveRequestPendingHodApprovalMail;
 use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Filament\Notifications\Notification as FilamentNotification;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueueAfterCommit;
 use Illuminate\Notifications\Notification;
 
-class LeaveRequestPendingHodApprovalNotification extends Notification implements ShouldQueue
+class LeaveRequestPendingHodApprovalNotification extends Notification implements ShouldQueueAfterCommit
 {
     use Queueable;
 

@@ -9,7 +9,6 @@ use Amicus\FilamentEmployeeManagement\Models\LeaveRequest;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestAdminOverrideNotification;
 use Amicus\FilamentEmployeeManagement\Notifications\LeaveRequestStatusChangeNotification;
 use Amicus\FilamentEmployeeManagement\Settings\HumanResourcesSettings;
-use Amicus\FilamentEmployeeManagement\Services\LeaveRequestCalendarSyncService;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -106,8 +105,7 @@ class LeaveRequestAdminService
 
             if ($wasApproved && $datesChanged) {
                 $this->deletePdfFile($request);
-                $newPdfPath = LeaveRequestPdfService::generatePdf($request);
-                $request->updateQuietly(['pdf_path' => $newPdfPath ?: null]);
+                $request->updateQuietly(['pdf_path' => LeaveRequestPdfService::generatePdf($request)]);
             }
         });
     }
@@ -178,15 +176,14 @@ class LeaveRequestAdminService
 
     private function deletePdfFile(LeaveRequest $request): void
     {
-        if ($request->pdf_path && Storage::disk('local')->exists($request->pdf_path)) {
-            Storage::disk('local')->delete($request->pdf_path);
+        if ($request->pdf_path) {
+            Storage::delete($request->pdf_path);
         }
     }
 
     private function finalizeApproval(LeaveRequest $request): void
     {
-        $pdfPath = LeaveRequestPdfService::generatePdf($request);
-        $request->updateQuietly(['pdf_path' => $pdfPath ?: null]);
+        $request->updateQuietly(['pdf_path' => LeaveRequestPdfService::generatePdf($request)]);
 
         $employee = $request->employee;
 

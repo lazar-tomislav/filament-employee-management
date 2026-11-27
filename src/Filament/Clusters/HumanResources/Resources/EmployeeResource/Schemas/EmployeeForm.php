@@ -149,11 +149,9 @@ class EmployeeForm
                                 ->label('Potpis')
                                 ->helperText('Potpis zaposlenika koji će se koristiti na HR dokumentima (npr. zahtjevima za godišnji odmor).')
                                 ->image()
-                                ->disk('public')
                                 ->previewable()
                                 ->downloadable()
-                                ->directory('hr-documents/signatures')
-                                ->visibility('public'),
+                                ->directory('hr-documents/signatures'),
 
                             Forms\Components\CheckboxList::make('role')
                                 ->label('Uloga')
